@@ -1,1 +1,1 @@
-rootProject.name = "esyfo-narmesteleder"
+rootProject.name = "arkivporten"
