@@ -13,15 +13,10 @@ import no.nav.syfo.application.auth.OrganisasjonPrincipal
 import no.nav.syfo.application.auth.Principal
 import no.nav.syfo.application.auth.TOKEN_ISSUER
 import no.nav.syfo.application.exceptions.UnauthorizedException
-import no.nav.syfo.narmesteleder.kafka.model.NlResponseSource
-import no.nav.syfo.narmesteleder.service.NarmestelederKafkaService
-import no.nav.syfo.narmesteleder.service.ValidationService
 import no.nav.syfo.texas.MaskinportenAndTokenXTokenAuthPlugin
 import no.nav.syfo.texas.client.TexasHttpClient
 
 fun Route.registerNarmestelederApiV1(
-    narmestelederKafkaService: NarmestelederKafkaService,
-    validationService: ValidationService,
     texasHttpClient: TexasHttpClient,
 ) {
     route("/narmesteleder") {
@@ -31,13 +26,6 @@ fun Route.registerNarmestelederApiV1(
 
         post() {
             val nlRelasjon = call.tryReceive<NarmesteLederRelasjonerWrite>()
-            val nlAktorer = validationService.validateNarmesteleder(nlRelasjon, call.getMyPrincipal())
-
-            narmestelederKafkaService.sendNarmesteLederRelation(
-                nlRelasjon,
-                nlAktorer,
-                NlResponseSource.LPS,
-            )
 
             call.respond(HttpStatusCode.Accepted)
         }
@@ -46,9 +34,6 @@ fun Route.registerNarmestelederApiV1(
     route("/narmesteleder/avkreft") {
         post() {
             val avkreft = call.tryReceive<NarmestelederRelasjonAvkreft>()
-            val sykmeldt = validationService.validateNarmestelederAvkreft(avkreft, call.getMyPrincipal())
-            narmestelederKafkaService.avbrytNarmesteLederRelation(avkreft.copy(sykmeldtFnr = sykmeldt.fnr), NlResponseSource.LPS)
-
             call.respond(HttpStatusCode.Accepted)
         }
     }

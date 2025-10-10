@@ -1,10 +1,10 @@
 package no.nav.syfo.aareg
 
 import no.nav.syfo.aareg.client.AaregClientException
-import no.nav.syfo.aareg.client.IAaregClient
+import no.nav.syfo.aareg.client.IEaregClient
 import no.nav.syfo.application.exception.ApiErrorException
 
-class AaregService(private val arbeidsforholdOversiktClient: IAaregClient) {
+class AaregService(private val arbeidsforholdOversiktClient: IEaregClient) {
     suspend fun findOrgNumbersByPersonIdent(
         personIdent: String
     ): Map<String, String> {
