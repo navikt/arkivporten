@@ -11,7 +11,7 @@ interface Environment {
     val clientProperties: ClientProperties
 }
 
-const val NAIS_DATABASE_ENV_PREFIX = "NARMESTELEDER_DB"
+const val NAIS_DATABASE_ENV_PREFIX = "ARKIVPORTEN_DB"
 
 data class NaisEnvironment(
     override val database: DatabaseEnvironment = DatabaseEnvironment.createFromEnvVars(),
