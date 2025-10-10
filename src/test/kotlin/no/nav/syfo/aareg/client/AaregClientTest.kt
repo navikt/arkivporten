@@ -42,7 +42,7 @@ class AaregClientTest : DescribeSpec({
         }
         val httpClient = httpClientDefault(HttpClient(mockEngine))
         val aaregClient = AaregClient(
-            aaregBaseUrl = "base",
+            eregBaseUrl = "base",
             texasHttpClient = texasHttpClient,
             scope = "scope",
             httpClient = httpClient,
@@ -72,7 +72,7 @@ class AaregClientTest : DescribeSpec({
             )
             val client = httpClientDefault(HttpClient(mockEngine))
             val arClient = AaregClient(
-                aaregBaseUrl = "",
+                eregBaseUrl = "",
                 texasHttpClient = texasHttpClient,
                 scope = "scope",
                 httpClient = client,
@@ -93,7 +93,7 @@ class AaregClientTest : DescribeSpec({
             )
             val client = httpClientDefault(HttpClient(mockEngine))
             val arClient = AaregClient(
-                aaregBaseUrl = "",
+                eregBaseUrl = "",
                 texasHttpClient = texasHttpClient,
                 scope = "scope",
                 httpClient = client,

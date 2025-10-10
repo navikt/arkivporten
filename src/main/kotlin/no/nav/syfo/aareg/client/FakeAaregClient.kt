@@ -6,7 +6,7 @@ import no.nav.syfo.aareg.client.FakeAaregClient.Companion.ORG_NUMBER_PREFIX
 /**
  * @see ORG_NUMBER_PREFIX
  * */
-class FakeAaregClient() : IAaregClient {
+class FakeAaregClient() : IEaregClient {
     val arbeidsForholdForIdent = defaultArbeidsforhold.toMutableMap()
     private val failureRef = AtomicReference<Throwable?>(null)
 

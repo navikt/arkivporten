@@ -83,11 +83,7 @@ spec:
   kafka:
     pool: nav-dev
   env:
-    - name: PDL_BASE_URL
-      value: https://pdl-api.dev-fss-pub.nais.io/graphql
-    - name: PDL_SCOPE
-      value: dev-fss.pdl.pdl-api
-    - name: EREG_URL
+    - name: EREG_BASE_URL
       value: "https://ereg-services-q1.dev-fss-pub.nais.io"
     - name: EREG_SCOPE
       value: dev-fss.arbeidsforhold.eareg-services-nais

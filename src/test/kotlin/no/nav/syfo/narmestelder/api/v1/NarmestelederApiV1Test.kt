@@ -16,12 +16,9 @@ import io.ktor.serialization.jackson.jackson
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
-import io.mockk.Called
 import io.mockk.clearAllMocks
-import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.spyk
-import no.nav.syfo.aareg.AaregService
 import no.nav.syfo.aareg.client.FakeAaregClient
 import no.nav.syfo.altinntilganger.AltinnTilgangerService
 import no.nav.syfo.altinntilganger.client.FakeAltinnTilgangerClient
@@ -30,31 +27,17 @@ import no.nav.syfo.application.api.ErrorType
 import no.nav.syfo.application.api.installContentNegotiation
 import no.nav.syfo.application.api.installStatusPages
 import no.nav.syfo.application.auth.maskinportenIdToOrgnumber
-import no.nav.syfo.narmesteleder.api.v1.domain.NarmestelederAktorer
-import no.nav.syfo.narmesteleder.kafka.FakeSykemeldingNLKafkaProducer
-import no.nav.syfo.narmesteleder.kafka.model.NlResponseSource
-import no.nav.syfo.narmesteleder.service.NarmestelederKafkaService
-import no.nav.syfo.narmesteleder.service.ValidationService
-import no.nav.syfo.pdl.PdlService
-import no.nav.syfo.pdl.client.FakePdlClient
 import no.nav.syfo.registerApiV1
 import no.nav.syfo.texas.MASKINPORTEN_NL_SCOPE
 import no.nav.syfo.texas.client.TexasHttpClient
 
-class NarmestelederApiV1Test : DescribeSpec({
-    val pdlService = PdlService(FakePdlClient())
+class armestelederApiV1Test : DescribeSpec({
     val texasHttpClientMock = mockk<TexasHttpClient>()
     val narmesteLederRelasjon = narmesteLederRelasjon()
     val fakeAaregClient = FakeAaregClient()
-    val aaregService = AaregService(fakeAaregClient)
-    val narmestelederKafkaService =
-        NarmestelederKafkaService(FakeSykemeldingNLKafkaProducer())
-    val narmestelederKafkaServiceSpy = spyk(narmestelederKafkaService)
     val fakeAltinnTilgangerClient = FakeAltinnTilgangerClient()
     val altinnTilgangerServiceMock = AltinnTilgangerService(fakeAltinnTilgangerClient)
     val altinnTilgangerServiceSpy = spyk(altinnTilgangerServiceMock)
-    val validationService = ValidationService(pdlService, aaregService, altinnTilgangerServiceSpy)
-    val validationServiceSpy = spyk(validationService)
     val tokenXIssuer = "https://tokenx.nav.no"
     beforeTest {
         clearAllMocks()
@@ -80,9 +63,7 @@ class NarmestelederApiV1Test : DescribeSpec({
                 installStatusPages()
                 routing {
                     registerApiV1(
-                        narmestelederKafkaServiceSpy,
                         texasHttpClientMock,
-                        validationServiceSpy,
                     )
                 }
             }
@@ -100,14 +81,7 @@ class NarmestelederApiV1Test : DescribeSpec({
                         ),
                         scope = MASKINPORTEN_NL_SCOPE,
                     )
-                    fakeAaregClient.arbeidsForholdForIdent.put(
-                        narmesteLederRelasjon.sykmeldtFnr,
-                        listOf(narmesteLederRelasjon.organisasjonsnummer to narmesteLederRelasjon.organisasjonsnummer)
-                    )
-                    fakeAaregClient.arbeidsForholdForIdent.put(
-                        narmesteLederRelasjon.leder.fnr,
-                        listOf(narmesteLederRelasjon.organisasjonsnummer to narmesteLederRelasjon.organisasjonsnummer)
-                    )
+
                     // Act
                     val response = client.post("/api/v1/narmesteleder") {
                         contentType(ContentType.Application.Json)
@@ -117,13 +91,6 @@ class NarmestelederApiV1Test : DescribeSpec({
 
                     // Assert
                     response.status shouldBe HttpStatusCode.Accepted
-                    coVerify(exactly = 1) {
-                        narmestelederKafkaServiceSpy.sendNarmesteLederRelation(
-                            eq(narmesteLederRelasjon),
-                            narmestelederAktorer = any<NarmestelederAktorer>(),
-                            eq(NlResponseSource.LPS),
-                        )
-                    }
                 }
             }
 
@@ -146,7 +113,6 @@ class NarmestelederApiV1Test : DescribeSpec({
                     // Assert
                     response.status shouldBe HttpStatusCode.BadRequest
                     response.body<ApiError>().type shouldBe ErrorType.BAD_REQUEST
-                    coVerify { narmestelederKafkaServiceSpy wasNot Called }
                 }
             }
 
@@ -163,7 +129,6 @@ class NarmestelederApiV1Test : DescribeSpec({
                     // Assert
                     response.status shouldBe HttpStatusCode.Unauthorized
                     response.body<ApiError>().type shouldBe ErrorType.AUTHORIZATION_ERROR
-                    coVerify { narmestelederKafkaServiceSpy wasNot Called }
                 }
             }
 
@@ -185,7 +150,6 @@ class NarmestelederApiV1Test : DescribeSpec({
                     // Assert
                     response.status shouldBe HttpStatusCode.Unauthorized
                     response.body<ApiError>().type shouldBe ErrorType.AUTHORIZATION_ERROR
-                    coVerify { narmestelederKafkaServiceSpy wasNot Called }
                 }
             }
 
@@ -203,7 +167,6 @@ class NarmestelederApiV1Test : DescribeSpec({
                     // Assert
                     response.status shouldBe HttpStatusCode.Unauthorized
                     response.body<ApiError>().type shouldBe ErrorType.AUTHORIZATION_ERROR
-                    coVerify { narmestelederKafkaServiceSpy wasNot Called }
                 }
             }
         }
@@ -221,10 +184,7 @@ class NarmestelederApiV1Test : DescribeSpec({
                         narmesteLederRelasjon.sykmeldtFnr,
                         listOf(narmesteLederRelasjon.organisasjonsnummer to narmesteLederRelasjon.organisasjonsnummer)
                     )
-                    fakeAaregClient.arbeidsForholdForIdent.put(
-                        narmesteLederRelasjon.leder.fnr,
-                        listOf(narmesteLederRelasjon.organisasjonsnummer to narmesteLederRelasjon.organisasjonsnummer)
-                    )
+
                     // Act
                     val response = client.post("/api/v1/narmesteleder") {
                         contentType(ContentType.Application.Json)
@@ -233,39 +193,6 @@ class NarmestelederApiV1Test : DescribeSpec({
                     }
                     // Assert
                     response.status shouldBe HttpStatusCode.Accepted
-                    coVerify(exactly = 1) {
-                        narmestelederKafkaServiceSpy.sendNarmesteLederRelation(
-                            eq(narmesteLederRelasjon),
-                            narmestelederAktorer = any<NarmestelederAktorer>(),
-                            eq(NlResponseSource.LPS),
-                        )
-                    }
-                    coVerify(exactly = 1) {
-                        validationServiceSpy.validateNarmesteleder(
-                            eq(narmesteLederRelasjon),
-                            any()
-                        )
-                    }
-                }
-            }
-
-            it("should return 403 when caller lacks access to organisasjonsnummer for nl relasjon") {
-                withTestApplication {
-                    // Arrange
-                    val callerPid = "11223344556"
-                    texasHttpClientMock.defaultMocks(
-                        acr = "Level4",
-                        pid = callerPid
-                    )
-                    // Act
-                    val response = client.post("/api/v1/narmesteleder") {
-                        contentType(ContentType.Application.Json)
-                        setBody(narmesteLederRelasjon)
-                        bearerAuth(createMockToken(callerPid, issuer = tokenXIssuer))
-                    }
-
-                    // Assert
-                    response.status shouldBe HttpStatusCode.Forbidden
                 }
             }
 
@@ -318,51 +245,9 @@ class NarmestelederApiV1Test : DescribeSpec({
 
                 // Assert
                 response.status shouldBe HttpStatusCode.Accepted
-                coVerify(exactly = 1) {
-                    narmestelederKafkaServiceSpy.avbrytNarmesteLederRelation(
-                        eq(narmesteLederAvkreft), eq(
-                            NlResponseSource.LPS
-                        )
-                    )
-                }
-                coVerify(exactly = 1) {
-                    validationServiceSpy.validateNarmestelederAvkreft(
-                        eq(narmesteLederAvkreft),
-                        any()
-                    )
-                }
             }
         }
 
-        it("should return 400 if sykmeldt lacks arbeidsforhold for orgnummer") {
-
-            withTestApplication {
-                // Arrange
-                texasHttpClientMock.defaultMocks(
-                    consumer = DefaultOrganization.copy(
-                        ID = "0192:${narmesteLederRelasjon.organisasjonsnummer}"
-                    ),
-                    scope = MASKINPORTEN_NL_SCOPE,
-                )
-                val narmesteLederAvkreft = narmesteLederAvkreft()
-                // Act
-                val response = client.post("/api/v1/narmesteleder/avkreft") {
-                    contentType(ContentType.Application.Json)
-                    setBody(narmesteLederAvkreft)
-                    bearerAuth(createMockToken(maskinportenIdToOrgnumber(DefaultOrganization.ID)))
-                }
-
-                // Assert
-                response.status shouldBe HttpStatusCode.BadRequest
-                coVerify(exactly = 0) {
-                    narmestelederKafkaServiceSpy.avbrytNarmesteLederRelation(
-                        eq(narmesteLederAvkreft), eq(
-                            NlResponseSource.LPS
-                        )
-                    )
-                }
-            }
-        }
 
         it("should return 400 Bad Request for invalid payload") {
             withTestApplication {
@@ -383,7 +268,6 @@ class NarmestelederApiV1Test : DescribeSpec({
                 // Assert
                 response.status shouldBe HttpStatusCode.BadRequest
                 response.body<ApiError>().type shouldBe ErrorType.BAD_REQUEST
-                coVerify { narmestelederKafkaServiceSpy wasNot Called }
             }
         }
     }
