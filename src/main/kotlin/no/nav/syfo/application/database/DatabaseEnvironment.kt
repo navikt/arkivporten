@@ -28,7 +28,7 @@ data class DatabaseEnvironment(
             DatabaseEnvironment(
                 host = "localhost",
                 port = "5432",
-                name = "esyfo-narmesteleder_dev",
+                name = "arkivporten_dev",
                 username = "username",
                 password = "password",
                 sslcert = null,
