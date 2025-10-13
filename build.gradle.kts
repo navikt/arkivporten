@@ -13,7 +13,6 @@ application {
 repositories {
     mavenCentral()
 }
-
 dependencies {
     implementation(libs.datafaker)
     implementation(libs.ktor.server.core)
@@ -66,6 +65,9 @@ tasks {
     }
 
     shadowJar {
+        filesMatching("META-INF/services/**") {
+            duplicatesStrategy = DuplicatesStrategy.INCLUDE
+        }
         mergeServiceFiles()
         archiveFileName.set("app.jar")
         archiveClassifier.set("")
