@@ -16,6 +16,7 @@ import no.nav.syfo.application.database.Database
 import no.nav.syfo.application.database.DatabaseConfig
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.isLocalEnv
+import no.nav.syfo.assets.db.DocumentDb
 import no.nav.syfo.texas.client.TexasHttpClient
 import no.nav.syfo.util.httpClientDefault
 import org.koin.core.scope.Scope
@@ -61,6 +62,9 @@ private fun databaseModule() = module {
                 password = env().database.password,
             )
         )
+    }
+    single {
+        DocumentDb(get())
     }
 }
 

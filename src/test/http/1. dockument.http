@@ -7,5 +7,5 @@ Content-Type: application/json
   "assetId": "{{$random.uuid}}",
   "orgnumber": "{{orgnumber}}",
   "type": "OPPFOLGINGSPLAN",
-  "pdf": "{{$random.alphabetic(100)}}"
+  "content": "{{$random.alphabetic(100)}}"
 }
