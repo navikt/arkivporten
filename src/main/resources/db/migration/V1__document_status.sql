@@ -1,0 +1,1 @@
+create type DOCUMENT_STATUS as enum ('RECEIVED', 'PENDING', 'COMPLETED', 'ERROR');
