@@ -9,17 +9,29 @@ class DocumentDb(private val database: DatabaseInterface) {
             connection
                 .prepareStatement(
                     """
-                       INSERT INTO document(
-                       document_id, orgnumber, type, content, asset_status)
-                       VALUES (?, ?, ?, ?, ?) RETURNING id;
-                    """.trimIndent()
+                        INSERT INTO document(document_id,
+                                             type,
+                                             content,
+                                             content_type,
+                                             orgnumber,
+                                             message_title,
+                                             message_summary,
+                                             link_id,
+                                             status)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        RETURNING id;
+                        """.trimIndent()
                 ).use { preparedStatement ->
                     with(documentDAO) {
                         preparedStatement.setObject(1, documentId)
-                        preparedStatement.setString(2, orgnumber)
-                        preparedStatement.setString(3, type.name)
-                        preparedStatement.setBytes(4, content)
-                        preparedStatement.setObject(5, status, java.sql.Types.OTHER)
+                        preparedStatement.setObject(2, type.name)
+                        preparedStatement.setBytes(3, content)
+                        preparedStatement.setString(4, contentType)
+                        preparedStatement.setString(5, orgnumber)
+                        preparedStatement.setString(6, messageTitle)
+                        preparedStatement.setString(7, messageSummary)
+                        preparedStatement.setObject(8, linkId)
+                        preparedStatement.setObject(9, status, java.sql.Types.OTHER)
                     }
                     preparedStatement.execute()
 
@@ -27,6 +39,32 @@ class DocumentDb(private val database: DatabaseInterface) {
                         connection.rollback()
                         throw it
                     }
+                }.also {
+                    connection.commit()
+                }
+        }
+    }
+
+    fun update(documentDAO: DocumentDAO): Boolean {
+        return database.connection.use { connection ->
+            connection
+                .prepareStatement(
+                    """
+                        UPDATE document
+                        SET message_id = ?,
+                            status     = ?,
+                            is_read    = ?
+                        WHERE id = ?
+                        """.trimIndent()
+                ).use { preparedStatement ->
+                    with(documentDAO) {
+                        require(id != null) { "Document ID cannot be null when updating a document." }
+                        preparedStatement.setObject(1, messageId)
+                        preparedStatement.setObject(2, status, java.sql.Types.OTHER)
+                        preparedStatement.setBoolean(3, isRead)
+                        preparedStatement.setLong(4, id)
+                    }
+                    preparedStatement.execute()
                 }.also {
                     connection.commit()
                 }
