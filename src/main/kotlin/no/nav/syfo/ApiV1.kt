@@ -3,7 +3,7 @@ package no.nav.syfo
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
 import no.nav.syfo.application.auth.AddTokenIssuerPlugin
-import no.nav.syfo.document.api.v1.registerAssetsApiV1
+import no.nav.syfo.document.api.v1.registerDocumentsApiV1
 import no.nav.syfo.document.db.DocumentDb
 import no.nav.syfo.narmesteleder.api.v1.registerNarmestelederApiV1
 import no.nav.syfo.texas.TexasAzureADAuthPlugin
@@ -22,7 +22,7 @@ fun Route.registerApiV1(
         install(TexasAzureADAuthPlugin) {
             client = texasHttpClient
         }
-        registerAssetsApiV1(documentDb)
+        registerDocumentsApiV1(documentDb)
     }
 
 }

@@ -10,7 +10,7 @@ import no.nav.syfo.document.db.DocumentDb
 import no.nav.syfo.narmesteleder.api.v1.tryReceive
 import no.nav.syfo.util.logger
 
-fun Route.registerAssetsApiV1(
+fun Route.registerDocumentsApiV1(
     documentDb: DocumentDb,
 ) {
     route("/documents") {

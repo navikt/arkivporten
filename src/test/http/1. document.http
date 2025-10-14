@@ -1,4 +1,4 @@
-### POST narmesteleder relasjon
+### POST document
 POST http://localhost:8080/internal/api/v1/documents
 Authorization: Bearer {{aad_token}}
 Content-Type: application/json
