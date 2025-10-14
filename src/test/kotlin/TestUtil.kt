@@ -164,8 +164,16 @@ fun TexasHttpClient.defaultMocks(
                     scope = scope,
                 )
             }
-
-
+            "azuread" -> {
+                TexasIntrospectionResponse(
+                    active = true,
+                    pid = pid,
+                    acr = acr,
+                    sub = UUID.randomUUID().toString(),
+                    consumer = consumer,
+                    supplier = supplier,
+                )
+            }
             else -> TODO("Legg til identityProvider i mock")
         }
     }
