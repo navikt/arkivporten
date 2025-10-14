@@ -16,9 +16,9 @@ fun Route.registerAssetsApiV1(
     route("/documents") {
 
         post() {
-            val asset = call.tryReceive<Document>()
+            val document = call.tryReceive<Document>()
             runCatching {
-                documentDb.insert(asset.toDocumentDAO())
+                documentDb.insert(document.toDocumentDAO())
                 call.respond(HttpStatusCode.OK)
             }.onFailure {
                 logger().error("Failed to insert document: ${it.message}", it)

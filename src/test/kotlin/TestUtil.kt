@@ -14,6 +14,8 @@ import no.nav.syfo.aareg.client.AaregClient
 import no.nav.syfo.aareg.client.FakeAaregClient
 import no.nav.syfo.application.auth.JwtIssuer
 import no.nav.syfo.application.auth.maskinportenIdToOrgnumber
+import no.nav.syfo.document.api.v1.Document
+import no.nav.syfo.document.api.v1.DocumentType
 import no.nav.syfo.narmesteleder.api.v1.NarmesteLederRelasjonerWrite
 import no.nav.syfo.narmesteleder.api.v1.NarmestelederRelasjonAvkreft
 import no.nav.syfo.texas.client.OrganizationId
@@ -22,6 +24,17 @@ import no.nav.syfo.texas.client.TexasIntrospectionResponse
 import no.nav.syfo.texas.client.TexasResponse
 
 val faker = Faker(Random(Instant.now().epochSecond))
+
+fun document() =
+    Document(
+        documentId = UUID.randomUUID(),
+        type = DocumentType.DIALOGMOTE,
+        content = faker.lorem().sentence().toByteArray(),
+        contentType = "application/pdf",
+        orgnumber = faker.numerify("#########"),
+        messageTitle = faker.lorem().sentence(),
+        messageSummary = faker.lorem().sentence(),
+    )
 
 fun narmesteLederRelasjon(): NarmesteLederRelasjonerWrite = NarmesteLederRelasjonerWrite(
     sykmeldtFnr = faker.numerify("###########"),

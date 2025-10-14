@@ -2,7 +2,7 @@ package no.nav.syfo.document.db
 
 import java.time.LocalDateTime
 import java.util.UUID
-import no.nav.syfo.document.api.v1.AssetType
+import no.nav.syfo.document.api.v1.DocumentType
 
 enum class DocumentStatus {
     RECEIVED,
@@ -14,7 +14,7 @@ enum class DocumentStatus {
 data class DocumentDAO(
     val id: Long? = null,
     val documentId: UUID,
-    val type: AssetType,
+    val type: DocumentType,
     val content: ByteArray,
     val contentType: String,
     val orgnumber: String,

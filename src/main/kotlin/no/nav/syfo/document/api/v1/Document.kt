@@ -6,7 +6,7 @@ import no.nav.syfo.document.db.DocumentDAO
 
 data class Document(
     val documentId: UUID,
-    val type: AssetType,
+    val type: DocumentType,
     val content: ByteArray,
     val contentType: String,
     val orgnumber: String,
@@ -28,7 +28,7 @@ data class Document(
     }
 }
 
-enum class AssetType {
+enum class DocumentType {
     DIALOGMOTE,
     OPPFOLGINGSPLAN,
 

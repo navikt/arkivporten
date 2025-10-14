@@ -12,5 +12,7 @@ create table document
     created         TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     status          DOCUMENT_STATUS          NOT NULL DEFAULT 'RECEIVED',
     is_read         BOOLEAN                  NOT NULL DEFAULT false,
-    message_id      UUID
+    message_id      UUID,
+    CONSTRAINT uk_document_link_id UNIQUE (link_id),
+    CONSTRAINT uk_document_message_id UNIQUE (message_id)
 );
