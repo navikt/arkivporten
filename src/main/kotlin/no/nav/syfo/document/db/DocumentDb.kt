@@ -1,4 +1,4 @@
-package no.nav.syfo.assets.db
+package no.nav.syfo.document.db
 
 import java.sql.ResultSet
 import no.nav.syfo.application.database.DatabaseInterface

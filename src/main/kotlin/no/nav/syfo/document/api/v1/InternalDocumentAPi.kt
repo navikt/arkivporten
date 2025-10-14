@@ -1,4 +1,4 @@
-package no.nav.syfo.assets.api.v1
+package no.nav.syfo.document.api.v1
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond
@@ -6,7 +6,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import no.nav.syfo.application.exception.ApiErrorException
-import no.nav.syfo.assets.db.DocumentDb
+import no.nav.syfo.document.db.DocumentDb
 import no.nav.syfo.narmesteleder.api.v1.tryReceive
 import no.nav.syfo.util.logger
 

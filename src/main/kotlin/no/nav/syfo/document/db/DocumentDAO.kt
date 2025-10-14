@@ -1,8 +1,8 @@
-package no.nav.syfo.assets.db
+package no.nav.syfo.document.db
 
 import java.time.LocalDateTime
 import java.util.UUID
-import no.nav.syfo.assets.api.v1.AssetType
+import no.nav.syfo.document.api.v1.AssetType
 
 enum class DocumentStatus {
     RECEIVED,

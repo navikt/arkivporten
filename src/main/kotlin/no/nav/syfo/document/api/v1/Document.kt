@@ -1,8 +1,8 @@
-package no.nav.syfo.assets.api.v1
+package no.nav.syfo.document.api.v1
 
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue
 import java.util.UUID
-import no.nav.syfo.assets.db.DocumentDAO
+import no.nav.syfo.document.db.DocumentDAO
 
 data class Document(
     val documentId: UUID,
