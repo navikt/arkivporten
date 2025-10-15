@@ -5,7 +5,7 @@ import java.util.UUID
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.document.api.v1.DocumentType
 
-class DocumentDb(private val database: DatabaseInterface) {
+class DocumentDAO(private val database: DatabaseInterface) {
     fun insert(documentEntity: DocumentEntity): Long {
         return database.connection.use { connection ->
             connection

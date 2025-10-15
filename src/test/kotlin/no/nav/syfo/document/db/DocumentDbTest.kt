@@ -10,7 +10,7 @@ import no.nav.syfo.TestDB
 
 class DocumentDbTest : DescribeSpec({
     val testDb = TestDB.database
-    val documentDb = DocumentDb(testDb)
+    val documentDAO = DocumentDAO(testDb)
     beforeTest {
         TestDB.clearAllData()
     }
@@ -20,7 +20,7 @@ class DocumentDbTest : DescribeSpec({
             // Arrange
             val documentEntity = document().toDocumentEntity()
             // Act
-            val id = documentDb.insert(documentEntity)
+            val id = documentDAO.insert(documentEntity)
             // Assert
             id shouldNotBe null
             id shouldBeGreaterThan 0L
@@ -30,9 +30,9 @@ class DocumentDbTest : DescribeSpec({
             // Arrange
             val documentEntity = document().toDocumentEntity()
             // Act
-            val id = documentDb.insert(documentEntity)
+            val id = documentDAO.insert(documentEntity)
             // Assert
-            val retrievedDocument = documentDb.getById(id)
+            val retrievedDocument = documentDAO.getById(id)
             retrievedDocument shouldNotBe null
             retrievedDocument?.assertExpected(documentEntity, id)
         }
@@ -42,15 +42,15 @@ class DocumentDbTest : DescribeSpec({
             // Arrange
             val documentEntity = document().toDocumentEntity()
             // Act
-            val id = documentDb.insert(documentEntity)
+            val id = documentDAO.insert(documentEntity)
             val updateddocumentEntity = documentEntity.copy(
                 id = id,
                 messageId = UUID.randomUUID(),
                 status = DocumentStatus.COMPLETED,
                 isRead = true,
             )
-            documentDb.update(updateddocumentEntity)
-            val retrievedDocument = documentDb.getById(id)
+            documentDAO.update(updateddocumentEntity)
+            val retrievedDocument = documentDAO.getById(id)
             // Assert
             retrievedDocument shouldNotBe null
             retrievedDocument?.assertExpected(updateddocumentEntity, id)
@@ -62,8 +62,8 @@ class DocumentDbTest : DescribeSpec({
             // Arrange
             val documentEntity = document().toDocumentEntity()
             // Act
-            val id = documentDb.insert(documentEntity)
-            val retrievedDocument = documentDb.getById(id)
+            val id = documentDAO.insert(documentEntity)
+            val retrievedDocument = documentDAO.getById(id)
             // Assert
             retrievedDocument shouldNotBe null
             retrievedDocument?.assertExpected(documentEntity, id)
@@ -75,8 +75,8 @@ class DocumentDbTest : DescribeSpec({
             // Arrange
             val documentEntity = document().toDocumentEntity()
             // Act
-            val id = documentDb.insert(documentEntity)
-            val retrievedDocument = documentDb.getByLinkId(documentEntity.linkId)
+            val id = documentDAO.insert(documentEntity)
+            val retrievedDocument = documentDAO.getByLinkId(documentEntity.linkId)
             // Assert
             retrievedDocument shouldNotBe null
             retrievedDocument?.assertExpected(documentEntity, id)
