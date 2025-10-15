@@ -10,6 +10,7 @@ import defaultMocks
 import document
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
+import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
@@ -26,19 +27,27 @@ import io.mockk.spyk
 import no.nav.syfo.TestDB
 import no.nav.syfo.altinntilganger.AltinnTilgangerService
 import no.nav.syfo.altinntilganger.client.FakeAltinnTilgangerClient
+import no.nav.syfo.application.api.ApiError
 import no.nav.syfo.application.api.installContentNegotiation
 import no.nav.syfo.application.api.installStatusPages
 import no.nav.syfo.document.db.DocumentDAO
 import no.nav.syfo.document.service.ValidationService
+import no.nav.syfo.ereg.EregService
+import no.nav.syfo.ereg.client.FakeEregClient
 import no.nav.syfo.registerApiV1
 import no.nav.syfo.texas.MASKINPORTEN_ARKIVPORTEN_SCOPE
 import no.nav.syfo.texas.client.TexasHttpClient
+import org.testcontainers.shaded.org.bouncycastle.asn1.x509.X509ObjectIdentifiers.organization
+import organisasjon
 
 class ExternalDocumentApiTest : DescribeSpec({
     val texasHttpClientMock = mockk<TexasHttpClient>()
     val DocumentDAOMock = mockk<DocumentDAO>()
     val fakeAltinnTilgangerClient = FakeAltinnTilgangerClient()
-    val validationService = ValidationService(AltinnTilgangerService(fakeAltinnTilgangerClient))
+    val fakeEregClient = FakeEregClient()
+    val eregService = EregService(fakeEregClient)
+    val eregServiceSpy = spyk(eregService)
+    val validationService = ValidationService(AltinnTilgangerService(fakeAltinnTilgangerClient), eregServiceSpy)
     val validationServiceSpy = spyk(validationService)
     val tokenXIssuer = "https://tokenx.nav.no"
     beforeTest {
@@ -100,20 +109,50 @@ class ExternalDocumentApiTest : DescribeSpec({
                 }
             }
 
-            it("should return 403 Forbidden for unauthorized token") {
+            it("should return 200 OK for authorized token from parent org unit") {
                 withTestApplication {
                     // Arrange
-                    val document = document().toDocumentEntity()
+                    val organization = organisasjon()
+                    val document = document().copy(orgnumber = organization.organisasjonsnummer).toDocumentEntity()
                     coEvery { DocumentDAOMock.getByLinkId(eq(document.linkId)) } returns document
                     texasHttpClientMock.defaultMocks(
                         consumer = DefaultOrganization.copy(
-                            ID = "0192:999999999" // Different orgnumber
+                            ID = "0192:${organization.inngaarIJuridiskEnheter!!.first().organisasjonsnummer}"
                         ),
                         scope = MASKINPORTEN_ARKIVPORTEN_SCOPE,
                     )
+                    fakeEregClient.organisasjoner.put(document.orgnumber, organization)
                     // Act
                     val response = client.get("api/v1/documents/${document.linkId}") {
-                        bearerAuth(createMockToken(ident = document.orgnumber))
+                        bearerAuth(createMockToken(ident = organization.inngaarIJuridiskEnheter.first().organisasjonsnummer))
+                    }
+
+                    // Assert
+                    response.status shouldBe HttpStatusCode.OK
+                    response.headers["Content-Type"] shouldBe document.contentType
+                    coVerify(exactly = 1) {
+                        validationServiceSpy.validateDocumentAccess(any(), eq(document))
+                    }
+                }
+            }
+
+            it("should return 403 Forbidden for unauthorized token") {
+                withTestApplication {
+                    // Arrange
+                    val nonMatchingOrgnumber = "999999999"
+                    val organization = organisasjon()
+                    val document = document().copy(orgnumber = organization.organisasjonsnummer).toDocumentEntity()
+                    coEvery { DocumentDAOMock.getByLinkId(eq(document.linkId)) } returns document
+                    texasHttpClientMock.defaultMocks(
+                        consumer = DefaultOrganization.copy(
+                            ID = "0192:$nonMatchingOrgnumber" // Different orgnumber
+                        ),
+                        scope = MASKINPORTEN_ARKIVPORTEN_SCOPE,
+                    )
+                    fakeEregClient.organisasjoner.put(document.orgnumber, organization)
+                    // Act
+                    val response = client.get("api/v1/documents/${document.linkId}") {
+                        bearerAuth(createMockToken(ident = nonMatchingOrgnumber))
                     }
 
                     // Assert

@@ -1,5 +1,6 @@
 package no.nav.syfo.altinntilganger.client
 
+import getMockEngine
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
@@ -26,27 +27,6 @@ class AltinnTilgangerClientTest : DescribeSpec({
         clearAllMocks()
     }
 
-    fun getMockEngine(status: HttpStatusCode, headers: Headers, content: String) = MockEngine.Companion { request ->
-        when (request.url.fullPath) {
-            "/altinn-tilganger" -> {
-                if (status.isSuccess()) {
-                    respond(
-                        status = status,
-                        headers = headers,
-                        content = content.toByteArray(Charsets.UTF_8),
-                    )
-                } else {
-                    respond(
-                        status = status,
-                        headers = headers,
-                        content = content,
-                    )
-                }
-            }
-
-            else -> error("Unhandled request ${request.url.fullPath}")
-        }
-    }
     describe("hentTilganger") {
         it("should return AltinnTilgangerResponse when hentTilganger responds with 200") {
             val brukerPrincipal = BrukerPrincipal("12345678901", "token")
@@ -101,6 +81,7 @@ class AltinnTilgangerClientTest : DescribeSpec({
 
                 """.trimIndent()
             val mockEngine = getMockEngine(
+                path = "/altinn-tilganger",
                 status = HttpStatusCode.Companion.OK,
                 headers = Headers.Companion.build {
                     append("Content-Type", "application/json")
@@ -123,6 +104,7 @@ class AltinnTilgangerClientTest : DescribeSpec({
             val brukerPrincipal = BrukerPrincipal("12345678901", "token")
 
             val mockEngine = getMockEngine(
+                path = "/altinn-tilganger",
                 status = HttpStatusCode.Companion.BadRequest,
                 headers = Headers.Companion.build {
                     append("Content-Type", "application/json")
@@ -143,6 +125,7 @@ class AltinnTilgangerClientTest : DescribeSpec({
             val brukerPrincipal = BrukerPrincipal("12345678901", "token")
 
             val mockEngine = getMockEngine(
+                path = "/altinn-tilganger",
                 status = HttpStatusCode.Companion.ServiceUnavailable,
                 headers = Headers.Companion.build {
                     append("Content-Type", "application/json")

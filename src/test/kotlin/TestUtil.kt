@@ -13,6 +13,7 @@ import net.datafaker.Faker
 import no.nav.syfo.application.auth.JwtIssuer
 import no.nav.syfo.document.api.v1.Document
 import no.nav.syfo.document.api.v1.DocumentType
+import no.nav.syfo.ereg.client.Organisasjon
 import no.nav.syfo.texas.client.OrganizationId
 import no.nav.syfo.texas.client.TexasHttpClient
 import no.nav.syfo.texas.client.TexasIntrospectionResponse
@@ -31,6 +32,10 @@ fun document() =
         dialogSummary = faker.lorem().sentence(),
     )
 
+fun organisasjon() = Organisasjon(
+    organisasjonsnummer = faker.numerify("#########"),
+    inngaarIJuridiskEnheter = listOf(Organisasjon(organisasjonsnummer = faker.numerify("#########")))
+)
 fun createMockToken(
     ident: String,
     supplierId: String? = null,
