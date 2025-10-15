@@ -18,7 +18,7 @@ fun Route.registerDocumentsApiV1(
         post() {
             val document = call.tryReceive<Document>()
             runCatching {
-                documentDb.insert(document.toDocumentDAO())
+                documentDb.insert(document.toDocumentEntity())
                 call.respond(HttpStatusCode.OK)
             }.onFailure {
                 logger().error("Failed to insert document: ${it.message}", it)

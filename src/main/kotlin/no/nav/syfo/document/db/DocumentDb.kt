@@ -6,7 +6,7 @@ import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.document.api.v1.DocumentType
 
 class DocumentDb(private val database: DatabaseInterface) {
-    fun insert(documentDAO: DocumentDAO): Long {
+    fun insert(documentEntity: DocumentEntity): Long {
         return database.connection.use { connection ->
             connection
                 .prepareStatement(
@@ -24,7 +24,7 @@ class DocumentDb(private val database: DatabaseInterface) {
                         RETURNING id;
                         """.trimIndent()
                 ).use { preparedStatement ->
-                    with(documentDAO) {
+                    with(documentEntity) {
                         preparedStatement.setObject(1, documentId)
                         preparedStatement.setObject(2, type.name)
                         preparedStatement.setBytes(3, content)
@@ -47,7 +47,7 @@ class DocumentDb(private val database: DatabaseInterface) {
         }
     }
 
-    fun update(documentDAO: DocumentDAO): Boolean {
+    fun update(documentEntity: DocumentEntity): Boolean {
         return database.connection.use { connection ->
             connection
                 .prepareStatement(
@@ -59,7 +59,7 @@ class DocumentDb(private val database: DatabaseInterface) {
                         WHERE id = ?
                         """.trimIndent()
                 ).use { preparedStatement ->
-                    with(documentDAO) {
+                    with(documentEntity) {
                         require(id != null) { "Document ID cannot be null when updating a document." }
                         preparedStatement.setObject(1, messageId)
                         preparedStatement.setObject(2, status, java.sql.Types.OTHER)
@@ -73,7 +73,7 @@ class DocumentDb(private val database: DatabaseInterface) {
         }
     }
 
-    fun getById(id: Long): DocumentDAO? {
+    fun getById(id: Long): DocumentEntity? {
         return database.connection.use { connection ->
             connection
                 .prepareStatement(
@@ -94,7 +94,7 @@ class DocumentDb(private val database: DatabaseInterface) {
         }
     }
 
-    fun getByLinkId(linkId: UUID): DocumentDAO? {
+    fun getByLinkId(linkId: UUID): DocumentEntity? {
         return database.connection.use { connection ->
             connection
                 .prepareStatement(
@@ -130,8 +130,8 @@ private fun ResultSet.getGeneratedId(idColumnLabel: String): Long = this.use {
     )
 }
 
-fun ResultSet.toDocumentDAO(): DocumentDAO =
-    DocumentDAO(
+fun ResultSet.toDocumentDAO(): DocumentEntity =
+    DocumentEntity(
         id = getLong("id"),
         linkId = getObject("link_id") as UUID,
         documentId = getObject("document_id") as UUID,
@@ -144,7 +144,7 @@ fun ResultSet.toDocumentDAO(): DocumentDAO =
         status = DocumentStatus.valueOf(getString("status")),
         isRead = getBoolean("is_read"),
         messageId = getObject("message_id") as UUID?,
-        created = getTimestamp("created")?.toLocalDateTime(),
+        created = getTimestamp("created")?.toInstant(),
     )
 
 class DocumentGeneratedIDException(message: String) : RuntimeException(message)

@@ -18,9 +18,9 @@ class DocumentDbTest : DescribeSpec({
     describe("DocumentDb -> insert") {
         it("should return a generated id") {
             // Arrange
-            val documentDAO = document().toDocumentDAO()
+            val documentEntity = document().toDocumentEntity()
             // Act
-            val id = documentDb.insert(documentDAO)
+            val id = documentDb.insert(documentEntity)
             // Assert
             id shouldNotBe null
             id shouldBeGreaterThan 0L
@@ -28,63 +28,63 @@ class DocumentDbTest : DescribeSpec({
 
         it("should persist the document with the correct fields") {
             // Arrange
-            val documentDAO = document().toDocumentDAO()
+            val documentEntity = document().toDocumentEntity()
             // Act
-            val id = documentDb.insert(documentDAO)
+            val id = documentDb.insert(documentEntity)
             // Assert
             val retrievedDocument = documentDb.getById(id)
             retrievedDocument shouldNotBe null
-            retrievedDocument?.assertExpected(documentDAO, id)
+            retrievedDocument?.assertExpected(documentEntity, id)
         }
     }
     describe("DocumentDb -> update") {
         it("should return a generated id") {
             // Arrange
-            val documentDAO = document().toDocumentDAO()
+            val documentEntity = document().toDocumentEntity()
             // Act
-            val id = documentDb.insert(documentDAO)
-            val updatedDocumentDAO = documentDAO.copy(
+            val id = documentDb.insert(documentEntity)
+            val updateddocumentEntity = documentEntity.copy(
                 id = id,
                 messageId = UUID.randomUUID(),
                 status = DocumentStatus.COMPLETED,
                 isRead = true,
             )
-            documentDb.update(updatedDocumentDAO)
+            documentDb.update(updateddocumentEntity)
             val retrievedDocument = documentDb.getById(id)
             // Assert
             retrievedDocument shouldNotBe null
-            retrievedDocument?.assertExpected(updatedDocumentDAO, id)
+            retrievedDocument?.assertExpected(updateddocumentEntity, id)
         }
     }
 
     describe("DocumentDb -> getById") {
-        it("should return a DocumentDAO for the id") {
+        it("should return a documentEntity for the id") {
             // Arrange
-            val documentDAO = document().toDocumentDAO()
+            val documentEntity = document().toDocumentEntity()
             // Act
-            val id = documentDb.insert(documentDAO)
+            val id = documentDb.insert(documentEntity)
             val retrievedDocument = documentDb.getById(id)
             // Assert
             retrievedDocument shouldNotBe null
-            retrievedDocument?.assertExpected(documentDAO, id)
+            retrievedDocument?.assertExpected(documentEntity, id)
         }
     }
 
     describe("DocumentDb -> getByLinkId") {
-        it("should return a DocumentDAO for the linktId") {
+        it("should return a documentEntity for the linktId") {
             // Arrange
-            val documentDAO = document().toDocumentDAO()
+            val documentEntity = document().toDocumentEntity()
             // Act
-            val id = documentDb.insert(documentDAO)
-            val retrievedDocument = documentDb.getByLinkId(documentDAO.linkId)
+            val id = documentDb.insert(documentEntity)
+            val retrievedDocument = documentDb.getByLinkId(documentEntity.linkId)
             // Assert
             retrievedDocument shouldNotBe null
-            retrievedDocument?.assertExpected(documentDAO, id)
+            retrievedDocument?.assertExpected(documentEntity, id)
         }
     }
 })
 
-fun DocumentDAO.assertExpected(expected: DocumentDAO, id: Long) {
+fun DocumentEntity.assertExpected(expected: DocumentEntity, id: Long) {
     this.id shouldBe id
     this.documentId shouldBe expected.documentId
     this.type shouldBe expected.type

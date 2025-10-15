@@ -1,7 +1,7 @@
 package no.nav.syfo.document.db
 
-import java.time.LocalDateTime
 import java.util.UUID
+import java.time.Instant
 import no.nav.syfo.document.api.v1.DocumentType
 
 enum class DocumentStatus {
@@ -11,7 +11,7 @@ enum class DocumentStatus {
     ERROR
 }
 
-data class DocumentDAO(
+data class DocumentEntity(
     val id: Long? = null,
     val documentId: UUID,
     val type: DocumentType,
@@ -24,5 +24,5 @@ data class DocumentDAO(
     val status: DocumentStatus = DocumentStatus.RECEIVED,
     val isRead: Boolean = false,
     val messageId: UUID?,
-    val created: LocalDateTime? = null,
+    val created: Instant? = null,
 )
