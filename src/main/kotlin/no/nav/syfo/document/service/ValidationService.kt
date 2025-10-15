@@ -6,7 +6,7 @@ import no.nav.syfo.application.auth.OrganisasjonPrincipal
 import no.nav.syfo.application.auth.Principal
 import no.nav.syfo.application.auth.maskinportenIdToOrgnumber
 import no.nav.syfo.application.exception.ApiErrorException
-import no.nav.syfo.document.db.DocumentDAO
+import no.nav.syfo.document.db.DocumentEntity
 import no.nav.syfo.util.logger
 
 class ValidationService(
@@ -18,7 +18,7 @@ class ValidationService(
 
     suspend fun validateDocumentAccess(
         principal: Principal,
-        documentDAO: DocumentDAO
+        documentDAO: DocumentEntity
     ) {
         when (principal) {
             is BrukerPrincipal -> validateAltTilgang(principal, documentDAO)
@@ -27,7 +27,7 @@ class ValidationService(
     }
 
 
-    suspend private fun validateAltTilgang(principal: BrukerPrincipal, documentDAO: DocumentDAO) {
+    suspend private fun validateAltTilgang(principal: BrukerPrincipal, documentDAO: DocumentEntity) {
         altinnTilgangerService.validateTilgangToOrganisasjon(
             principal,
             documentDAO.orgnumber,
@@ -35,7 +35,7 @@ class ValidationService(
         )
     }
 
-    fun validateMaskinportenTilgang(principal: OrganisasjonPrincipal, documentDAO: DocumentDAO) {
+    fun validateMaskinportenTilgang(principal: OrganisasjonPrincipal, documentDAO: DocumentEntity) {
         val orgnumberFromToken = maskinportenIdToOrgnumber(principal.ident)
         if (orgnumberFromToken != documentDAO.orgnumber) {
             logger.warn(

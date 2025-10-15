@@ -17,7 +17,7 @@ fun Application.configureRouting() {
     val applicationState by inject<ApplicationState>()
     val database by inject<DatabaseInterface>()
     val texasHttpClient by inject<TexasHttpClient>()
-    val documentDb by inject<DocumentDAO>()
+    val documentDAO by inject<DocumentDAO>()
     val validationService by inject<ValidationService>()
 
     installCallId()
@@ -27,7 +27,7 @@ fun Application.configureRouting() {
     routing {
         registerPodApi(applicationState, database)
         registerMetricApi()
-        registerApiV1(texasHttpClient, documentDOA, validationService)
+        registerApiV1(texasHttpClient, documentDAO, validationService)
         get("/") {
             call.respondText("Hello World!")
         }
