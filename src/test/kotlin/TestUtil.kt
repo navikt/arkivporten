@@ -32,8 +32,8 @@ fun document() =
         content = faker.lorem().sentence().toByteArray(),
         contentType = "application/pdf",
         orgnumber = faker.numerify("#########"),
-        messageTitle = faker.lorem().sentence(),
-        messageSummary = faker.lorem().sentence(),
+        dialogTitle = faker.lorem().sentence(),
+        dialogSummary = faker.lorem().sentence(),
     )
 
 fun narmesteLederRelasjon(): NarmesteLederRelasjonerWrite = NarmesteLederRelasjonerWrite(

@@ -10,8 +10,8 @@ data class Document(
     val content: ByteArray,
     val contentType: String,
     val orgnumber: String,
-    val messageTitle: String,
-    val messageSummary: String,
+    val dialogTitle: String,
+    val dialogSummary: String,
 ) {
     fun toDocumentEntity(): DocumentEntity {
         return DocumentEntity(
@@ -20,10 +20,10 @@ data class Document(
             content = content,
             contentType = contentType,
             orgnumber = orgnumber,
-            messageTitle = messageTitle,
-            messageSummary = messageSummary,
+            dialogTitle = dialogTitle,
+            dialogSummary = dialogSummary,
             linkId = UUID.randomUUID(),
-            messageId = null,
+            dialogId = null,
         )
     }
 }

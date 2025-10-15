@@ -45,7 +45,7 @@ class DocumentDbTest : DescribeSpec({
             val id = documentDAO.insert(documentEntity)
             val updateddocumentEntity = documentEntity.copy(
                 id = id,
-                messageId = UUID.randomUUID(),
+                dialogId = UUID.randomUUID(),
                 status = DocumentStatus.COMPLETED,
                 isRead = true,
             )
@@ -91,10 +91,10 @@ fun DocumentEntity.assertExpected(expected: DocumentEntity, id: Long) {
     this.content shouldBe expected.content
     this.contentType shouldBe expected.contentType
     this.orgnumber shouldBe expected.orgnumber
-    this.messageTitle shouldBe expected.messageTitle
-    this.messageSummary shouldBe expected.messageSummary
+    this.dialogTitle shouldBe expected.dialogTitle
+    this.dialogSummary shouldBe expected.dialogSummary
     this.linkId shouldBe expected.linkId
     this.status shouldBe expected.status
     this.isRead shouldBe expected.isRead
-    this.messageId shouldBe expected.messageId
+    this.dialogId shouldBe expected.dialogId
 }

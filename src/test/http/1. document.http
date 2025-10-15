@@ -9,6 +9,6 @@ Content-Type: application/json
   "content": "{{$random.alphabetic(100)}}",
   "contentType": "application/pdf",
   "orgnumber": "{{orgnumber}}",
-  "messageTitle": "Oppfølgingsplan",
-  "messageSummary": "Sykmeldt: Bjørn\nLeder: Daniel"
+  "dialogTitle": "Oppfølgingsplan",
+  "dialogSummary": "Sykmeldt: Bjørn\nLeder: Daniel"
 }

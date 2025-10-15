@@ -16,8 +16,8 @@ class DocumentDAO(private val database: DatabaseInterface) {
                                              content,
                                              content_type,
                                              orgnumber,
-                                             message_title,
-                                             message_summary,
+                                             dialog_title,
+                                             dialog_summary,
                                              link_id,
                                              status)
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -30,8 +30,8 @@ class DocumentDAO(private val database: DatabaseInterface) {
                         preparedStatement.setBytes(3, content)
                         preparedStatement.setString(4, contentType)
                         preparedStatement.setString(5, orgnumber)
-                        preparedStatement.setString(6, messageTitle)
-                        preparedStatement.setString(7, messageSummary)
+                        preparedStatement.setString(6, dialogTitle)
+                        preparedStatement.setString(7, dialogSummary)
                         preparedStatement.setObject(8, linkId)
                         preparedStatement.setObject(9, status, java.sql.Types.OTHER)
                     }
@@ -53,7 +53,7 @@ class DocumentDAO(private val database: DatabaseInterface) {
                 .prepareStatement(
                     """
                         UPDATE document
-                        SET message_id = ?,
+                        SET dialog_id = ?,
                             status     = ?,
                             is_read    = ?
                         WHERE id = ?
@@ -61,7 +61,7 @@ class DocumentDAO(private val database: DatabaseInterface) {
                 ).use { preparedStatement ->
                     with(documentEntity) {
                         require(id != null) { "Document ID cannot be null when updating a document." }
-                        preparedStatement.setObject(1, messageId)
+                        preparedStatement.setObject(1, dialogId)
                         preparedStatement.setObject(2, status, java.sql.Types.OTHER)
                         preparedStatement.setBoolean(3, isRead)
                         preparedStatement.setLong(4, id)
@@ -139,11 +139,11 @@ fun ResultSet.toDocumentDAO(): DocumentEntity =
         content = getBytes("content"),
         contentType = getString("content_type"),
         orgnumber = getString("orgnumber"),
-        messageTitle = getString("message_title"),
-        messageSummary = getString("message_summary"),
+        dialogTitle = getString("dialog_title"),
+        dialogSummary = getString("dialog_summary"),
         status = DocumentStatus.valueOf(getString("status")),
         isRead = getBoolean("is_read"),
-        messageId = getObject("message_id") as UUID?,
+        dialogId = getObject("dialog_id") as UUID?,
         created = getTimestamp("created")?.toInstant(),
     )
 
