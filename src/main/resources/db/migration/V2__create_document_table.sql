@@ -13,6 +13,6 @@ create table document
     status          DOCUMENT_STATUS          NOT NULL DEFAULT 'RECEIVED',
     is_read         BOOLEAN                  NOT NULL DEFAULT false,
     message_id      UUID,
-    CONSTRAINT uk_document_link_id UNIQUE (link_id),
-    CONSTRAINT uk_document_message_id UNIQUE (message_id)
+    CONSTRAINT uq_document_link_id UNIQUE (link_id),
+    CONSTRAINT uq_document_message_id UNIQUE (message_id)
 );
