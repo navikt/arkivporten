@@ -80,6 +80,8 @@ spec:
           namespace: fager
       external:
         - host: "ereg-services-q1.dev-fss-pub.nais.io"
+        - host: "platform.tt02.altinn.no"
+
   kafka:
     pool: nav-dev
   env:
