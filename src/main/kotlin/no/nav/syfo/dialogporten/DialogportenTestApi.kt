@@ -18,7 +18,7 @@ fun Route.registerDialogportenTestApi(
             logger.info("Tester opprettelse av dialog i dialogporten")
             dialogportenClient.createDialog(
                 CreateDialogRequest(
-                    orgnr = "15649202", // KONTANT PRAGMATISK FJELLREV
+                    orgnr = "310667633", // VENSTRE ROMANTISK TIGER AS
                     title = "Test dialog",
                     summary = "Denne dialogen er opprettet for å teste dialogporten",
                     externalReference = "test-${System.currentTimeMillis()}",
