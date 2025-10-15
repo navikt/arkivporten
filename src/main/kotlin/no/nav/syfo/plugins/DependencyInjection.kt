@@ -16,6 +16,7 @@ import no.nav.syfo.application.database.Database
 import no.nav.syfo.application.database.DatabaseConfig
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.isLocalEnv
+import no.nav.syfo.document.service.ValidationService
 import no.nav.syfo.document.db.DocumentDAO
 import no.nav.syfo.texas.client.TexasHttpClient
 import no.nav.syfo.util.httpClientDefault
@@ -91,6 +92,7 @@ private fun servicesModule() = module {
     }
 
     single { AltinnTilgangerService(get()) }
+    single { ValidationService(get()) }
 }
 
 private fun Scope.env() = get<Environment>()

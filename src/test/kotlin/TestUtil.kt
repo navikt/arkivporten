@@ -10,14 +10,9 @@ import io.mockk.coEvery
 import java.time.Instant
 import java.util.*
 import net.datafaker.Faker
-import no.nav.syfo.aareg.client.AaregClient
-import no.nav.syfo.aareg.client.FakeAaregClient
 import no.nav.syfo.application.auth.JwtIssuer
-import no.nav.syfo.application.auth.maskinportenIdToOrgnumber
 import no.nav.syfo.document.api.v1.Document
 import no.nav.syfo.document.api.v1.DocumentType
-import no.nav.syfo.narmesteleder.api.v1.NarmesteLederRelasjonerWrite
-import no.nav.syfo.narmesteleder.api.v1.NarmestelederRelasjonAvkreft
 import no.nav.syfo.texas.client.OrganizationId
 import no.nav.syfo.texas.client.TexasHttpClient
 import no.nav.syfo.texas.client.TexasIntrospectionResponse
@@ -35,16 +30,6 @@ fun document() =
         dialogTitle = faker.lorem().sentence(),
         dialogSummary = faker.lorem().sentence(),
     )
-
-fun narmesteLederRelasjon(): NarmesteLederRelasjonerWrite = NarmesteLederRelasjonerWrite(
-    sykmeldtFnr = faker.numerify("###########"),
-    organisasjonsnummer = faker.numerify("#########"),
-)
-
-fun narmesteLederAvkreft(): NarmestelederRelasjonAvkreft = NarmestelederRelasjonAvkreft(
-    sykmeldtFnr = faker.numerify("###########"),
-    organisasjonsnummer = faker.numerify("#########"),
-)
 
 fun createMockToken(
     ident: String,
@@ -77,21 +62,6 @@ val DefaultOrganization = OrganizationId(
     authority = "some-authority",
 )
 
-/**
- * @param prefix prefix the org.num with this. Default `0192:`
- * @param count how many org numbers should be generated. Default `20`
- * @param orgNumLength the length of the org.number itself. Default `9`
- * */
-fun createRandomValidOrgNumbers(
-    prefix: String = "0192:",
-    count: Int = 20,
-    orgNumLength: Int = 9
-): List<String> =
-    buildList {
-        repeat(count) { add(faker.regexify("$prefix:[0-9]{$orgNumLength}")) }
-    }
-
-
 fun getMockEngine(path: String = "", status: HttpStatusCode, headers: Headers, content: String) =
     MockEngine.Companion { request ->
         when (request.url.fullPath) {
@@ -115,20 +85,6 @@ fun getMockEngine(path: String = "", status: HttpStatusCode, headers: Headers, c
         }
     }
 
-fun AaregClient.defaultMocks(
-    arbeidstakerHovedenhet: String = maskinportenIdToOrgnumber(DefaultOrganization.ID),
-    arbeidstakerUnderenhet: String? = null,
-) {
-    val client = FakeAaregClient(
-//        arbeidsstedOrgnummer = arbeidstakerUnderenhet ?: arbeidstakerHovedenhet,
-//        juridiskOrgnummer = arbeidstakerHovedenhet,
-    )
-
-    coEvery { getArbeidsforhold(any()) } coAnswers {
-        val persIdent = firstArg<String>()
-        client.getArbeidsforhold(persIdent)
-    }
-}
 
 fun TexasHttpClient.defaultMocks(
     pid: String? = null,

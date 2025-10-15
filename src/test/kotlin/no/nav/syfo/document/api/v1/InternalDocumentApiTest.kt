@@ -30,12 +30,14 @@ import no.nav.syfo.TestDB
 import no.nav.syfo.application.api.installContentNegotiation
 import no.nav.syfo.application.api.installStatusPages
 import no.nav.syfo.document.db.DocumentDAO
+import no.nav.syfo.document.service.ValidationService
 import no.nav.syfo.registerApiV1
 import no.nav.syfo.texas.client.TexasHttpClient
 
 class InternalDocumentApiTest : DescribeSpec({
     val texasHttpClientMock = mockk<TexasHttpClient>()
     val documentDAOMock = mockk<DocumentDAO>()
+
     beforeTest {
         clearAllMocks()
         TestDB.clearAllData()
@@ -60,7 +62,8 @@ class InternalDocumentApiTest : DescribeSpec({
                 routing {
                     registerApiV1(
                         texasHttpClientMock,
-                        documentDAOMock
+                        documentDAOMock,
+                        validationService = mockk<ValidationService>()
                     )
                 }
             }
