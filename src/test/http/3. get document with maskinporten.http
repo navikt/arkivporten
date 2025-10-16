@@ -1,3 +1,0 @@
-### TODO skriv om til GET /documents/{id}
-GET http://localhost:8080/api/v1/documents/e9c12ec9-1234-4929-8312-3af9b079d2fa
-Authorization: Bearer {{maskinportenToken}}
