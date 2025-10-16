@@ -74,6 +74,8 @@ spec:
       rules:
         - application: tokenx-token-generator
           namespace: nais
+        - application: azure-token-generator
+          namespace: nais
         - application: syfo-oppfolgingsplan-backend
           namespace: team-esyfo
         - application: isyfo-isdialogmote

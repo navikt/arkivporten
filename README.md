@@ -79,5 +79,5 @@ Select "på høyt nivå" and give the ident of a user that has access the the de
 leder for the organisasjonsnummer you want to test with.
 Altinn resources needed
 
-- nav_syfo_dialogmote
-- nav_syfo_oppfolgingsplan
+In order to get a azuread token, use the following url:
+https://azure-token-generator.intern.dev.nav.no/api/m2m?aud=dev-gcp.team-esyfo.arkivporten
