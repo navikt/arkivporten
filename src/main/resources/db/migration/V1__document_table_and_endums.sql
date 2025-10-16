@@ -1,8 +1,11 @@
+create type DOCUMENT_STATUS as enum ('RECEIVED', 'PENDING', 'COMPLETED', 'ERROR');
+create type DOCUMENT_TYPE as enum ('OPPFOLGINGSPLAN', 'DIALOGMOTE', 'UNDEFINED');
+
 create table document
 (
     id             BIGSERIAL PRIMARY KEY,
     document_id    UUID                     NOT NULL,
-    type           VARCHAR(50)              NOT NULL,
+    type           DOCUMENT_TYPE            NOT NULL DEFAULT 'UNDEFINED',
     content        BYTEA                    NOT NULL,
     content_type   VARCHAR(100)             NOT NULL,
     orgnumber      VARCHAR(9)               NOT NULL,

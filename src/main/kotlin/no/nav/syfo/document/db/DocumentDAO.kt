@@ -26,7 +26,7 @@ class DocumentDAO(private val database: DatabaseInterface) {
                 ).use { preparedStatement ->
                     with(documentEntity) {
                         preparedStatement.setObject(1, documentId)
-                        preparedStatement.setObject(2, type.name)
+                        preparedStatement.setObject(2, type, java.sql.Types.OTHER)
                         preparedStatement.setBytes(3, content)
                         preparedStatement.setString(4, contentType)
                         preparedStatement.setString(5, orgnumber)
