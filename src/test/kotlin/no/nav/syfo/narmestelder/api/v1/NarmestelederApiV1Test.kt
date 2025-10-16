@@ -19,6 +19,7 @@ import io.ktor.server.testing.testApplication
 import io.mockk.clearAllMocks
 import io.mockk.mockk
 import io.mockk.spyk
+import no.nav.syfo.TestDB
 import no.nav.syfo.aareg.client.FakeAaregClient
 import no.nav.syfo.altinntilganger.AltinnTilgangerService
 import no.nav.syfo.altinntilganger.client.FakeAltinnTilgangerClient
@@ -27,6 +28,7 @@ import no.nav.syfo.application.api.ErrorType
 import no.nav.syfo.application.api.installContentNegotiation
 import no.nav.syfo.application.api.installStatusPages
 import no.nav.syfo.application.auth.maskinportenIdToOrgnumber
+import no.nav.syfo.document.db.DocumentDAO
 import no.nav.syfo.registerApiV1
 import no.nav.syfo.texas.MASKINPORTEN_NL_SCOPE
 import no.nav.syfo.texas.client.TexasHttpClient
@@ -39,8 +41,11 @@ class armestelederApiV1Test : DescribeSpec({
     val altinnTilgangerServiceMock = AltinnTilgangerService(fakeAltinnTilgangerClient)
     val altinnTilgangerServiceSpy = spyk(altinnTilgangerServiceMock)
     val tokenXIssuer = "https://tokenx.nav.no"
+    val testDb = TestDB.database
+    val documentDAO = DocumentDAO(testDb)
     beforeTest {
         clearAllMocks()
+        TestDB.clearAllData()
         fakeAltinnTilgangerClient.usersWithAccess.clear()
         fakeAaregClient.arbeidsForholdForIdent.clear()
     }
@@ -64,6 +69,7 @@ class armestelederApiV1Test : DescribeSpec({
                 routing {
                     registerApiV1(
                         texasHttpClientMock,
+                        documentDAO
                     )
                 }
             }

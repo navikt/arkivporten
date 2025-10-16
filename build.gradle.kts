@@ -41,9 +41,8 @@ dependencies {
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.bundles.kotest)
     testImplementation(libs.mockk)
-    testImplementation(libs.testcontainers)
     testImplementation(libs.ktor.client.mock)
-//    testImplementation(libs.testcontainers.postgres) // Will want this eventually
+    testImplementation(libs.bundles.testcontainers) // Will want this eventually
 }
 application {
     mainClass.set("no.nav.syfo.ApplicationKt")

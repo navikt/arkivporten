@@ -74,6 +74,10 @@ spec:
       rules:
         - application: tokenx-token-generator
           namespace: nais
+        - application: syfo-oppfolgingsplan-backend
+          namespace: team-esyfo
+        - application: isyfo-isdialogmote
+          namespace: teamsykefravr
     outbound:
       rules:
         - application: arbeidsgiver-altinn-tilganger
