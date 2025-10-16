@@ -24,12 +24,15 @@ import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
+import io.mockk.slot
 import io.mockk.verify
 import no.nav.syfo.TestDB
 import no.nav.syfo.application.api.installContentNegotiation
 import no.nav.syfo.application.api.installStatusPages
 import no.nav.syfo.document.db.DocumentDAO
+import no.nav.syfo.document.db.DocumentEntity
 import no.nav.syfo.document.service.ValidationService
 import no.nav.syfo.registerApiV1
 import no.nav.syfo.texas.client.TexasHttpClient
@@ -74,12 +77,14 @@ class InternalDocumentApiTest : DescribeSpec({
         it("should return 200 OK for valid payload") {
             withTestApplication {
                 // Arrange
-                coEvery { documentDAOMock.insert(any()) } returns 1L
+                val capturedSlot = slot<DocumentEntity>()
+                coEvery { documentDAOMock.insert(capture(capturedSlot)) } returns 1L
                 texasHttpClientMock.defaultMocks()
+                val document = document()
                 // Act
                 val response = client.post("/internal/api/v1/documents") {
                     contentType(ContentType.Application.Json)
-                    setBody(document())
+                    setBody(document)
                     bearerAuth(createMockToken(ident = "", issuer = "https://test.azuread.microsoft.com"))
                 }
 
@@ -88,6 +93,8 @@ class InternalDocumentApiTest : DescribeSpec({
                 // Verify that the document was inserted into the database
                 verify(exactly = 1) {
                     documentDAOMock.insert(any())
+                    val captured = capturedSlot.captured
+                    captured.content.toString(Charsets.UTF_8) shouldBe document.content.toString(Charsets.UTF_8)
                 }
             }
         }
@@ -96,6 +103,7 @@ class InternalDocumentApiTest : DescribeSpec({
             withTestApplication {
                 // Arrange
                 texasHttpClientMock.defaultMocks()
+                every { documentDAOMock.insert(any()) } returns 1L
                 // Act
                 val response = client.post("/internal/api/v1/documents") {
                     contentType(ContentType.Application.Json)
