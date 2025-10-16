@@ -1,6 +1,5 @@
 package no.nav.syfo.ereg
 
-import no.nav.syfo.ereg.client.EregClientException
 import no.nav.syfo.ereg.client.IEaregClient
 import no.nav.syfo.application.exception.ApiErrorException
 import no.nav.syfo.application.exception.UpstreamRequestException
