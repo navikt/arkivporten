@@ -15,7 +15,7 @@ import no.nav.syfo.util.logger
 
 val TOKEN_CONSUMER_KEY = AttributeKey<OrganizationId>("tokenConsumer")
 private val VALID_ISSUERS = listOf(JwtIssuer.MASKINPORTEN, JwtIssuer.TOKEN_X, JwtIssuer.IDPORTEN)
-val MASKINPORTEN_ARKIVPORTEN_SCOPE = "nav:syfo/arkivporteni"
+val MASKINPORTEN_ARKIVPORTEN_SCOPE = "nav:syfo/arkivporten"
 private val logger = logger("no.nav.syfo.texas.MaskinportenIdportenAndTokenXAuthPlugin")
 
 val MaskinportenIdportenAndTokenXAuthPlugin = createRouteScopedPlugin(
