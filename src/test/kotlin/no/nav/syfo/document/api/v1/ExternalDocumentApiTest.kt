@@ -50,6 +50,7 @@ class ExternalDocumentApiTest : DescribeSpec({
     val validationService = ValidationService(AltinnTilgangerService(fakeAltinnTilgangerClient), eregServiceSpy)
     val validationServiceSpy = spyk(validationService)
     val tokenXIssuer = "https://tokenx.nav.no"
+    val idportenIssuer = "https://test.idporten.no"
     beforeTest {
         clearAllMocks()
         TestDB.clearAllData()
@@ -239,27 +240,54 @@ class ExternalDocumentApiTest : DescribeSpec({
             }
         }
 
-        describe("Not Found") {
-            it("should return 404 Not found for unknown id") {
+        describe("Idporten token") {
+            it("should return 200 OK for authorized token") {
                 withTestApplication {
                     // Arrange
                     val document = document().toDocumentEntity()
-                    coEvery { DocumentDAOMock.getByLinkId(eq(document.linkId)) } returns null
+                    val callerPid = "11223344556"
                     texasHttpClientMock.defaultMocks(
-                        consumer = DefaultOrganization.copy(
-                            ID = "0192:${document.orgnumber}"
-                        ),
-                        scope = MASKINPORTEN_ARKIVPORTEN_SCOPE,
+                        acr = "Level4",
+                        pid = callerPid
                     )
+                    fakeAltinnTilgangerClient.usersWithAccess.add(callerPid to document.orgnumber)
+                    coEvery { DocumentDAOMock.getByLinkId(eq(document.linkId)) } returns document
                     // Act
                     val response = client.get("api/v1/documents/${document.linkId}") {
-                        bearerAuth(createMockToken(ident = document.orgnumber))
+                        bearerAuth(createMockToken(callerPid, issuer = idportenIssuer))
                     }
 
                     // Assert
-                    response.status shouldBe HttpStatusCode.NotFound
-                    coVerify(exactly = 0) {
+                    response.status shouldBe HttpStatusCode.OK
+                    response.headers["Content-Type"] shouldBe document.contentType
+                    coVerify(exactly = 1) {
                         validationServiceSpy.validateDocumentAccess(any(), eq(document))
+                    }
+                }
+            }
+
+            describe("Not Found") {
+                it("should return 404 Not found for unknown id") {
+                    withTestApplication {
+                        // Arrange
+                        val document = document().toDocumentEntity()
+                        coEvery { DocumentDAOMock.getByLinkId(eq(document.linkId)) } returns null
+                        texasHttpClientMock.defaultMocks(
+                            consumer = DefaultOrganization.copy(
+                                ID = "0192:${document.orgnumber}"
+                            ),
+                            scope = MASKINPORTEN_ARKIVPORTEN_SCOPE,
+                        )
+                        // Act
+                        val response = client.get("api/v1/documents/${document.linkId}") {
+                            bearerAuth(createMockToken(ident = document.orgnumber))
+                        }
+
+                        // Assert
+                        response.status shouldBe HttpStatusCode.NotFound
+                        coVerify(exactly = 0) {
+                            validationServiceSpy.validateDocumentAccess(any(), eq(document))
+                        }
                     }
                 }
             }

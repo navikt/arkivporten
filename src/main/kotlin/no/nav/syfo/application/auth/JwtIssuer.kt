@@ -18,7 +18,7 @@ enum class JwtIssuer(val value: String? = null) {
             iss.matches(Regex("https://(test\\.)?idporten\\.no/?")) -> IDPORTEN
             iss.contains("tokenx") -> TOKEN_X
             // tokenx is found at well-known doc found in TOKEN_X_WELL_KNOWN_URL env. var
-            else -> JwtIssuer.UNSUPPORTED
+            else -> UNSUPPORTED
         }
     }
 }

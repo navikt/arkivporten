@@ -112,6 +112,8 @@ fun TexasHttpClient.defaultMocks(
         val identityProvider = firstArg<String>()
 
         when (identityProvider) {
+            "azuread",
+            "idporten",
             "maskinporten",
             "tokenx" -> {
                 TexasIntrospectionResponse(
@@ -123,16 +125,6 @@ fun TexasHttpClient.defaultMocks(
                     consumer = consumer,
                     supplier = supplier,
                     scope = scope,
-                )
-            }
-            "azuread" -> {
-                TexasIntrospectionResponse(
-                    active = true,
-                    pid = pid,
-                    acr = acr,
-                    sub = UUID.randomUUID().toString(),
-                    consumer = consumer,
-                    supplier = supplier,
                 )
             }
             else -> TODO("Legg til identityProvider i mock")
