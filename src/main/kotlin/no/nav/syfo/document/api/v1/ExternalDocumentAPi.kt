@@ -9,7 +9,7 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.route
 import no.nav.syfo.document.db.DocumentDAO
 import no.nav.syfo.document.service.ValidationService
-import no.nav.syfo.texas.MaskinportenAndTokenXTokenAuthPlugin
+import no.nav.syfo.texas.MaskinportenIdportenAndTokenXAuthPlugin
 import no.nav.syfo.texas.client.TexasHttpClient
 
 fun Route.registerExternalDocumentsApiV1(
@@ -19,7 +19,7 @@ fun Route.registerExternalDocumentsApiV1(
 ) {
     route("/documents/{id}") {
 
-        install(MaskinportenAndTokenXTokenAuthPlugin) {
+        install(MaskinportenIdportenAndTokenXAuthPlugin) {
             client = texasHttpClient
         }
         get() {

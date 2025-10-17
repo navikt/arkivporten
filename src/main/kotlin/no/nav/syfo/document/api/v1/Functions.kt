@@ -43,5 +43,9 @@ fun RoutingCall.getPrincipal(): Principal =
             authentication.principal<BrukerPrincipal>() ?: throw UnauthorizedException()
         }
 
+        JwtIssuer.IDPORTEN -> {
+            authentication.principal<BrukerPrincipal>() ?: throw UnauthorizedException()
+        }
+
         else -> throw UnauthorizedException()
     }

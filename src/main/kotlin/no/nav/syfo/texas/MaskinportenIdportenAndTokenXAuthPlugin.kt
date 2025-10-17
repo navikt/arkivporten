@@ -16,10 +16,10 @@ import no.nav.syfo.util.logger
 val TOKEN_CONSUMER_KEY = AttributeKey<OrganizationId>("tokenConsumer")
 private val VALID_ISSUERS = listOf(JwtIssuer.MASKINPORTEN, JwtIssuer.TOKEN_X)
 val MASKINPORTEN_ARKIVPORTEN_SCOPE = "nav:syfo/arkivporteni"
-private val logger = logger("no.nav.syfo.texas.MaskinportenAndTokenXTokenAuthPlugin")
+private val logger = logger("no.nav.syfo.texas.MaskinportenIdportenAndTokenXAuthPlugin")
 
-val MaskinportenAndTokenXTokenAuthPlugin = createRouteScopedPlugin(
-    name = "MaskinportenAndTokenXTokenAuthPlugin",
+val MaskinportenIdportenAndTokenXAuthPlugin = createRouteScopedPlugin(
+    name = "MaskinportenIdportenAndTokenXAuthPlugin",
     createConfiguration = ::TexasAuthPluginConfiguration,
 ) {
 
@@ -57,7 +57,7 @@ val MaskinportenAndTokenXTokenAuthPlugin = createRouteScopedPlugin(
                         throw ApiErrorException.UnauthorizedException("No consumer in token claims")
                     }
                     if (introspectionResponse.scope != MASKINPORTEN_ARKIVPORTEN_SCOPE) {
-                        throw ApiErrorException.UnauthorizedException("Invalid scope from maskinporten" )
+                        throw ApiErrorException.UnauthorizedException("Invalid scope from maskinporten")
                     }
                     call.authentication.principal(
                         OrganisasjonPrincipal(
@@ -68,6 +68,7 @@ val MaskinportenAndTokenXTokenAuthPlugin = createRouteScopedPlugin(
                     call.attributes.put(TOKEN_CONSUMER_KEY, introspectionResponse.consumer)
                 }
 
+                JwtIssuer.IDPORTEN,
                 JwtIssuer.TOKEN_X -> {
                     if (!introspectionResponse.acr.equals("Level4", ignoreCase = true)) {
                         call.application.environment.log.warn("User does not have Level4 access: ${introspectionResponse.acr}")
