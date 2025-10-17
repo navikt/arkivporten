@@ -4,6 +4,7 @@ import no.nav.syfo.altinntilganger.client.IAltinnTilgangerClient
 import no.nav.syfo.application.auth.BrukerPrincipal
 import no.nav.syfo.application.exception.ApiErrorException
 import no.nav.syfo.application.exception.UpstreamRequestException
+import no.nav.syfo.document.api.v1.DocumentType
 import no.nav.syfo.util.logger
 
 class AltinnTilgangerService(
@@ -12,10 +13,13 @@ class AltinnTilgangerService(
     suspend fun validateTilgangToOrganisasjon(
         brukerPrincipal: BrukerPrincipal,
         orgnummer: String,
+        documentType: DocumentType
     ) {
         try {
             val tilganger = altinnTilgangerClient.hentTilganger(brukerPrincipal)
-            if (tilganger?.orgNrTilTilganger[orgnummer]?.contains(OPPRETT_NL_REALASJON_RESOURCE) != true)
+            val requiredResource = requiredResourceByDocumentType[documentType]
+                ?: throw ApiErrorException.InternalServerErrorException("Ukjent dokumenttype $documentType")
+            if (tilganger?.orgNrTilTilganger[orgnummer]?.contains(requiredResource) != true)
                 throw ApiErrorException.ForbiddenException("Bruker har ikke tilgang til organisasjon $orgnummer")
         } catch (e: UpstreamRequestException) {
             logger.error("Feil ved henting av tilgang til organisasjon $orgnummer", e)
@@ -24,7 +28,10 @@ class AltinnTilgangerService(
     }
 
     companion object {
-        const val OPPRETT_NL_REALASJON_RESOURCE = "4596:1" // Access resource in Altinn2 to access NL relasjon
         private val logger = logger()
+        val requiredResourceByDocumentType = mapOf(
+            DocumentType.OPPFOLGINGSPLAN to "nav_syfo_oppfolgingsplan",
+            DocumentType.DIALOGMOTE to "nav_syfo_dialogmote",
+        )
     }
 }

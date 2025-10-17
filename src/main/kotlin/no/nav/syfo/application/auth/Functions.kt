@@ -18,9 +18,6 @@ fun ApplicationCall.jwtIssuer(): JwtIssuer {
     val decodedToken = JWT.decode(token)
     val issuer = decodedToken.issuer ?: throw ApiErrorException.UnauthorizedException("Invalid token")
 
-    val hasIdpClaim = !decodedToken.getClaim("idp").asString().isNullOrEmpty()
-    if (hasIdpClaim) return JwtIssuer.TOKEN_X
-
     return JwtIssuer.fromIssuerString(issuer)
 }
 

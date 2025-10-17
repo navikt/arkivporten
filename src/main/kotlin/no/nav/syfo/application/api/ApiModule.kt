@@ -8,6 +8,8 @@ import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.metric.registerMetricApi
 import no.nav.syfo.document.db.DocumentDAO
+import no.nav.syfo.document.service.ValidationService
+import no.nav.syfo.ereg.EregService
 import no.nav.syfo.dialogporten.client.DialogportenClient
 import no.nav.syfo.dialogporten.registerDialogportenTestApi
 import no.nav.syfo.registerApiV1
@@ -19,6 +21,7 @@ fun Application.configureRouting() {
     val database by inject<DatabaseInterface>()
     val texasHttpClient by inject<TexasHttpClient>()
     val documentDAO by inject<DocumentDAO>()
+    val validationService by inject<ValidationService>()
     val dialogportenClient by inject<DialogportenClient>()
 
     installCallId()
@@ -28,8 +31,7 @@ fun Application.configureRouting() {
     routing {
         registerPodApi(applicationState, database)
         registerMetricApi()
-        registerApiV1(texasHttpClient, documentDAO)
-        registerApiV1(texasHttpClient)
+        registerApiV1(texasHttpClient, documentDAO, validationService)
         registerDialogportenTestApi(dialogportenClient)
         get("/") {
             call.respondText("Hello World!")

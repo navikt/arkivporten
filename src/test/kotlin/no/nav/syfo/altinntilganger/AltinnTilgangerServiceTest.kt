@@ -10,6 +10,7 @@ import no.nav.syfo.altinntilganger.client.FakeAltinnTilgangerClient
 import no.nav.syfo.application.auth.BrukerPrincipal
 import no.nav.syfo.application.exception.ApiErrorException
 import no.nav.syfo.application.exception.UpstreamRequestException
+import no.nav.syfo.document.api.v1.DocumentType
 
 class AltinnTilgangerServiceTest : DescribeSpec({
     val altinnTilgangerClient = FakeAltinnTilgangerClient()
@@ -25,7 +26,7 @@ class AltinnTilgangerServiceTest : DescribeSpec({
             val orgnummer = "987654321"
             val brukerPrincipal = BrukerPrincipal(fnr, "token")
             shouldThrow<ApiErrorException.ForbiddenException> {
-                altinnTilgangerService.validateTilgangToOrganisasjon(brukerPrincipal, orgnummer)
+                altinnTilgangerService.validateTilgangToOrganisasjon(brukerPrincipal, orgnummer, DocumentType.OPPFOLGINGSPLAN)
             }
         }
 
@@ -33,7 +34,7 @@ class AltinnTilgangerServiceTest : DescribeSpec({
             val accessPair = altinnTilgangerClient.usersWithAccess.first()
             val brukerPrincipal = BrukerPrincipal(accessPair.first, "token")
             shouldNotThrow<Exception> {
-                altinnTilgangerService.validateTilgangToOrganisasjon(brukerPrincipal, accessPair.second)
+                altinnTilgangerService.validateTilgangToOrganisasjon(brukerPrincipal, accessPair.second, DocumentType.OPPFOLGINGSPLAN)
             }
         }
 
@@ -44,7 +45,7 @@ class AltinnTilgangerServiceTest : DescribeSpec({
             val accessPair = altinnTilgangerClient.usersWithAccess.first()
             val brukerPrincipal = BrukerPrincipal(accessPair.first, "token")
             shouldThrow<ApiErrorException.InternalServerErrorException> {
-                altinnTilgangerServiceWithMock.validateTilgangToOrganisasjon(brukerPrincipal, accessPair.second)
+                altinnTilgangerServiceWithMock.validateTilgangToOrganisasjon(brukerPrincipal, accessPair.second, DocumentType.OPPFOLGINGSPLAN)
             }
         }
     }

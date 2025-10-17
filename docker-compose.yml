@@ -34,7 +34,7 @@ services:
                     "requestParam": "grant_type",
                     "match": "*",
                     "claims": {
-                      "aud": "arkviporten",
+                      "aud": "arkivporten",
                       "acr": "Level4"
                     }
                   }

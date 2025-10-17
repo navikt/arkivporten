@@ -2,9 +2,9 @@ package no.nav.syfo.plugins
 
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
-import no.nav.syfo.aareg.AaregService
-import no.nav.syfo.aareg.client.AaregClient
-import no.nav.syfo.aareg.client.FakeAaregClient
+import no.nav.syfo.ereg.EregService
+import no.nav.syfo.ereg.client.EregClient
+import no.nav.syfo.ereg.client.FakeEregClient
 import no.nav.syfo.altinntilganger.AltinnTilgangerService
 import no.nav.syfo.altinntilganger.client.AltinnTilgangerClient
 import no.nav.syfo.altinntilganger.client.FakeAltinnTilgangerClient
@@ -16,6 +16,7 @@ import no.nav.syfo.application.database.Database
 import no.nav.syfo.application.database.DatabaseConfig
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.isLocalEnv
+import no.nav.syfo.document.service.ValidationService
 import no.nav.syfo.document.db.DocumentDAO
 import no.nav.syfo.dialogporten.client.DialogportenClient
 import no.nav.syfo.texas.client.TexasHttpClient
@@ -73,15 +74,13 @@ private fun servicesModule() = module {
     single { TexasHttpClient(client = get(), environment = env().texas) }
     single { DialogportenClient("https://platform.tt02.altinn.no", get(), get()) }
     single {
-        if (isLocalEnv()) FakeAaregClient() else AaregClient(
+        if (isLocalEnv()) FakeEregClient() else EregClient(
             eregBaseUrl = env().clientProperties.eregBaseUrl,
-            texasHttpClient = get(),
-            scope = env().clientProperties.eregScope,
         )
     }
     single {
-        AaregService(
-            arbeidsforholdOversiktClient = get()
+        EregService(
+            eregClient = get()
         )
     }
     single {
@@ -93,6 +92,9 @@ private fun servicesModule() = module {
     }
 
     single { AltinnTilgangerService(get()) }
+
+    single { EregService(get()) }
+    single { ValidationService(get(), get()) }
 }
 
 private fun Scope.env() = get<Environment>()

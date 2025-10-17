@@ -8,6 +8,7 @@ metadata:
 spec:
   ingresses:
     - https://arkivporten.intern.dev.nav.no
+    - https://arkivporten.ekstern.dev.nav.no
   image: {{image}} #
   port: 8080
   liveness:
@@ -74,6 +75,8 @@ spec:
       rules:
         - application: tokenx-token-generator
           namespace: nais
+        - application: azure-token-generator
+          namespace: nais
         - application: syfo-oppfolgingsplan-backend
           namespace: team-esyfo
         - application: isyfo-isdialogmote
@@ -91,8 +94,6 @@ spec:
   env:
     - name: EREG_BASE_URL
       value: "https://ereg-services-q1.dev-fss-pub.nais.io"
-    - name: EREG_SCOPE
-      value: dev-fss.arbeidsforhold.eareg-services-nais
     - name: ALTINN_TILGANGER_BASE_URL
       value: http://arbeidsgiver-altinn-tilganger.fager
     - name: DIALOGPORTEN_SCOPE
