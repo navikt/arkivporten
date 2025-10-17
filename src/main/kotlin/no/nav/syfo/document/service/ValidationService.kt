@@ -41,7 +41,6 @@ class ValidationService(
         val orgnumberFromToken = maskinportenIdToOrgnumber(principal.ident)
         if (orgnumberFromToken != documentDAO.orgnumber) {
             val organisasjon = eregService.getOrganization(documentDAO.orgnumber)
-            logger.info("Organisasjon: $organisasjon")
             if (organisasjon.inngaarIJuridiskEnheter?.filter { it.organisasjonsnummer == orgnumberFromToken }
                     .isNullOrEmpty()) {
                 logger.warn(
