@@ -9,7 +9,6 @@ import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.metric.registerMetricApi
 import no.nav.syfo.document.db.DocumentDAO
 import no.nav.syfo.document.service.ValidationService
-import no.nav.syfo.ereg.EregService
 import no.nav.syfo.dialogporten.client.DialogportenClient
 import no.nav.syfo.dialogporten.registerDialogportenTestApi
 import no.nav.syfo.registerApiV1
