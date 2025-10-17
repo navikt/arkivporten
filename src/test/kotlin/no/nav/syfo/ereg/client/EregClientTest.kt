@@ -31,7 +31,7 @@ class EregClientTest : DescribeSpec({
     describe("Successfull responses from Ereg") {
         val organization = organisasjon()
         val mockEngine = getMockEngine(
-            path = "$eregPath/${organization.organisasjonsnummer}",
+            path = "$eregPath/${organization.organisasjonsnummer}?inkluderHierarki=true",
             headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
             status = HttpStatusCode.Companion.OK,
             content = jacksonObjectMapper().writeValueAsString(organization)
@@ -40,8 +40,6 @@ class EregClientTest : DescribeSpec({
         val httpClient = httpClientDefault(HttpClient(mockEngine))
         val eregClient = EregClient(
             eregBaseUrl = "",
-            texasHttpClient = texasHttpClient,
-            scope = "scope",
             httpClient = httpClient,
         )
 
@@ -57,7 +55,7 @@ class EregClientTest : DescribeSpec({
         it("It should re-throw with internal server error if 4xx error except 404") {
             val organization = organisasjon()
             val mockEngine = getMockEngine(
-                path = "$eregPath/${organization.organisasjonsnummer}",
+                path = "$eregPath/${organization.organisasjonsnummer}?inkluderHierarki=true",
                 headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
                 status = HttpStatusCode.Companion.BadRequest,
                 content = ""
@@ -65,8 +63,6 @@ class EregClientTest : DescribeSpec({
             val client = httpClientDefault(HttpClient(mockEngine))
             val arClient = EregClient(
                 eregBaseUrl = "",
-                texasHttpClient = texasHttpClient,
-                scope = "scope",
                 httpClient = client,
             )
             shouldThrow<UpstreamRequestException> {
@@ -78,7 +74,7 @@ class EregClientTest : DescribeSpec({
         it("Should return null if 4xx error") {
             val organization = organisasjon()
             val mockEngine = getMockEngine(
-                path = "$eregPath/${organization.organisasjonsnummer}",
+                path = "$eregPath/${organization.organisasjonsnummer}?inkluderHierarki=true",
                 headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
                 status = HttpStatusCode.Companion.NotFound,
                 content = ""
@@ -86,8 +82,6 @@ class EregClientTest : DescribeSpec({
             val client = httpClientDefault(HttpClient(mockEngine))
             val eregClient = EregClient(
                 eregBaseUrl = "",
-                texasHttpClient = texasHttpClient,
-                scope = "scope",
                 httpClient = client,
             )
             val result = eregClient.getOrganisasjon(organization.organisasjonsnummer)

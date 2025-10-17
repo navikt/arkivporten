@@ -74,8 +74,6 @@ private fun servicesModule() = module {
     single {
         if (isLocalEnv()) FakeEregClient() else EregClient(
             eregBaseUrl = env().clientProperties.eregBaseUrl,
-            texasHttpClient = get(),
-            scope = env().clientProperties.eregScope,
         )
     }
     single {
