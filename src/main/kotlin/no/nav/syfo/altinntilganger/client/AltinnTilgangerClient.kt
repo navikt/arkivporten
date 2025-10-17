@@ -7,7 +7,7 @@ import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.post
 import java.util.*
 import net.datafaker.Faker
-import no.nav.syfo.altinntilganger.AltinnTilgangerService.Companion.OPPRETT_NL_REALASJON_RESOURCE
+import no.nav.syfo.altinntilganger.AltinnTilgangerService
 import no.nav.syfo.application.auth.BrukerPrincipal
 import no.nav.syfo.application.exception.UpstreamRequestException
 import no.nav.syfo.texas.client.TexasHttpClient
@@ -27,6 +27,8 @@ class FakeAltinnTilgangerClient : IAltinnTilgangerClient {
         val faker = Faker(Random(bruker.ident.toLong()))
         val accessPair = usersWithAccess.find { it.first == bruker.ident }
         val organisasjonsnummer = accessPair?.second ?: faker.numerify("#########")
+        val resources = AltinnTilgangerService.requiredResourceByDocumentType.values.toSet()
+        val tilgangTilOrgNr = resources.associateWith { setOf(organisasjonsnummer) }
         return AltinnTilgangerResponse(
             false,
             listOf(
@@ -39,8 +41,8 @@ class FakeAltinnTilgangerClient : IAltinnTilgangerClient {
                     "BEDR"
                 )
             ),
-            if (accessPair != null) mapOf(organisasjonsnummer to setOf(OPPRETT_NL_REALASJON_RESOURCE)) else emptyMap(),
-            if (accessPair != null) mapOf(OPPRETT_NL_REALASJON_RESOURCE to setOf(organisasjonsnummer)) else emptyMap(),
+            if (accessPair != null) mapOf(organisasjonsnummer to resources) else emptyMap(),
+            if (accessPair != null) tilgangTilOrgNr else emptyMap(),
         )
     }
 
