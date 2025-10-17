@@ -16,9 +16,11 @@ import no.nav.syfo.application.database.Database
 import no.nav.syfo.application.database.DatabaseConfig
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.isLocalEnv
+import no.nav.syfo.application.leaderelection.LeaderElection
 import no.nav.syfo.document.service.ValidationService
 import no.nav.syfo.document.db.DocumentDAO
 import no.nav.syfo.dialogporten.client.DialogportenClient
+import no.nav.syfo.dialogporten.task.SendDialogTask
 import no.nav.syfo.texas.client.TexasHttpClient
 import no.nav.syfo.util.httpClientDefault
 import org.koin.core.scope.Scope
@@ -95,6 +97,8 @@ private fun servicesModule() = module {
 
     single { EregService(get()) }
     single { ValidationService(get(), get()) }
+    single { LeaderElection(get(), env().clientProperties.electorPath) }
+    single { SendDialogTask(get(), get(), get()) }
 }
 
 private fun Scope.env() = get<Environment>()

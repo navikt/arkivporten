@@ -9,8 +9,6 @@ import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.metric.registerMetricApi
 import no.nav.syfo.document.db.DocumentDAO
 import no.nav.syfo.document.service.ValidationService
-import no.nav.syfo.dialogporten.client.DialogportenClient
-import no.nav.syfo.dialogporten.registerDialogportenTestApi
 import no.nav.syfo.registerApiV1
 import no.nav.syfo.texas.client.TexasHttpClient
 import org.koin.ktor.ext.inject
@@ -21,7 +19,6 @@ fun Application.configureRouting() {
     val texasHttpClient by inject<TexasHttpClient>()
     val documentDAO by inject<DocumentDAO>()
     val validationService by inject<ValidationService>()
-    val dialogportenClient by inject<DialogportenClient>()
 
     installCallId()
     installContentNegotiation()
@@ -31,7 +28,6 @@ fun Application.configureRouting() {
         registerPodApi(applicationState, database)
         registerMetricApi()
         registerApiV1(texasHttpClient, documentDAO, validationService)
-        registerDialogportenTestApi(dialogportenClient)
         get("/") {
             call.respondText("Hello World!")
         }

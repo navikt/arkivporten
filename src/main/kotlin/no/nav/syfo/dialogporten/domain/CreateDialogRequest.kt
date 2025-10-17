@@ -5,6 +5,6 @@ data class CreateDialogRequest(
     val title: String,
     val summary: String,
     val externalReference: String,
-    val isApiOnly: Boolean = true,
+    val isApiOnly: Boolean = false,
     val transmissions: List<Transmission>,
 )

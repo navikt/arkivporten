@@ -70,6 +70,7 @@ spec:
   azure:
     application:
       enabled: true
+  leaderElection: true
   accessPolicy:
     inbound:
       rules:
