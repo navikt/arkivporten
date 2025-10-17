@@ -30,7 +30,9 @@ class SendDialogTask(
             while (isActive) {
                 if (leaderElection.isLeader()) {
                     try {
+                        logger.info("Starting task for send documents to dialogporten")
                         val documentsToSend = getDocumentsToSend()
+                        logger.info("Found ${documentsToSend.size} documents to send to dialogporten")
                         sendDocumentsToDialogporten(documentsToSend)
                     } catch (ex: Exception) {
                         logger.error("Could not send dialogs to dialogporten", ex)
