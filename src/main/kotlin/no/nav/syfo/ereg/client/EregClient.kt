@@ -3,7 +3,6 @@ package no.nav.syfo.ereg.client
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ResponseException
-import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
@@ -26,11 +25,9 @@ class EregClient(
     private val httpClient: HttpClient = httpClientDefault()
 ) : IEaregClient {
     override suspend fun getOrganisasjon(orgnummer: String): Organisasjon? {
-        val token = getSystemToken()
         val response = try {
             val response = httpClient.get("$eregBaseUrl/ereg/api/v1/organisasjon/$orgnummer") {
                 contentType(ContentType.Application.Json)
-                bearerAuth(token)
             }.body<Organisasjon>()
             response
         } catch (e: ResponseException) {

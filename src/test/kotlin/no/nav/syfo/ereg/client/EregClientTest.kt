@@ -49,9 +49,6 @@ class EregClientTest : DescribeSpec({
             texasHttpClient.defaultMocks()
             val result = eregClient.getOrganisasjon(organization.organisasjonsnummer)
             result shouldBe organization
-            coVerify(exactly = 1) {
-                texasHttpClient.systemToken(any(), any())
-            }
         }
 
 
@@ -95,9 +92,6 @@ class EregClientTest : DescribeSpec({
             )
             val result = eregClient.getOrganisasjon(organization.organisasjonsnummer)
             result shouldBe null
-            coVerify(exactly = 1) {
-                texasHttpClient.systemToken(any(), any())
-            }
         }
     }
 })
