@@ -19,8 +19,6 @@ interface IEaregClient {
     ): Organisasjon?
 }
 
-class EregClientException(message: String, cause: Exception) : RuntimeException(message, cause)
-
 class EregClient(
     val eregBaseUrl: String,
     private val texasHttpClient: TexasHttpClient,
@@ -30,7 +28,7 @@ class EregClient(
     override suspend fun getOrganisasjon(orgnummer: String): Organisasjon? {
         val token = getSystemToken()
         val response = try {
-            val response = httpClient.get("$eregBaseUrl/v1/organisasjon/$orgnummer") {
+            val response = httpClient.get("$eregBaseUrl/ereg/api/v1/organisasjon/$orgnummer") {
                 contentType(ContentType.Application.Json)
                 bearerAuth(token)
             }.body<Organisasjon>()
