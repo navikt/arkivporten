@@ -60,8 +60,7 @@ class SendDialogTask(
                         transmissions = listOf(
                             Transmission(
                                 type = Transmission.TransmissionType.Information,
-                                extendedType = "?",
-                                sender = Transmission.Sender("NavTest"),
+                                sender = Transmission.Sender("ServiceOwner"),
                                 content = Content.create("transmissionTitle", "transmissionSummary"),
                                 attachments = listOf(
                                     Transmission.Attachment(

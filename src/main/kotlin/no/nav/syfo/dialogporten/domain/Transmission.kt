@@ -3,7 +3,7 @@ package no.nav.syfo.dialogporten.domain
 
 data class Transmission(
     val type: TransmissionType,
-    val extendedType: String,
+    val extendedType: String? = null,
     val sender: Sender,
     val content: Content,
     val attachments: List<Attachment>? = null,
