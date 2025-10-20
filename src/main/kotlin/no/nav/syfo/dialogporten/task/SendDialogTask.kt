@@ -62,13 +62,14 @@ class SendDialogTask(
                         transmissions = listOf(
                             Transmission(
                                 type = Transmission.TransmissionType.Information,
+                                extendedType = document.type.name,
                                 sender = Transmission.Sender("ServiceOwner"),
                                 content = Content.create("transmissionTitle", "transmissionSummary"),
                                 attachments = listOf(
                                     Transmission.Attachment(
                                         displayName = listOf(
                                             ContentValueItem(
-                                                "attachmentDisplayName",
+                                                "Oppfølgingsplan.pdf",
                                                 "nb"
                                             ),
                                         ),
