@@ -23,7 +23,7 @@ class SendDialogTask(
     private val documentDAO: DocumentDAO
 ) {
     private val logger = logger()
-    private val linkBaseUrl = "https://arkivporten.ekstern.dev.nav.no/api/v1/documents/"
+    private val linkBaseUrl = "https://arkivporten.ekstern.dev.nav.no/api/v1/documents"
 
     suspend fun runTask() = coroutineScope {
         try {
@@ -50,7 +50,7 @@ class SendDialogTask(
 
     private suspend fun sendDocumentsToDialogporten(documentsToSend: List<DocumentEntity>) {
         for (document in documentsToSend) {
-            val fullDocumentLink = "$linkBaseUrl${document.linkId}"
+            val fullDocumentLink = "$linkBaseUrl/${document.linkId}"
             try {
                 val dialogId = dialogportenClient.createDialog(
                     CreateDialogRequest(
@@ -79,11 +79,11 @@ class SendDialogTask(
                                                 mediaType = document.contentType,
                                                 consumerType = Transmission.AttachmentUrlConsumerType.Gui,
                                             ),
-                                            Transmission.Url(
-                                                url = fullDocumentLink,
-                                                mediaType = document.contentType,
-                                                consumerType = Transmission.AttachmentUrlConsumerType.Api,
-                                            ),
+//                                            Transmission.Url(
+//                                                url = fullDocumentLink,
+//                                                mediaType = document.contentType,
+//                                                consumerType = Transmission.AttachmentUrlConsumerType.Api,
+//                                            ),
                                         ),
                                     ),
                                 )
