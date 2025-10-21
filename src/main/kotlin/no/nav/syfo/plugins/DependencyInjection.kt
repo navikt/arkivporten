@@ -107,9 +107,9 @@ private fun servicesModule() = module {
     single { LeaderElection(get(), env().clientProperties.electorPath) }
     single {
         SendDialogTask(
-        get(),
-        get(),
-        get(),
+            get(),
+            get(),
+            get(),
             env().publicIngressUrl,
         )
     }

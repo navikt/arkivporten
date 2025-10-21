@@ -6,7 +6,10 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.database.DatabaseInterface
+import no.nav.syfo.application.isProdEnv
 import no.nav.syfo.application.metric.registerMetricApi
+import no.nav.syfo.dialogporten.client.DialogportenClient
+import no.nav.syfo.dialogporten.registerDialogportenTokenApi
 import no.nav.syfo.document.db.DocumentDAO
 import no.nav.syfo.document.service.ValidationService
 import no.nav.syfo.registerApiV1
@@ -19,6 +22,7 @@ fun Application.configureRouting() {
     val texasHttpClient by inject<TexasHttpClient>()
     val documentDAO by inject<DocumentDAO>()
     val validationService by inject<ValidationService>()
+    val dialogportenClient by inject<DialogportenClient>()
 
     installCallId()
     installContentNegotiation()
@@ -28,6 +32,10 @@ fun Application.configureRouting() {
         registerPodApi(applicationState, database)
         registerMetricApi()
         registerApiV1(texasHttpClient, documentDAO, validationService)
+        if (!isProdEnv()) {
+            // TODO: Remove this endpoint later
+            registerDialogportenTokenApi(dialogportenClient)
+        }
         get("/") {
             call.respondText("Hello World!")
         }

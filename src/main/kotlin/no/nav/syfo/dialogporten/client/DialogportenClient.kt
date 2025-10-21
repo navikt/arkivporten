@@ -76,6 +76,11 @@ class DialogportenClient(
                 bearerAuth(token)
             }.bodyAsText()
             .replace("\"", "")
+
+    suspend fun getDialogportenToken(): String {
+        val texasResponse = texasHttpClient.systemToken("maskinporten", "digdir:dialogporten.serviceprovider")
+        return altinnExchange(texasResponse.accessToken)
+    }
 }
 
 class FakeDialogportenClient() : IDialogportenClient {

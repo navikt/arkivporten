@@ -26,14 +26,13 @@ class SendDialogTask(
     private val publicIngressUrl: String
 ) {
     private val logger = logger()
-    private val linkBaseUrl = publicIngressUrl + API_V1_PATH + DOCUMENT_API_PATH
 
     suspend fun runTask() = coroutineScope {
         try {
             while (isActive) {
                 if (leaderElection.isLeader()) {
                     try {
-                        logger.info("Starting task for send documents to dialogporten")
+                        logger.info("Starting task for sending documents to dialogporten")
                         val documentsToSend = getDocumentsToSend()
                         logger.info("Found ${documentsToSend.size} documents to send to dialogporten")
                         sendDocumentsToDialogporten(documentsToSend)
@@ -41,8 +40,8 @@ class SendDialogTask(
                         logger.error("Could not send dialogs to dialogporten", ex)
                     }
                 }
-                // Sleep for a while before checking again
-                delay(5 * 60 * 1000) // 5 minutes
+                // delay for  5 minutes before checking again
+                delay(5 * 60 * 1000)
             }
         } catch (ex: CancellationException) {
             logger.info("Cancelled SendDialogTask", ex)
@@ -53,7 +52,7 @@ class SendDialogTask(
 
     private suspend fun sendDocumentsToDialogporten(documentsToSend: List<DocumentEntity>) {
         for (document in documentsToSend) {
-            val fullDocumentLink = "$linkBaseUrl/${document.linkId}"
+            val fullDocumentLink = createDocumentLink(document.linkId.toString())
             try {
                 val dialogId = dialogportenClient.createDialog(
                     CreateDialogRequest(
@@ -109,6 +108,9 @@ class SendDialogTask(
             }
         }
     }
+
+    private fun createDocumentLink(linkId: String): String =
+        "$publicIngressUrl$API_V1_PATH$DOCUMENT_API_PATH/$linkId"
 
     private fun documentTypeToRessurs(type: DocumentType): String =
         when (type) {
