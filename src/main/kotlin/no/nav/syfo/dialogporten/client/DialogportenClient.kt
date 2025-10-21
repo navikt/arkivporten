@@ -19,15 +19,19 @@ import no.nav.syfo.texas.client.TexasHttpClient
 import no.nav.syfo.util.logger
 import java.util.UUID
 
+interface IDialogportenClient {
+    suspend fun createDialog(createDialogRequest: CreateDialogRequest, ressurs: String): UUID
+}
+
 class DialogportenClient(
     private val baseUrl: String,
     private val httpClient: HttpClient,
     private val texasHttpClient: TexasHttpClient,
-) {
+) : IDialogportenClient {
     private val dialogportenUrl = "$baseUrl/dialogporten/api/v1/serviceowner/dialogs"
     private val logger = logger()
 
-    suspend fun createDialog(createDialogRequest: CreateDialogRequest, ressurs: String): UUID {
+    override suspend fun createDialog(createDialogRequest: CreateDialogRequest, ressurs: String): UUID {
         val texasResponse = texasHttpClient.systemToken("maskinporten", "digdir:dialogporten.serviceprovider")
         val token = altinnExchange(texasResponse.accessToken)
 
@@ -72,4 +76,10 @@ class DialogportenClient(
                 bearerAuth(token)
             }.bodyAsText()
             .replace("\"", "")
+}
+
+class FakeDialogportenClient() : IDialogportenClient {
+    override suspend fun createDialog(createDialogRequest: CreateDialogRequest, ressurs: String): UUID {
+        return UUID.randomUUID()
+    }
 }

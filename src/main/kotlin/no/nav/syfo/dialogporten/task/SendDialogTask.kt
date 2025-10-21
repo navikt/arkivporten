@@ -5,7 +5,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import no.nav.syfo.application.leaderelection.LeaderElection
-import no.nav.syfo.dialogporten.client.DialogportenClient
+import no.nav.syfo.dialogporten.client.IDialogportenClient
 import no.nav.syfo.dialogporten.domain.Content
 import no.nav.syfo.dialogporten.domain.ContentValueItem
 import no.nav.syfo.dialogporten.domain.CreateDialogRequest
@@ -19,7 +19,7 @@ import no.nav.syfo.util.logger
 
 class SendDialogTask(
     private val leaderElection: LeaderElection,
-    private val dialogportenClient: DialogportenClient,
+    private val dialogportenClient: IDialogportenClient,
     private val documentDAO: DocumentDAO
 ) {
     private val logger = logger()
