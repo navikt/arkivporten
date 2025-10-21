@@ -12,12 +12,14 @@ import no.nav.syfo.document.service.ValidationService
 import no.nav.syfo.texas.MaskinportenIdportenAndTokenXAuthPlugin
 import no.nav.syfo.texas.client.TexasHttpClient
 
+const val DOCUMENT_API_PATH = "/documents"
+
 fun Route.registerExternalDocumentsApiV1(
     DocumentDAO: DocumentDAO,
     texasHttpClient: TexasHttpClient,
     validationService: ValidationService
 ) {
-    route("/documents/{id}") {
+    route("$DOCUMENT_API_PATH/{id}") {
 
         install(MaskinportenIdportenAndTokenXAuthPlugin) {
             client = texasHttpClient

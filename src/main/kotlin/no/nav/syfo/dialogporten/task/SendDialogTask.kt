@@ -4,6 +4,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
+import no.nav.syfo.API_V1_PATH
 import no.nav.syfo.application.leaderelection.LeaderElection
 import no.nav.syfo.dialogporten.client.IDialogportenClient
 import no.nav.syfo.dialogporten.domain.Content
@@ -11,6 +12,7 @@ import no.nav.syfo.dialogporten.domain.ContentValueItem
 import no.nav.syfo.dialogporten.domain.CreateDialogRequest
 import no.nav.syfo.dialogporten.domain.Transmission
 import no.nav.syfo.dialogporten.domain.create
+import no.nav.syfo.document.api.v1.DOCUMENT_API_PATH
 import no.nav.syfo.document.api.v1.DocumentType
 import no.nav.syfo.document.db.DocumentDAO
 import no.nav.syfo.document.db.DocumentEntity
@@ -20,10 +22,11 @@ import no.nav.syfo.util.logger
 class SendDialogTask(
     private val leaderElection: LeaderElection,
     private val dialogportenClient: IDialogportenClient,
-    private val documentDAO: DocumentDAO
+    private val documentDAO: DocumentDAO,
+    private val publicIngressUrl: String
 ) {
     private val logger = logger()
-    private val linkBaseUrl = "https://arkivporten.ekstern.dev.nav.no/api/v1/documents"
+    private val linkBaseUrl = publicIngressUrl + API_V1_PATH + DOCUMENT_API_PATH
 
     suspend fun runTask() = coroutineScope {
         try {
@@ -64,9 +67,11 @@ class SendDialogTask(
                                 type = Transmission.TransmissionType.Information,
                                 extendedType = document.type.name,
                                 sender = Transmission.Sender("ServiceOwner"),
+                                // TODO: Update content with meaningful title and summary
                                 content = Content.create("transmissionTitle", "transmissionSummary"),
                                 attachments = listOf(
                                     Transmission.Attachment(
+                                        // TODO: Update displayName
                                         displayName = listOf(
                                             ContentValueItem(
                                                 "Oppfølgingsplan.pdf",
@@ -79,11 +84,11 @@ class SendDialogTask(
                                                 mediaType = document.contentType,
                                                 consumerType = Transmission.AttachmentUrlConsumerType.Gui,
                                             ),
-//                                            Transmission.Url(
-//                                                url = fullDocumentLink,
-//                                                mediaType = document.contentType,
-//                                                consumerType = Transmission.AttachmentUrlConsumerType.Api,
-//                                            ),
+                                            Transmission.Url(
+                                                url = fullDocumentLink,
+                                                mediaType = document.contentType,
+                                                consumerType = Transmission.AttachmentUrlConsumerType.Api,
+                                            ),
                                         ),
                                     ),
                                 )
@@ -98,7 +103,7 @@ class SendDialogTask(
                         status = DocumentStatus.COMPLETED
                     )
                 )
-                logger.info("Sent document ${document.id} to dialogporten")
+                logger.info("Sent document ${document.id} to dialogporten, with link $fullDocumentLink and content type ${document.contentType}")
             } catch (ex: Exception) {
                 logger.error("Failed to send document ${document.id} to dialogporten", ex)
             }

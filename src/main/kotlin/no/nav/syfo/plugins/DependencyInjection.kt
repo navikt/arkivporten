@@ -105,7 +105,14 @@ private fun servicesModule() = module {
     single { EregService(get()) }
     single { ValidationService(get(), get()) }
     single { LeaderElection(get(), env().clientProperties.electorPath) }
-    single { SendDialogTask(get(), get(), get()) }
+    single {
+        SendDialogTask(
+        get(),
+        get(),
+        get(),
+            env().publicIngressUrl,
+        )
+    }
 }
 
 private fun Scope.env() = get<Environment>()

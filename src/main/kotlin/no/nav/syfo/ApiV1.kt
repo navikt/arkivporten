@@ -10,19 +10,21 @@ import no.nav.syfo.document.service.ValidationService
 import no.nav.syfo.texas.TexasAzureADAuthPlugin
 import no.nav.syfo.texas.client.TexasHttpClient
 
+const val API_V1_PATH = "/api/v1"
+
 @Suppress("LongParameterList")
 fun Route.registerApiV1(
     texasHttpClient: TexasHttpClient,
     DocumentDAO: DocumentDAO,
     validationService: ValidationService,
 ) {
-    route("/internal/api/v1") {
+    route("/internal$API_V1_PATH") {
         install(TexasAzureADAuthPlugin) {
             client = texasHttpClient
         }
         registerInternalDocumentsApiV1(DocumentDAO)
     }
-    route("/api/v1") {
+    route(API_V1_PATH) {
         install(AddTokenIssuerPlugin)
         registerExternalDocumentsApiV1(DocumentDAO, texasHttpClient, validationService)
     }
