@@ -15,11 +15,10 @@ fun Route.registerDialogportenTokenApi(
 ) {
     route("/dialogporten/token") {
         install(AddTokenIssuerPlugin)
+        install(MaskinportenIdportenAndTokenXAuthPlugin) {
+            client = texasHttpClient
+        }
         get {
-            install(MaskinportenIdportenAndTokenXAuthPlugin) {
-                client = texasHttpClient
-            }
-
             call.respondText(dialogportenClient.getDialogportenToken())
         }
     }
