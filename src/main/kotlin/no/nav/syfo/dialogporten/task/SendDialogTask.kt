@@ -42,7 +42,7 @@ class SendDialogTask(
                 delay(5 * 60 * 1000) // 5 minutes
             }
         } catch (ex: CancellationException) {
-            logger.info("cancelled delete data job", ex)
+            logger.info("Cancelled SendDialogTask", ex)
         }
     }
 
