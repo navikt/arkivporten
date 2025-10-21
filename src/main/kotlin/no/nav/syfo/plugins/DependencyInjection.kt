@@ -20,6 +20,7 @@ import no.nav.syfo.application.leaderelection.LeaderElection
 import no.nav.syfo.document.service.ValidationService
 import no.nav.syfo.document.db.DocumentDAO
 import no.nav.syfo.dialogporten.client.DialogportenClient
+import no.nav.syfo.dialogporten.client.FakeDialogportenClient
 import no.nav.syfo.dialogporten.task.SendDialogTask
 import no.nav.syfo.texas.client.TexasHttpClient
 import no.nav.syfo.util.httpClientDefault
@@ -74,7 +75,6 @@ private fun databaseModule() = module {
 
 private fun servicesModule() = module {
     single { TexasHttpClient(client = get(), environment = env().texas) }
-    single { DialogportenClient("https://platform.tt02.altinn.no", get(), get()) }
     single {
         if (isLocalEnv()) FakeEregClient() else EregClient(
             eregBaseUrl = env().clientProperties.eregBaseUrl,
@@ -90,6 +90,13 @@ private fun servicesModule() = module {
             texasClient = get(),
             httpClient = get(),
             baseUrl = env().clientProperties.altinnTilgangerBaseUrl,
+        )
+    }
+    single {
+        if (isLocalEnv()) FakeDialogportenClient() else DialogportenClient(
+            texasHttpClient = get(),
+            httpClient = get(),
+            baseUrl = env().clientProperties.dialogportenBasePath,
         )
     }
 
