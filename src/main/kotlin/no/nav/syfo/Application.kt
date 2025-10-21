@@ -38,6 +38,6 @@ fun main() {
 fun Application.module() {
     configureDependencies()
     configureLifecycleHooks(get())
-    configureBackgroundTasks()
     configureRouting()
+    configureBackgroundTasks()
 }

@@ -21,6 +21,7 @@ import java.util.UUID
 
 interface IDialogportenClient {
     suspend fun createDialog(createDialogRequest: CreateDialogRequest, ressurs: String): UUID
+    suspend fun getDialogportenToken(): String
 }
 
 class DialogportenClient(
@@ -77,7 +78,7 @@ class DialogportenClient(
             }.bodyAsText()
             .replace("\"", "")
 
-    suspend fun getDialogportenToken(): String {
+    override suspend fun getDialogportenToken(): String {
         val texasResponse = texasHttpClient.systemToken("maskinporten", "digdir:dialogporten.serviceprovider")
         return altinnExchange(texasResponse.accessToken)
     }
@@ -86,5 +87,9 @@ class DialogportenClient(
 class FakeDialogportenClient() : IDialogportenClient {
     override suspend fun createDialog(createDialogRequest: CreateDialogRequest, ressurs: String): UUID {
         return UUID.randomUUID()
+    }
+
+    override suspend fun getDialogportenToken(): String {
+        throw NotImplementedError("Not implemented for local application")
     }
 }

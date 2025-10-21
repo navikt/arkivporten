@@ -23,7 +23,6 @@ data class ClientProperties(
                 altinnTilgangerBaseUrl = getEnvVar("ALTINN_TILGANGER_BASE_URL"),
                 electorPath = getEnvVar("ELECTOR_PATH"),
                 dialogportenBasePath = getEnvVar("DIALOGPORTEN_BASE_URL")
-
             )
     }
 }
