@@ -13,7 +13,6 @@ import no.nav.syfo.dialogporten.domain.CreateDialogRequest
 import no.nav.syfo.dialogporten.domain.Transmission
 import no.nav.syfo.dialogporten.domain.create
 import no.nav.syfo.document.api.v1.DOCUMENT_API_PATH
-import no.nav.syfo.document.api.v1.DocumentType
 import no.nav.syfo.document.db.DocumentDAO
 import no.nav.syfo.document.db.DocumentEntity
 import no.nav.syfo.document.db.DocumentStatus
@@ -26,6 +25,7 @@ class SendDialogTask(
     private val publicIngressUrl: String
 ) {
     private val logger = logger()
+    private val dialogRessurs = "nav_syfo_dialog"
 
     suspend fun runTask() = coroutineScope {
         try {
@@ -94,7 +94,7 @@ class SendDialogTask(
                             )
                         ),
                     ),
-                    ressurs = documentTypeToRessurs(document.type)
+                    ressurs = dialogRessurs
                 )
                 documentDAO.update(
                     document.copy(
@@ -111,11 +111,4 @@ class SendDialogTask(
 
     private fun createDocumentLink(linkId: String): String =
         "$publicIngressUrl$API_V1_PATH$DOCUMENT_API_PATH/$linkId"
-
-    private fun documentTypeToRessurs(type: DocumentType): String =
-        when (type) {
-            DocumentType.OPPFOLGINGSPLAN -> "nav_syfo_oppfolgingsplan"
-            DocumentType.DIALOGMOTE -> "nav_syfo_dialogmote"
-            DocumentType.UNDEFINED -> throw RuntimeException("Undefined document type $type")
-        }
 }
