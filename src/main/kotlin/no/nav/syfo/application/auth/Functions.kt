@@ -14,7 +14,7 @@ import no.nav.syfo.texas.bearerToken
  * @see JwtIssuer
  * */
 fun ApplicationCall.jwtIssuer(): JwtIssuer {
-    val token = bearerToken() ?: throw ApiErrorException.UnauthorizedException("Invalid token")
+    val token = bearerToken() ?: throw ApiErrorException.UnauthorizedException("Missing bearer token")
     val decodedToken = JWT.decode(token)
     val issuer = decodedToken.issuer ?: throw ApiErrorException.UnauthorizedException("Invalid token")
 

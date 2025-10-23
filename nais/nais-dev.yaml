@@ -8,7 +8,7 @@ metadata:
 spec:
   ingresses:
     - https://arkivporten.intern.dev.nav.no
-    - https://arkivporten.ekstern.dev.nav.no
+    - https://arkivporten.ekstern.dev.nav.no/api/v1/documents
   image: {{image}} #
   port: 8080
   liveness:
@@ -70,6 +70,7 @@ spec:
   azure:
     application:
       enabled: true
+  leaderElection: true
   accessPolicy:
     inbound:
       rules:
@@ -87,6 +88,8 @@ spec:
           namespace: fager
       external:
         - host: "ereg-services-q1.dev-fss-pub.nais.io"
+        - host: "platform.tt02.altinn.no"
+
   kafka:
     pool: nav-dev
   env:
@@ -96,3 +99,7 @@ spec:
       value: http://arbeidsgiver-altinn-tilganger.fager
     - name: DIALOGPORTEN_SCOPE
       value: "digdir:dialogporten.serviceprovider"
+    - name: DIALOGPORTEN_BASE_URL
+      value: "https://platform.tt02.altinn.no"
+    - name: PUBLIC_INGRESS_URL
+      value: https://arkivporten.ekstern.dev.nav.no

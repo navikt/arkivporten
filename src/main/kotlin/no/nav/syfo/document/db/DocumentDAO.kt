@@ -115,7 +115,28 @@ class DocumentDAO(private val database: DatabaseInterface) {
         }
     }
 
-
+    fun getDocumentsByStatus(status: DocumentStatus): List<DocumentEntity> {
+        return database.connection.use { connection ->
+            connection
+                .prepareStatement(
+                    """
+                        SELECT *
+                        FROM document
+                        WHERE status = ?
+                        order by created
+                        LIMIT 100
+                        """.trimIndent()
+                ).use { preparedStatement ->
+                    preparedStatement.setObject(1, status, java.sql.Types.OTHER)
+                    val resultSet = preparedStatement.executeQuery()
+                    val documents = mutableListOf<DocumentEntity>()
+                    while (resultSet.next()) {
+                        documents.add(resultSet.toDocumentDAO())
+                    }
+                    documents
+                }
+        }
+    }
 }
 
 private fun ResultSet.getGeneratedId(idColumnLabel: String): Long = this.use {

@@ -6,11 +6,13 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import java.util.concurrent.*
 import no.nav.syfo.application.api.configureRouting
+import no.nav.syfo.plugins.configureBackgroundTasks
 import no.nav.syfo.plugins.configureDependencies
 import no.nav.syfo.plugins.configureLifecycleHooks
 import org.koin.ktor.ext.get
 
 fun main() {
+
     val server = embeddedServer(
         Netty,
         configure = {
@@ -37,4 +39,5 @@ fun Application.module() {
     configureDependencies()
     configureLifecycleHooks(get())
     configureRouting()
+    configureBackgroundTasks()
 }
