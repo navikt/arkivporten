@@ -1,6 +1,5 @@
 package no.nav.syfo.altinntilganger
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import no.nav.syfo.altinntilganger.client.IAltinnTilgangerClient
 import no.nav.syfo.application.auth.BrukerPrincipal
 import no.nav.syfo.application.exception.ApiErrorException
@@ -17,10 +16,7 @@ class AltinnTilgangerService(
         documentType: DocumentType
     ) {
         try {
-            logger.info("Henter altinn-tilganger for bruker")
             val tilganger = altinnTilgangerClient.hentTilganger(brukerPrincipal)
-
-            logger.info(ObjectMapper().writeValueAsString(tilganger))
             val requiredResource = requiredResourceByDocumentType[documentType]
                 ?: throw ApiErrorException.InternalServerErrorException("Ukjent dokumenttype $documentType")
             if (tilganger?.orgNrTilTilganger[orgnummer]?.contains(requiredResource) != true)
