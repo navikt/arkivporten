@@ -68,7 +68,7 @@ class DialogportenService(
                 title = dialogTitle,
                 summary = dialogSummary,
             ),
-            isApiOnly = false,
+            isApiOnly = true,
             attachments = listOf(
                 Attachment(
                     displayName = listOf(
