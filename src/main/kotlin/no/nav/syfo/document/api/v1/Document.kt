@@ -56,10 +56,10 @@ data class Document(
     }
 }
 
-enum class DocumentType {
-    DIALOGMOTE,
-    OPPFOLGINGSPLAN,
+enum class DocumentType(val displayName: String) {
+    DIALOGMOTE("Dialogmøte"),
+    OPPFOLGINGSPLAN("Oppfølgingsplan"),
 
     @JsonEnumDefaultValue
-    UNDEFINED,
+    UNDEFINED("Dokument"),
 }
