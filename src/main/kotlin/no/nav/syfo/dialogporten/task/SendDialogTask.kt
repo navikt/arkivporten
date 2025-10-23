@@ -9,7 +9,7 @@ import no.nav.syfo.application.leaderelection.LeaderElection
 import no.nav.syfo.dialogporten.client.IDialogportenClient
 import no.nav.syfo.dialogporten.domain.Content
 import no.nav.syfo.dialogporten.domain.ContentValueItem
-import no.nav.syfo.dialogporten.domain.CreateDialogRequest
+import no.nav.syfo.dialogporten.domain.Dialog
 import no.nav.syfo.dialogporten.domain.Transmission
 import no.nav.syfo.dialogporten.domain.create
 import no.nav.syfo.document.api.v1.DOCUMENT_API_PATH
@@ -54,48 +54,8 @@ class SendDialogTask(
         for (document in documentsToSend) {
             val fullDocumentLink = createDocumentLink(document.linkId.toString())
             try {
-                val dialogId = dialogportenClient.createDialog(
-                    CreateDialogRequest(
-                        orgnr = document.orgnumber,
-                        title = document.dialogTitle,
-                        summary = document.dialogSummary,
-                        externalReference = document.documentId.toString(),
-                        isApiOnly = false,
-                        transmissions = listOf(
-                            Transmission(
-                                type = Transmission.TransmissionType.Information,
-                                extendedType = document.type.name,
-                                sender = Transmission.Sender("ServiceOwner"),
-                                // TODO: Update content with meaningful title and summary
-                                content = Content.create("transmissionTitle", "transmissionSummary"),
-                                attachments = listOf(
-                                    Transmission.Attachment(
-                                        // TODO: Update displayName
-                                        displayName = listOf(
-                                            ContentValueItem(
-                                                "Oppfølgingsplan.pdf",
-                                                "nb"
-                                            ),
-                                        ),
-                                        urls = listOf(
-                                            Transmission.Url(
-                                                url = fullDocumentLink,
-                                                mediaType = document.contentType,
-                                                consumerType = Transmission.AttachmentUrlConsumerType.Gui,
-                                            ),
-                                            Transmission.Url(
-                                                url = fullDocumentLink,
-                                                mediaType = document.contentType,
-                                                consumerType = Transmission.AttachmentUrlConsumerType.Api,
-                                            ),
-                                        ),
-                                    ),
-                                )
-                            )
-                        ),
-                    ),
-                    ressurs = dialogRessurs
-                )
+                val dialog = document.toDialog()
+                val dialogId = dialogportenClient.createDialog(dialog)
                 documentDAO.update(
                     document.copy(
                         dialogId = dialogId,
@@ -111,4 +71,44 @@ class SendDialogTask(
 
     private fun createDocumentLink(linkId: String): String =
         "$publicIngressUrl$API_V1_PATH$DOCUMENT_API_PATH/$linkId"
+
+    private fun DocumentEntity.toDialog(): Dialog {
+        return Dialog(
+            serviceResource = "urn:altinn:resource:$dialogRessurs",
+            party = "urn:altinn:organization:identifier-no:$orgnumber",
+            externalReference = documentId.toString(),
+            content = Content.create(
+                title = dialogTitle,
+                summary = dialogSummary,
+            ),
+            isApiOnly = false,
+            transmissions = listOf(
+                Transmission(
+                    type = Transmission.TransmissionType.Information,
+                    extendedType = type.name,
+                    sender = Transmission.Sender("ServiceOwner"),
+                    // TODO: Update content with meaningful title and summary
+                    content = Content.create("transmissionTitle", "transmissionSummary"),
+                    attachments = listOf(
+                        Transmission.Attachment(
+                            // TODO: Update displayName
+                            displayName = listOf(
+                                ContentValueItem(
+                                    "Oppfølgingsplan.pdf",
+                                    "nb"
+                                ),
+                            ),
+                            urls = listOf(
+                                Transmission.Url(
+                                    url = createDocumentLink(linkId.toString()),
+                                    mediaType = contentType,
+                                    consumerType = Transmission.AttachmentUrlConsumerType.Api,
+                                ),
+                            ),
+                        ),
+                    )
+                )
+            ),
+        )
+    }
 }
