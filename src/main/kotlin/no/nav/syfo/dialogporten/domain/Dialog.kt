@@ -6,7 +6,7 @@ data class Dialog(
     val externalReference: String,
     val status: DialogStatus? = null,
     val content: Content,
-    val transmissions: List<Transmission>? = null,
+    val transmissions: List<Transmission> = emptyList(),
     val attachments: List<Attachment>? = null,
     val isApiOnly: Boolean? = true,
 )
