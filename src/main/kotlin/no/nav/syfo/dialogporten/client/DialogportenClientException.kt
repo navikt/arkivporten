@@ -1,4 +1,4 @@
-package no.nav.helsearbeidsgiver.dialogporten
+package no.nav.syfo.dialogporten.client
 
 class DialogportenClientException(
     message: String,
