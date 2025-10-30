@@ -1,5 +1,6 @@
 package no.nav.syfo
 
+import io.github.tabilzad.ktor.annotations.GenerateOpenApi
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
 import no.nav.syfo.application.auth.AddTokenIssuerPlugin
@@ -13,6 +14,7 @@ import no.nav.syfo.texas.client.TexasHttpClient
 const val API_V1_PATH = "/api/v1"
 
 @Suppress("LongParameterList")
+@GenerateOpenApi
 fun Route.registerApiV1(
     texasHttpClient: TexasHttpClient,
     DocumentDAO: DocumentDAO,

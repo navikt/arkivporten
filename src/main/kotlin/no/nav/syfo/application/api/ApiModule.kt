@@ -1,5 +1,9 @@
 package no.nav.syfo.application.api
 
+import io.github.tabilzad.ktor.annotations.GenerateOpenApi
+import io.github.tabilzad.ktor.annotations.KtorDescription
+import io.github.tabilzad.ktor.annotations.KtorResponds
+import io.github.tabilzad.ktor.annotations.ResponseEntry
 import io.ktor.server.application.Application
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
@@ -16,6 +20,7 @@ import no.nav.syfo.registerApiV1
 import no.nav.syfo.texas.client.TexasHttpClient
 import org.koin.ktor.ext.inject
 
+@GenerateOpenApi
 fun Application.configureRouting() {
     val applicationState by inject<ApplicationState>()
     val database by inject<DatabaseInterface>()
@@ -36,6 +41,11 @@ fun Application.configureRouting() {
             // TODO: Remove this endpoint later
             registerDialogportenTokenApi(texasHttpClient, dialogportenClient)
         }
+        @KtorDescription(
+            summary = "Hello World endpoint",
+            description = "This endpoint will create an order",
+        )
+        @KtorResponds([ResponseEntry("200", String::class, isCollection=true, description = "Get hello world response")])
         get("/") {
             call.respondText("Hello World!")
         }

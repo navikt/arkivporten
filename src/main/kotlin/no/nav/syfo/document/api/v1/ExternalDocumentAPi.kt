@@ -1,5 +1,9 @@
 package no.nav.syfo.document.api.v1
 
+import io.github.tabilzad.ktor.annotations.GenerateOpenApi
+import io.github.tabilzad.ktor.annotations.KtorDescription
+import io.github.tabilzad.ktor.annotations.KtorResponds
+import io.github.tabilzad.ktor.annotations.ResponseEntry
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.plugins.NotFoundException
@@ -14,6 +18,7 @@ import no.nav.syfo.texas.client.TexasHttpClient
 
 const val DOCUMENT_API_PATH = "/documents"
 
+@GenerateOpenApi
 fun Route.registerExternalDocumentsApiV1(
     DocumentDAO: DocumentDAO,
     texasHttpClient: TexasHttpClient,
@@ -24,6 +29,14 @@ fun Route.registerExternalDocumentsApiV1(
         install(MaskinportenIdportenAndTokenXAuthPlugin) {
             client = texasHttpClient
         }
+        @KtorDescription(tags = ["documents"], summary = "Get document by id", description = "Retrieve a document using its unique identifier.")
+        @KtorResponds(
+            [
+                ResponseEntry("200", String::class, isCollection=true, description = "Get document"),
+                ResponseEntry("404", String::class, description = "Document not found"),
+                ResponseEntry("500", String::class, description = "Internal server error")
+            ],
+        )
         get() {
             val linkId = call.parameters.extractAndValidateUUIDParameter("id")
             val principal = call.getPrincipal()

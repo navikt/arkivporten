@@ -1,6 +1,29 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.ktor)
+    id("io.github.tabilzad.inspektor") version "0.8.7-alpha"
+}
+
+swagger {
+    documentation {
+        generateRequestSchemas = true
+        hideTransientFields = true
+        hidePrivateAndInternalFields = true
+        deriveFieldRequirementFromTypeNullability = true
+        info {
+            title = "Arkivporten API"
+            description = "API for document management and archiving in Arkivporten"
+            version = "0.0.1"
+            contact {
+                name = "NAV Team Esyfo"
+                url = "https://github.com/navikt/arkivporten"
+            }
+        }
+    }
+
+    pluginOptions {
+        format = "yaml" // or json
+    }
 }
 
 group = "no.nav.syfo"
@@ -33,6 +56,8 @@ dependencies {
     implementation(libs.koin.logger)
     implementation(libs.logstash)
     implementation(libs.jackson.datatype.jsr310)
+    // Inspektor Swagger UI
+    implementation("io.github.tabilzad:ktor-docs-plugin-ui:0.8.7-alpha")
     // Database
     implementation(libs.bundles.database)
     // Metrics and Prometheus
