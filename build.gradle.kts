@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.ktor)
-    id("io.github.tabilzad.inspektor") version "0.8.7-alpha"
 }
 
 swagger {
@@ -23,6 +22,7 @@ swagger {
 
     pluginOptions {
         format = "yaml" // or json
+        enabled = true // Enable Swagger UI generation
     }
 }
 
@@ -56,8 +56,7 @@ dependencies {
     implementation(libs.koin.logger)
     implementation(libs.logstash)
     implementation(libs.jackson.datatype.jsr310)
-    // Inspektor Swagger UI
-    implementation("io.github.tabilzad:ktor-docs-plugin-ui:0.8.7-alpha")
+    implementation("io.github.tabilzad.inspektor:ktor-docs-plugin-gradle:0.8.7-alpha")
     // Database
     implementation(libs.bundles.database)
     // Metrics and Prometheus
