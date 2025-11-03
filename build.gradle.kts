@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.ktor)
+    id("io.github.tabilzad.inspektor") version "0.8.7-alpha"
 }
 
 swagger {

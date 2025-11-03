@@ -17,6 +17,27 @@ Here's a list of features included in this project:
 |----------------------------------------------------|-------------------------------------------------------------|
 | [Routing](https://start.ktor.io/p/routing-default) | Allows to define structured routes and associated handlers. |
 
+## API Documentation (Swagger)
+
+The project uses [Inspektor](https://github.com/tabilzad/inspektor) to automatically generate OpenAPI documentation from your Ktor routes.
+
+### Accessing Swagger UI
+
+When running in **dev/local environment** (non-production), you can access the Swagger UI at:
+
+- **Swagger UI**: http://localhost:8080/swagger-ui
+- **OpenAPI Spec**: http://localhost:8080/openapi.yaml
+
+The Swagger UI is automatically disabled in production environments for security purposes.
+
+### How it works
+
+1. The Inspektor Gradle plugin scans your code during compilation
+2. It generates an OpenAPI specification (YAML format) from annotated routes
+3. The spec is served along with Swagger UI for interactive API documentation
+
+To add documentation to your endpoints, use the `@KtorDescription` and `@KtorResponds` annotations provided by Inspektor.
+
 ## Building & Running
 
 To build or run the project, use one of the following tasks:
