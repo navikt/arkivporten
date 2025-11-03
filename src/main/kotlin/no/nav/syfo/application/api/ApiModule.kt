@@ -4,6 +4,9 @@ import io.ktor.server.application.Application
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
+import io.ktor.server.http.content.staticResources
+import io.ktor.server.plugins.openapi.openAPI
+import io.ktor.server.plugins.swagger.swaggerUI
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.isProdEnv
@@ -33,6 +36,10 @@ fun Application.configureRouting() {
         registerMetricApi()
         registerApiV1(texasHttpClient, documentDAO, validationService)
         if (!isProdEnv()) {
+            openAPI(path="openapi", swaggerFile = "openapi/documentation.yaml")
+            // Static OpenAPI spec + Swagger UI only in non-prod
+            staticResources("/openapi", "openapi")
+            swaggerUI(path = "swagger", swaggerFile = "openapi/arkivporten.yaml")
             // TODO: Remove this endpoint later
             registerDialogportenTokenApi(texasHttpClient, dialogportenClient)
         }
