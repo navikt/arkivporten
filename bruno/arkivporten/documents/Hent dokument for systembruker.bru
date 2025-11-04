@@ -1,0 +1,29 @@
+meta {
+  name: Hent dokument for systembruker
+  type: http
+  seq: 1
+}
+
+get {
+  url: https://arkivporten.ekstern.dev.nav.no/api/v1/documents/{{lenkeId}}
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  lenkeId: 1cd7cac1-2836-40df-a218-19b0dc197490
+}
+
+script:pre-request {
+  const http = require("axios");
+  const systembrukerOrgnr = bru.getFolderVar("systemKundeOrgnr");
+  
+  const tokenrespons = await http.get("https://esyfo-token.intern.dev.nav.no/systembruker/" + systembrukerOrgnr)
+  console.log(tokenrespons);
+  req.setHeader("Authorization", "Bearer "+ tokenrespons.data);
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
