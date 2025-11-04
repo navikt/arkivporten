@@ -5,7 +5,7 @@ info:
   description: API specification for Arkivporten (development placeholder).
 servers:
   - url: https://arkivporten.ekstern.dev.nav.no
-    description:  Test documentation server
+    description: Test documentation server
 paths:
   /api/v1:
     get:
@@ -21,4 +21,5 @@ paths:
                 properties:
                   message:
                     type: string
-
+components:
+  schemas: {}

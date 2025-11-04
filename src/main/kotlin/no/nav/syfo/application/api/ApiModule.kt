@@ -36,10 +36,9 @@ fun Application.configureRouting() {
         registerMetricApi()
         registerApiV1(texasHttpClient, documentDAO, validationService)
         if (!isProdEnv()) {
-            openAPI(path="openapi", swaggerFile = "openapi/documentation.yaml")
             // Static OpenAPI spec + Swagger UI only in non-prod
             staticResources("/openapi", "openapi")
-            swaggerUI(path = "swagger", swaggerFile = "openapi/arkivporten.yaml")
+            swaggerUI(path = "swagger", swaggerFile = "openapi/documentation.yaml")
             // TODO: Remove this endpoint later
             registerDialogportenTokenApi(texasHttpClient, dialogportenClient)
         }
