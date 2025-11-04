@@ -23,6 +23,28 @@ paths:
                 properties:
                   message:
                     type: string
+  /api/v1/documents/{id}:
+    get:
+      summary: Root of versioned API
+      description: Placeholder endpoint returning Hello World or API metadata.
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
   /:
     get:
       summary: Hello world
