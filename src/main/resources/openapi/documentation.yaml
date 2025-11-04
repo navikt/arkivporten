@@ -7,9 +7,23 @@ servers:
   - url: https://arkivporten.ekstern.dev.nav.no
     description: Test documentation server
 paths:
-  /api/v1:
+  /internal/api/v1:
     get:
       summary: Root of versioned API
+      description: Placeholder endpoint returning Hello World or API metadata.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /:
+    get:
+      summary: Hello world
       description: Placeholder endpoint returning Hello World or API metadata.
       responses:
         '200':
