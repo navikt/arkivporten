@@ -18,6 +18,9 @@ script:pre-request {
   const http = require("axios");
   
   if (bru.getEnvName() === "local") {
+    if (!bru.hasEnvVar("token")) {
+      throw new Error("Kjør request 'mock maskinporten token' først for å teste lokalt");
+    }
     const token = bru.getEnvVar("token");
     req.setHeader("Authorization", "Bearer "+ token);
     
