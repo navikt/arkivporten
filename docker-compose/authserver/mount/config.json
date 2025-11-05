@@ -30,7 +30,7 @@
                 "type": "urn:altinn:systemuser",
                 "systemuser_org": {
                   "authority": "iso6523-actorid-upis",
-                  "ID": "0192:{systemUserOrg}"
+                  "ID": "${systemUserOrg}"
                 },
                 "systemuser_id": [
                   "c068399e-8d82-4dfa-937f-92d77ec0881d"
@@ -40,7 +40,6 @@
             ],
             "iss": "https://test.maskinporten.no/",
             "scope": "nav:syfo/arkivporten",
-            "aud": "${aud}",
             "consumer": {
               "authority": "${consumerAuthority}",
               "ID": "${consumerId}"
