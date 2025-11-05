@@ -22,10 +22,8 @@ script:pre-request {
     req.setHeader("Authorization", "Bearer "+ token);
     
   } else {
-    console.log("inn her")
     const systembrukerOrgnr = bru.getCollectionVar("systemKundeOrgnr");
     const tokenrespons = await http.get("https://esyfo-token.intern.dev.nav.no/systembruker/" + systembrukerOrgnr);
-    console.log(tokenrespons);
     req.setHeader("Authorization", "Bearer "+ tokenrespons.data);
   }
 }
