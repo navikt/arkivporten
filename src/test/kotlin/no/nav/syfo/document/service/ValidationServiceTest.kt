@@ -13,8 +13,6 @@ import no.nav.syfo.application.auth.BrukerPrincipal
 import no.nav.syfo.application.auth.OrganisasjonPrincipal
 import no.nav.syfo.application.exception.ApiErrorException
 import no.nav.syfo.ereg.EregService
-import no.nav.syfo.document.api.v1.DocumentType
-import no.nav.syfo.ereg.client.Organisasjon
 import organisasjon
 
 class ValidationServiceTest : DescribeSpec({
@@ -87,7 +85,7 @@ class ValidationServiceTest : DescribeSpec({
             context("when orgnumber from token matches document orgnumber") {
                 it("should allow access without checking ereg when Principal matches document orgnumber") {
                     // Arrange
-                    val organisasjonPrincipal = OrganisasjonPrincipal("0192:${documentEntity.orgnumber}", "token")
+                    val organisasjonPrincipal = OrganisasjonPrincipal("0192:${documentEntity.orgnumber}", "token", "systemOwner")
 
                     // Act & Assert - should not throw exception
                     validationService.validateMaskinportenTilgang(organisasjonPrincipal, documentEntity)
@@ -109,7 +107,8 @@ class ValidationServiceTest : DescribeSpec({
 
                         val organisasjonPrincipal = OrganisasjonPrincipal(
                             "0192:${organization.inngaarIJuridiskEnheter!!.first().organisasjonsnummer}",
-                            "token"
+                            "token",
+                            "systemOwner"
                         )
                         coEvery { eregService.getOrganization(entity.orgnumber) } returns organization
 
@@ -133,14 +132,15 @@ class ValidationServiceTest : DescribeSpec({
 
                         val organisasjonPrincipal = OrganisasjonPrincipal(
                             "0192:${organization.inngaarIJuridiskEnheter!!.first().organisasjonsnummer}",
-                            "token"
+                            "token",
+                            "systemOwner"
                         )
                         coEvery { eregService.getOrganization(entity.orgnumber) } returns organization.copy(
                             inngaarIJuridiskEnheter = null
                         )
 
                         // Act & Assert
-                        val exception = shouldThrow<ApiErrorException.ForbiddenException> {
+                        shouldThrow<ApiErrorException.ForbiddenException> {
                             validationService.validateMaskinportenTilgang(
                                 organisasjonPrincipal, entity
                             )
@@ -157,7 +157,8 @@ class ValidationServiceTest : DescribeSpec({
 
                         val organisasjonPrincipal = OrganisasjonPrincipal(
                             "0192:123456789",
-                            "token"
+                            "token",
+                            "systemOwner"
                         )
                         coEvery { eregService.getOrganization(entity.orgnumber) } returns organization
 
