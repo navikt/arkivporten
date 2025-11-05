@@ -12,4 +12,5 @@ data class BrukerPrincipal(
 data class OrganisasjonPrincipal(
     override val ident: String,
     override val token: String,
+    val systemOwner: String
 ) : Principal()

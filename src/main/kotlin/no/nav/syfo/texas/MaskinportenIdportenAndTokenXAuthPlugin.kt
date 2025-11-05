@@ -11,6 +11,7 @@ import no.nav.syfo.application.auth.OrganisasjonPrincipal
 import no.nav.syfo.application.auth.TOKEN_ISSUER
 import no.nav.syfo.application.exception.ApiErrorException
 import no.nav.syfo.texas.client.OrganizationId
+import no.nav.syfo.texas.client.getSystemUserOrganization
 import no.nav.syfo.util.logger
 
 val TOKEN_CONSUMER_KEY = AttributeKey<OrganizationId>("tokenConsumer")
@@ -59,10 +60,14 @@ val MaskinportenIdportenAndTokenXAuthPlugin = createRouteScopedPlugin(
                     if (introspectionResponse.scope != MASKINPORTEN_ARKIVPORTEN_SCOPE) {
                         throw ApiErrorException.UnauthorizedException("Invalid scope from maskinporten")
                     }
+                    val systemUserOrganizationId = introspectionResponse.getSystemUserOrganization()
+                        ?: throw ApiErrorException.UnauthorizedException("No system user organization number in token claims")
+
                     call.authentication.principal(
                         OrganisasjonPrincipal(
-                            ident = introspectionResponse.consumer.ID,
+                            ident = systemUserOrganizationId,
                             token = bearerToken,
+                            systemOwner = introspectionResponse.consumer.ID,
                         )
                     )
                     call.attributes.put(TOKEN_CONSUMER_KEY, introspectionResponse.consumer)
