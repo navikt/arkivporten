@@ -16,11 +16,18 @@ vars:pre-request {
 
 script:pre-request {
   const http = require("axios");
-  const systembrukerOrgnr = bru.getFolderVar("systemKundeOrgnr");
   
-  const tokenrespons = await http.get("https://esyfo-token.intern.dev.nav.no/systembruker/" + systembrukerOrgnr)
-  console.log(tokenrespons);
-  req.setHeader("Authorization", "Bearer "+ tokenrespons.data);
+  if (bru.getEnvName() === "local") {
+    const token = bru.getEnvVar("token");
+    req.setHeader("Authorization", "Bearer "+ token);
+    
+  } else {
+    console.log("inn her")
+    const systembrukerOrgnr = bru.getCollectionVar("systemKundeOrgnr");
+    const tokenrespons = await http.get("https://esyfo-token.intern.dev.nav.no/systembruker/" + systembrukerOrgnr);
+    console.log(tokenrespons);
+    req.setHeader("Authorization", "Bearer "+ tokenrespons.data);
+  }
 }
 
 settings {
