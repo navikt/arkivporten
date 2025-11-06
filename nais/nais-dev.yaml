@@ -67,6 +67,7 @@ spec:
           atMaxAge: 680
       consumes:
         - name: "digdir:dialogporten.serviceprovider"
+        - name: "altinn:authorization/authorize"
   azure:
     application:
       enabled: true
