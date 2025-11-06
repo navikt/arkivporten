@@ -12,13 +12,21 @@ import io.ktor.client.statement.bodyAsText
 import no.nav.syfo.application.exception.UpstreamRequestException
 import no.nav.syfo.texas.client.TexasHttpClient
 
+interface IPdpClient {
+    suspend fun authorize(
+        bruker: Bruker,
+        orgnrSet: Set<String>,
+        ressurs: String
+    ): PdpResponse
+}
+
 class PdpClient(
     private val baseUrl: String,
     private val httpClient: HttpClient,
     private val texasHttpClient: TexasHttpClient,
     private val subscriptionKey: String,
-) {
-    suspend fun authorize(
+): IPdpClient {
+    override suspend fun authorize(
         bruker: Bruker,
         orgnrSet: Set<String>,
         ressurs: String

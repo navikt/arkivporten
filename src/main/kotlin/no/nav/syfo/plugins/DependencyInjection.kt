@@ -23,6 +23,7 @@ import no.nav.syfo.dialogporten.client.DialogportenClient
 import no.nav.syfo.dialogporten.client.FakeDialogportenClient
 import no.nav.syfo.dialogporten.service.DialogportenService
 import no.nav.syfo.dialogporten.task.SendDialogTask
+import no.nav.syfo.pdp.client.FakePdpClient
 import no.nav.syfo.pdp.client.PdpClient
 import no.nav.syfo.pdp.service.PdpService
 import no.nav.syfo.texas.client.TexasHttpClient
@@ -103,7 +104,7 @@ private fun servicesModule() = module {
         )
     }
     single {
-        PdpClient(
+        if (isLocalEnv()) FakePdpClient() else PdpClient(
             httpClient = get(),
             baseUrl = env().clientProperties.altinn3BaseUrl,
             subscriptionKey = env().clientProperties.pdpSubscriptionKey,

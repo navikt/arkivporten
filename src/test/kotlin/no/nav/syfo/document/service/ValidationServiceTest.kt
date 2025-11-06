@@ -105,6 +105,32 @@ class ValidationServiceTest : DescribeSpec({
                         altinnTilgangerService.validateTilgangToOrganisasjon(any(), any(), any())
                     }
                 }
+
+                it("should throw ForbiddenException when PDP denies access") {
+                    // Arrange
+                    val organisasjonPrincipal = OrganisasjonPrincipal(
+                        "0192:${documentEntity.orgnumber}",
+                        "token",
+                        "systemOwner",
+                        "systemUserId"
+
+                    )
+                    coEvery { pdpServiceMock.hasAccessToResource(any(), any(), any()) } returns false
+
+                    // Act & Assert - should not throw exception
+                    shouldThrow<ApiErrorException.ForbiddenException> {
+                        validationService.validateDocumentAccess(organisasjonPrincipal, documentEntity)
+                    }
+                    coVerify(exactly = 0) {
+                        eregService.getOrganization(any())
+                    }
+                    coVerify(exactly = 0) {
+                        altinnTilgangerService.validateTilgangToOrganisasjon(any(), any(), any())
+                    }
+                    coVerify(exactly = 1) {
+                        pdpServiceMock.hasAccessToResource(any(), any(), any())
+                    }
+                }
             }
 
             context("when orgnumber from token does not match document orgnumber") {
