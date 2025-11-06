@@ -63,7 +63,10 @@ class ValidationService(
 
         val hasAccess = pdpService.hasAccessToResource(
             System(principal.systemUserId),
-            setOf(principal.ident, principal.systemOwner),
+            setOf(
+                maskinportenIdToOrgnumber(principal.ident),
+                maskinportenIdToOrgnumber(principal.systemOwner)
+            ),
             requiredRessurs
         )
         if (!hasAccess) {

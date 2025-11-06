@@ -91,7 +91,7 @@ class ValidationServiceTest : DescribeSpec({
                     val organisasjonPrincipal = OrganisasjonPrincipal(
                         "0192:${documentEntity.orgnumber}",
                         "token",
-                        "systemOwner",
+                        "0192:systemOwner",
                         "systemUserId"
 
                         )
@@ -111,7 +111,7 @@ class ValidationServiceTest : DescribeSpec({
                     val organisasjonPrincipal = OrganisasjonPrincipal(
                         "0192:${documentEntity.orgnumber}",
                         "token",
-                        "systemOwner",
+                        "0192:systemOwner",
                         "systemUserId"
 
                     )
@@ -143,7 +143,7 @@ class ValidationServiceTest : DescribeSpec({
                         val organisasjonPrincipal = OrganisasjonPrincipal(
                             "0192:${organization.inngaarIJuridiskEnheter!!.first().organisasjonsnummer}",
                             "token",
-                            "systemOwner",
+                            "0192:systemOwner",
                             "systemUserId"
                         )
                         coEvery { eregService.getOrganization(entity.orgnumber) } returns organization
@@ -169,7 +169,7 @@ class ValidationServiceTest : DescribeSpec({
                         val organisasjonPrincipal = OrganisasjonPrincipal(
                             "0192:${organization.inngaarIJuridiskEnheter!!.first().organisasjonsnummer}",
                             "token",
-                            "systemOwner",
+                            "0192:systemOwner",
                             "systemUserId"
 
                         )
@@ -196,7 +196,7 @@ class ValidationServiceTest : DescribeSpec({
                         val organisasjonPrincipal = OrganisasjonPrincipal(
                             "0192:123456789",
                             "token",
-                            "systemOwner",
+                            "0192:systemOwner",
                             "systemUserId"
                         )
                         coEvery { eregService.getOrganization(entity.orgnumber) } returns organization
