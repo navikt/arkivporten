@@ -1,18 +1,23 @@
 package no.nav.syfo.document.service
 
 import no.nav.syfo.altinntilganger.AltinnTilgangerService
+import no.nav.syfo.altinntilganger.AltinnTilgangerService.Companion.requiredResourceByDocumentType
 import no.nav.syfo.application.auth.BrukerPrincipal
 import no.nav.syfo.application.auth.OrganisasjonPrincipal
 import no.nav.syfo.application.auth.Principal
 import no.nav.syfo.application.auth.maskinportenIdToOrgnumber
 import no.nav.syfo.application.exception.ApiErrorException
+import no.nav.syfo.document.api.v1.DocumentType
 import no.nav.syfo.document.db.DocumentEntity
 import no.nav.syfo.ereg.EregService
+import no.nav.syfo.pdp.client.System
+import no.nav.syfo.pdp.service.PdpService
 import no.nav.syfo.util.logger
 
 class ValidationService(
-    val altinnTilgangerService: AltinnTilgangerService,
-    val eregService: EregService,
+    private val altinnTilgangerService: AltinnTilgangerService,
+    private val eregService: EregService,
+    private val pdpService: PdpService
 ) {
     companion object {
         val logger = logger()
@@ -49,5 +54,21 @@ class ValidationService(
                 throw ApiErrorException.ForbiddenException("Access denied. Invalid organization.")
             }
         }
+        validateAltinnRessursTilgang(principal, documentDAO.type)
+    }
+
+    private suspend fun validateAltinnRessursTilgang(principal: OrganisasjonPrincipal, documentType: DocumentType) {
+        val requiredRessurs = requiredResourceByDocumentType[documentType]
+            ?: throw ApiErrorException.InternalServerErrorException("Ukjent dokumenttype $documentType")
+
+        val hasAccess = pdpService.hasAccessToResource(
+            System(principal.systemUserId),
+            setOf(principal.ident, principal.systemOwner),
+            requiredRessurs
+        )
+        if (!hasAccess) {
+            throw ApiErrorException.ForbiddenException("Access denied to resource $requiredRessurs")
+        }
+
     }
 }

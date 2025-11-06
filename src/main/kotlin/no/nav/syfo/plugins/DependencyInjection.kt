@@ -23,6 +23,8 @@ import no.nav.syfo.dialogporten.client.DialogportenClient
 import no.nav.syfo.dialogporten.client.FakeDialogportenClient
 import no.nav.syfo.dialogporten.service.DialogportenService
 import no.nav.syfo.dialogporten.task.SendDialogTask
+import no.nav.syfo.pdp.client.PdpClient
+import no.nav.syfo.pdp.service.PdpService
 import no.nav.syfo.texas.client.TexasHttpClient
 import no.nav.syfo.util.httpClientDefault
 import org.koin.core.scope.Scope
@@ -97,14 +99,21 @@ private fun servicesModule() = module {
         if (isLocalEnv()) FakeDialogportenClient() else DialogportenClient(
             texasHttpClient = get(),
             httpClient = get(),
-            baseUrl = env().clientProperties.dialogportenBasePath,
+            baseUrl = env().clientProperties.altinn3BaseUrl,
+        )
+    }
+    single {
+        PdpClient(
+            httpClient = get(),
+            baseUrl = env().clientProperties.altinn3BaseUrl,
+            subscriptionKey = env().clientProperties.pdpSubscriptionKey,
         )
     }
 
     single { AltinnTilgangerService(get()) }
-
+    single { PdpService(get()) }
     single { EregService(get()) }
-    single { ValidationService(get(), get()) }
+    single { ValidationService(get(), get(), get()) }
     single { LeaderElection(get(), env().clientProperties.electorPath) }
     single { DialogportenService(get(), get(), env().publicIngressUrl) }
     single { SendDialogTask(get(),get()) }

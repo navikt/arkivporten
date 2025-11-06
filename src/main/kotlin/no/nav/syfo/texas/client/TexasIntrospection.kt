@@ -55,3 +55,10 @@ fun TexasIntrospectionResponse.getSystemUserOrganization(): String? {
     }
     return null
 }
+
+fun TexasIntrospectionResponse.getSystemUserId(): String? {
+    if (this.isAltinnSystemUser()) {
+        return this.authorizationDetails?.first()?.systemuserId?.firstOrNull()
+    }
+    return null
+}
