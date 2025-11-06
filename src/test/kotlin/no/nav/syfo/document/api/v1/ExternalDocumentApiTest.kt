@@ -10,7 +10,6 @@ import defaultMocks
 import document
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
-import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
@@ -27,7 +26,6 @@ import io.mockk.spyk
 import no.nav.syfo.TestDB
 import no.nav.syfo.altinntilganger.AltinnTilgangerService
 import no.nav.syfo.altinntilganger.client.FakeAltinnTilgangerClient
-import no.nav.syfo.application.api.ApiError
 import no.nav.syfo.application.api.installContentNegotiation
 import no.nav.syfo.application.api.installStatusPages
 import no.nav.syfo.document.db.DocumentDAO
@@ -37,7 +35,6 @@ import no.nav.syfo.ereg.client.FakeEregClient
 import no.nav.syfo.registerApiV1
 import no.nav.syfo.texas.MASKINPORTEN_ARKIVPORTEN_SCOPE
 import no.nav.syfo.texas.client.TexasHttpClient
-import org.testcontainers.shaded.org.bouncycastle.asn1.x509.X509ObjectIdentifiers.organization
 import organisasjon
 
 class ExternalDocumentApiTest : DescribeSpec({
@@ -91,7 +88,7 @@ class ExternalDocumentApiTest : DescribeSpec({
                     val document = document().toDocumentEntity()
                     coEvery { DocumentDAOMock.getByLinkId(eq(document.linkId)) } returns document
                     texasHttpClientMock.defaultMocks(
-                        consumer = DefaultOrganization.copy(
+                        systemBrukerOrganisasjon = DefaultOrganization.copy(
                             ID = "0192:${document.orgnumber}"
                         ),
                         scope = MASKINPORTEN_ARKIVPORTEN_SCOPE,
@@ -117,7 +114,7 @@ class ExternalDocumentApiTest : DescribeSpec({
                     val document = document().copy(orgnumber = organization.organisasjonsnummer).toDocumentEntity()
                     coEvery { DocumentDAOMock.getByLinkId(eq(document.linkId)) } returns document
                     texasHttpClientMock.defaultMocks(
-                        consumer = DefaultOrganization.copy(
+                        systemBrukerOrganisasjon = DefaultOrganization.copy(
                             ID = "0192:${organization.inngaarIJuridiskEnheter!!.first().organisasjonsnummer}"
                         ),
                         scope = MASKINPORTEN_ARKIVPORTEN_SCOPE,
@@ -145,7 +142,7 @@ class ExternalDocumentApiTest : DescribeSpec({
                     val document = document().copy(orgnumber = organization.organisasjonsnummer).toDocumentEntity()
                     coEvery { DocumentDAOMock.getByLinkId(eq(document.linkId)) } returns document
                     texasHttpClientMock.defaultMocks(
-                        consumer = DefaultOrganization.copy(
+                        systemBrukerOrganisasjon = DefaultOrganization.copy(
                             ID = "0192:$nonMatchingOrgnumber" // Different orgnumber
                         ),
                         scope = MASKINPORTEN_ARKIVPORTEN_SCOPE,

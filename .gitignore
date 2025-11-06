@@ -37,3 +37,5 @@ out/
 
 ### Test Http-client ###
 src/test/http/http-client.private.env.json
+
+bruno/arkivporten/.env
