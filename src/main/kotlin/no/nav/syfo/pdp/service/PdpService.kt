@@ -1,11 +1,11 @@
 package no.nav.syfo.pdp.service
 
 import no.nav.syfo.pdp.client.Bruker
-import no.nav.syfo.pdp.client.PdpClient
+import no.nav.syfo.pdp.client.IPdpClient
 import no.nav.syfo.pdp.client.harTilgang
 
 class PdpService(
-    private val pdpClient: PdpClient,
+    private val pdpClient: IPdpClient,
 ) {
 
     suspend fun hasAccessToResource(
