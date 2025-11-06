@@ -32,6 +32,7 @@ import no.nav.syfo.document.db.DocumentDAO
 import no.nav.syfo.document.service.ValidationService
 import no.nav.syfo.ereg.EregService
 import no.nav.syfo.ereg.client.FakeEregClient
+import no.nav.syfo.pdp.service.PdpService
 import no.nav.syfo.registerApiV1
 import no.nav.syfo.texas.MASKINPORTEN_ARKIVPORTEN_SCOPE
 import no.nav.syfo.texas.client.TexasHttpClient
@@ -44,14 +45,18 @@ class ExternalDocumentApiTest : DescribeSpec({
     val fakeEregClient = FakeEregClient()
     val eregService = EregService(fakeEregClient)
     val eregServiceSpy = spyk(eregService)
-    val validationService = ValidationService(AltinnTilgangerService(fakeAltinnTilgangerClient), eregServiceSpy)
+    val pdpServiceMock = mockk<PdpService>()
+    val validationService = ValidationService(AltinnTilgangerService(fakeAltinnTilgangerClient), eregServiceSpy, pdpServiceMock)
     val validationServiceSpy = spyk(validationService)
     val tokenXIssuer = "https://tokenx.nav.no"
     val idportenIssuer = "https://test.idporten.no"
+
     beforeTest {
         clearAllMocks()
         TestDB.clearAllData()
+        coEvery { pdpServiceMock.hasAccessToResource(any(), any(), any()) } returns true
     }
+
     fun withTestApplication(
         fn: suspend ApplicationTestBuilder.() -> Unit
     ) {
