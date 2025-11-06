@@ -59,7 +59,7 @@ class ValidationService(
 
     private suspend fun validateAltinnRessursTilgang(principal: OrganisasjonPrincipal, documentType: DocumentType) {
         val requiredRessurs = requiredResourceByDocumentType[documentType]
-            ?: throw ApiErrorException.InternalServerErrorException("Ukjent dokumenttype $documentType")
+            ?: throw ApiErrorException.InternalServerErrorException("Could not find resource for document type $documentType")
 
         val hasAccess = pdpService.hasAccessToResource(
             System(principal.systemUserId),
@@ -70,7 +70,7 @@ class ValidationService(
             requiredRessurs
         )
         if (!hasAccess) {
-            throw ApiErrorException.ForbiddenException("Access denied to resource $requiredRessurs")
+            throw ApiErrorException.ForbiddenException("Access denied to resource $requiredRessurs, for system user ${principal.systemUserId}", )
         }
 
     }
