@@ -1,13 +1,10 @@
 package no.nav.syfo.pdp.client
 
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
-@Serializable
 data class PdpRequest(
     val request: XacmlJsonRequestExternal,
 ) {
-    @Serializable
     data class XacmlJsonRequestExternal(
         val returnPolicyIdList: Boolean,
         val accessSubject: List<XacmlJsonCategoryExternal>,
@@ -15,12 +12,10 @@ data class PdpRequest(
         val resource: List<XacmlJsonCategoryExternal>,
     )
 
-    @Serializable
     data class XacmlJsonCategoryExternal(
         val attribute: List<XacmlJsonAttributeExternal>,
     )
 
-    @Serializable
     data class XacmlJsonAttributeExternal(
         val attributeId: String,
         val value: String,

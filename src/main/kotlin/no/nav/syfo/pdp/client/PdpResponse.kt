@@ -1,12 +1,9 @@
 package no.nav.syfo.pdp.client
-import kotlinx.serialization.Serializable
 
-@Serializable
 data class PdpResponse(
     val response: List<DecisionResult>,
 )
 
-@Serializable
 data class DecisionResult(
     val decision: Decision,
 )
