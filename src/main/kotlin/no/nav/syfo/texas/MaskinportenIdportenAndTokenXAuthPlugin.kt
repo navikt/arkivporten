@@ -11,6 +11,7 @@ import no.nav.syfo.application.auth.OrganisasjonPrincipal
 import no.nav.syfo.application.auth.TOKEN_ISSUER
 import no.nav.syfo.application.exception.ApiErrorException
 import no.nav.syfo.texas.client.OrganizationId
+import no.nav.syfo.texas.client.getSystemUserId
 import no.nav.syfo.texas.client.getSystemUserOrganization
 import no.nav.syfo.util.logger
 
@@ -34,10 +35,8 @@ val MaskinportenIdportenAndTokenXAuthPlugin = createRouteScopedPlugin(
                 throw ApiErrorException.UnauthorizedException("Failed to find issuer in token: ${e.message}", e)
             }
 
-            val bearerToken = call.bearerToken()
-            if (bearerToken == null) {
-                throw ApiErrorException.UnauthorizedException("No bearer token found in request")
-            }
+            val bearerToken =
+                call.bearerToken() ?: throw ApiErrorException.UnauthorizedException("No bearer token found in request")
 
             val introspectionResponse = try {
                 client?.introspectToken(issuer.value!!, bearerToken)
@@ -62,12 +61,15 @@ val MaskinportenIdportenAndTokenXAuthPlugin = createRouteScopedPlugin(
                     }
                     val systemUserOrganizationId = introspectionResponse.getSystemUserOrganization()
                         ?: throw ApiErrorException.UnauthorizedException("No system user organization number in token claims")
+                    val systemUserId = introspectionResponse.getSystemUserId()
+                        ?: throw ApiErrorException.UnauthorizedException("No system user id in token claims")
 
                     call.authentication.principal(
                         OrganisasjonPrincipal(
                             ident = systemUserOrganizationId,
                             token = bearerToken,
                             systemOwner = introspectionResponse.consumer.ID,
+                            systemUserId = systemUserId,
                         )
                     )
                     call.attributes.put(TOKEN_CONSUMER_KEY, introspectionResponse.consumer)

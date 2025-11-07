@@ -13,16 +13,19 @@ import no.nav.syfo.application.auth.BrukerPrincipal
 import no.nav.syfo.application.auth.OrganisasjonPrincipal
 import no.nav.syfo.application.exception.ApiErrorException
 import no.nav.syfo.ereg.EregService
+import no.nav.syfo.pdp.service.PdpService
 import organisasjon
 
 class ValidationServiceTest : DescribeSpec({
     val altinnTilgangerService = mockk<AltinnTilgangerService>()
     val eregService = mockk<EregService>()
-    val validationService = ValidationService(altinnTilgangerService, eregService)
+    val pdpServiceMock = mockk<PdpService>()
+    val validationService = ValidationService(altinnTilgangerService, eregService, pdpServiceMock)
 
     val documentEntity = document().toDocumentEntity()
     beforeTest {
         clearAllMocks()
+        coEvery { pdpServiceMock.hasAccessToResource(any(), any(), any()) } returns true
     }
 
     describe("ValidationService") {
@@ -85,7 +88,13 @@ class ValidationServiceTest : DescribeSpec({
             context("when orgnumber from token matches document orgnumber") {
                 it("should allow access without checking ereg when Principal matches document orgnumber") {
                     // Arrange
-                    val organisasjonPrincipal = OrganisasjonPrincipal("0192:${documentEntity.orgnumber}", "token", "systemOwner")
+                    val organisasjonPrincipal = OrganisasjonPrincipal(
+                        "0192:${documentEntity.orgnumber}",
+                        "token",
+                        "0192:systemOwner",
+                        "systemUserId"
+
+                        )
 
                     // Act & Assert - should not throw exception
                     validationService.validateMaskinportenTilgang(organisasjonPrincipal, documentEntity)
@@ -94,6 +103,32 @@ class ValidationServiceTest : DescribeSpec({
                     }
                     coVerify(exactly = 0) {
                         altinnTilgangerService.validateTilgangToOrganisasjon(any(), any(), any())
+                    }
+                }
+
+                it("should throw ForbiddenException when PDP denies access") {
+                    // Arrange
+                    val organisasjonPrincipal = OrganisasjonPrincipal(
+                        "0192:${documentEntity.orgnumber}",
+                        "token",
+                        "0192:systemOwner",
+                        "systemUserId"
+
+                    )
+                    coEvery { pdpServiceMock.hasAccessToResource(any(), any(), any()) } returns false
+
+                    // Act & Assert - should not throw exception
+                    shouldThrow<ApiErrorException.ForbiddenException> {
+                        validationService.validateDocumentAccess(organisasjonPrincipal, documentEntity)
+                    }
+                    coVerify(exactly = 0) {
+                        eregService.getOrganization(any())
+                    }
+                    coVerify(exactly = 0) {
+                        altinnTilgangerService.validateTilgangToOrganisasjon(any(), any(), any())
+                    }
+                    coVerify(exactly = 1) {
+                        pdpServiceMock.hasAccessToResource(any(), any(), any())
                     }
                 }
             }
@@ -108,7 +143,8 @@ class ValidationServiceTest : DescribeSpec({
                         val organisasjonPrincipal = OrganisasjonPrincipal(
                             "0192:${organization.inngaarIJuridiskEnheter!!.first().organisasjonsnummer}",
                             "token",
-                            "systemOwner"
+                            "0192:systemOwner",
+                            "systemUserId"
                         )
                         coEvery { eregService.getOrganization(entity.orgnumber) } returns organization
 
@@ -133,7 +169,9 @@ class ValidationServiceTest : DescribeSpec({
                         val organisasjonPrincipal = OrganisasjonPrincipal(
                             "0192:${organization.inngaarIJuridiskEnheter!!.first().organisasjonsnummer}",
                             "token",
-                            "systemOwner"
+                            "0192:systemOwner",
+                            "systemUserId"
+
                         )
                         coEvery { eregService.getOrganization(entity.orgnumber) } returns organization.copy(
                             inngaarIJuridiskEnheter = null
@@ -158,7 +196,8 @@ class ValidationServiceTest : DescribeSpec({
                         val organisasjonPrincipal = OrganisasjonPrincipal(
                             "0192:123456789",
                             "token",
-                            "systemOwner"
+                            "0192:systemOwner",
+                            "systemUserId"
                         )
                         coEvery { eregService.getOrganization(entity.orgnumber) } returns organization
 
