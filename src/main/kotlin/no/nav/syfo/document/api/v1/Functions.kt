@@ -10,7 +10,7 @@ import io.ktor.server.routing.RoutingCall
 import java.util.UUID
 import no.nav.syfo.application.auth.BrukerPrincipal
 import no.nav.syfo.application.auth.JwtIssuer
-import no.nav.syfo.application.auth.OrganisasjonPrincipal
+import no.nav.syfo.application.auth.SystemPrincipal
 import no.nav.syfo.application.auth.Principal
 import no.nav.syfo.application.auth.TOKEN_ISSUER
 import no.nav.syfo.application.exceptions.UnauthorizedException
@@ -36,7 +36,7 @@ suspend inline fun <reified T : Any> RoutingCall.tryReceive() = runCatching { re
 fun RoutingCall.getPrincipal(): Principal =
     when (attributes[TOKEN_ISSUER]) {
         JwtIssuer.MASKINPORTEN -> {
-            authentication.principal<OrganisasjonPrincipal>() ?: throw UnauthorizedException()
+            authentication.principal<SystemPrincipal>() ?: throw UnauthorizedException()
         }
 
         JwtIssuer.TOKEN_X -> {

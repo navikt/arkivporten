@@ -1,4 +1,4 @@
-package no.nav.syfo.pdp.client
+package no.nav.syfo.altinn.pdp.client
 
 class FakePdpClient: IPdpClient {
     override suspend fun authorize(

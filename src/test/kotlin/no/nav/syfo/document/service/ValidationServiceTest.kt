@@ -10,10 +10,10 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import no.nav.syfo.altinntilganger.AltinnTilgangerService
 import no.nav.syfo.application.auth.BrukerPrincipal
-import no.nav.syfo.application.auth.OrganisasjonPrincipal
+import no.nav.syfo.application.auth.SystemPrincipal
 import no.nav.syfo.application.exception.ApiErrorException
 import no.nav.syfo.ereg.EregService
-import no.nav.syfo.pdp.service.PdpService
+import no.nav.syfo.altinn.pdp.service.PdpService
 import organisasjon
 
 class ValidationServiceTest : DescribeSpec({
@@ -88,7 +88,7 @@ class ValidationServiceTest : DescribeSpec({
             context("when orgnumber from token matches document orgnumber") {
                 it("should allow access without checking ereg when Principal matches document orgnumber") {
                     // Arrange
-                    val organisasjonPrincipal = OrganisasjonPrincipal(
+                    val systemPrincipal = SystemPrincipal(
                         "0192:${documentEntity.orgnumber}",
                         "token",
                         "0192:systemOwner",
@@ -97,7 +97,7 @@ class ValidationServiceTest : DescribeSpec({
                         )
 
                     // Act & Assert - should not throw exception
-                    validationService.validateMaskinportenTilgang(organisasjonPrincipal, documentEntity)
+                    validationService.validateMaskinportenTilgang(systemPrincipal, documentEntity)
                     coVerify(exactly = 0) {
                         eregService.getOrganization(any())
                     }
@@ -108,7 +108,7 @@ class ValidationServiceTest : DescribeSpec({
 
                 it("should throw ForbiddenException when PDP denies access") {
                     // Arrange
-                    val organisasjonPrincipal = OrganisasjonPrincipal(
+                    val systemPrincipal = SystemPrincipal(
                         "0192:${documentEntity.orgnumber}",
                         "token",
                         "0192:systemOwner",
@@ -119,7 +119,7 @@ class ValidationServiceTest : DescribeSpec({
 
                     // Act & Assert - should not throw exception
                     shouldThrow<ApiErrorException.ForbiddenException> {
-                        validationService.validateDocumentAccess(organisasjonPrincipal, documentEntity)
+                        validationService.validateDocumentAccess(systemPrincipal, documentEntity)
                     }
                     coVerify(exactly = 0) {
                         eregService.getOrganization(any())
@@ -140,7 +140,7 @@ class ValidationServiceTest : DescribeSpec({
                         val organization = organisasjon()
                         val entity = documentEntity.copy(orgnumber = organization.organisasjonsnummer)
 
-                        val organisasjonPrincipal = OrganisasjonPrincipal(
+                        val systemPrincipal = SystemPrincipal(
                             "0192:${organization.inngaarIJuridiskEnheter!!.first().organisasjonsnummer}",
                             "token",
                             "0192:systemOwner",
@@ -150,7 +150,7 @@ class ValidationServiceTest : DescribeSpec({
 
                         // Act & Assert - should not throw exception
                         validationService.validateMaskinportenTilgang(
-                            organisasjonPrincipal,
+                            systemPrincipal,
                             entity,
                         )
 
@@ -166,7 +166,7 @@ class ValidationServiceTest : DescribeSpec({
                         val organization = organisasjon()
                         val entity = documentEntity.copy(orgnumber = organization.organisasjonsnummer)
 
-                        val organisasjonPrincipal = OrganisasjonPrincipal(
+                        val systemPrincipal = SystemPrincipal(
                             "0192:${organization.inngaarIJuridiskEnheter!!.first().organisasjonsnummer}",
                             "token",
                             "0192:systemOwner",
@@ -180,7 +180,7 @@ class ValidationServiceTest : DescribeSpec({
                         // Act & Assert
                         shouldThrow<ApiErrorException.ForbiddenException> {
                             validationService.validateMaskinportenTilgang(
-                                organisasjonPrincipal, entity
+                                systemPrincipal, entity
                             )
                         }
                         coVerify { eregService.getOrganization(entity.orgnumber) }
@@ -193,7 +193,7 @@ class ValidationServiceTest : DescribeSpec({
                         val organization = organisasjon()
                         val entity = documentEntity.copy(orgnumber = organization.organisasjonsnummer)
 
-                        val organisasjonPrincipal = OrganisasjonPrincipal(
+                        val systemPrincipal = SystemPrincipal(
                             "0192:123456789",
                             "token",
                             "0192:systemOwner",
@@ -204,7 +204,7 @@ class ValidationServiceTest : DescribeSpec({
                         // Act & Assert
                         val exception = shouldThrow<ApiErrorException.ForbiddenException> {
                             validationService.validateMaskinportenTilgang(
-                                organisasjonPrincipal, entity
+                                systemPrincipal, entity
                             )
                         }
                         exception.message shouldBe "Access denied. Invalid organization."
