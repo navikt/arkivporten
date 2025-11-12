@@ -1,4 +1,4 @@
-package no.nav.syfo.pdp.client
+package no.nav.syfo.altinn.pdp.client
 
 data class PdpResponse(
     val response: List<DecisionResult>,

@@ -1,11 +1,11 @@
-package no.nav.syfo.dialogporten.task
+package no.nav.syfo.altinn.dialogporten.task
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import no.nav.syfo.application.leaderelection.LeaderElection
-import no.nav.syfo.dialogporten.service.DialogportenService
+import no.nav.syfo.altinn.dialogporten.service.DialogportenService
 import no.nav.syfo.util.logger
 
 class SendDialogTask(

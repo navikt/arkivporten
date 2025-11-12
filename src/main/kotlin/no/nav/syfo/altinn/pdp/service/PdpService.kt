@@ -1,8 +1,8 @@
-package no.nav.syfo.pdp.service
+package no.nav.syfo.altinn.pdp.service
 
-import no.nav.syfo.pdp.client.Bruker
-import no.nav.syfo.pdp.client.IPdpClient
-import no.nav.syfo.pdp.client.harTilgang
+import no.nav.syfo.altinn.pdp.client.Bruker
+import no.nav.syfo.altinn.pdp.client.IPdpClient
+import no.nav.syfo.altinn.pdp.client.harTilgang
 
 class PdpService(
     private val pdpClient: IPdpClient,
