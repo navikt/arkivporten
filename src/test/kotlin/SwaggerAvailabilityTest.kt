@@ -14,7 +14,7 @@ class SwaggerAvailabilityTest : StringSpec({
     "openapi yaml should be served" {
         testApplication {
             application { minimalSwaggerRouting() }
-            val response = client.get("/openapi/arkivporten.yaml")
+            val response = client.get("/openapi/documentation.yaml")
             response.status.value shouldBe 200
             response.bodyAsText().contains("openapi: 3.0.3") shouldBe true
         }
@@ -34,7 +34,7 @@ class SwaggerAvailabilityTest : StringSpec({
 private fun Application.minimalSwaggerRouting() {
     routing {
         staticResources("/openapi", "openapi")
-        swaggerUI(path = "swagger", swaggerFile = "openapi/arkivporten.yaml")
+        swaggerUI(path = "swagger", swaggerFile = "openapi/documentation.yaml")
     }
 }
 

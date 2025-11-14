@@ -9,7 +9,8 @@ spec:
   ingresses:
     - https://arkivporten.intern.dev.nav.no
     - https://arkivporten.ekstern.dev.nav.no/api/v1/documents
-    - https://arkivporten.ekstern.dev.nav.no
+    - https://arkivporten.ekstern.dev.nav.no/swagger
+    - https://arkivporten.ekstern.dev.nav.no/openapi
   image: {{image}} #
   port: 8080
   liveness:
