@@ -43,6 +43,8 @@ paths:
                 format: binary
         '401':
           description: Unauthorized
+        '403':
+          description: Forbidden
         '404':
           description: Document not found
         '500':
@@ -64,12 +66,13 @@ paths:
             examples:
               sample:
                 value:
-                  id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
-                  title: "Example title"
-                  payload:
-                    type: "PDF"
-                    base64: "JVBERi0xLjQKJ..."
-                  createdAt: "2025-01-01T12:00:00Z"
+                  documentId: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                  type: "Dialogmøte"
+                  content: "JVBERi0xLjQKJ..."              # base64-encoded binary
+                  contentType: "application/pdf"
+                  orgnumber: "123456789"
+                  dialogTitle: "Innkalling til dialogmøte"
+                  dialogSummary: "Kort oppsummering av dokumentinnhold."
       responses:
         '200':
           description: Created
