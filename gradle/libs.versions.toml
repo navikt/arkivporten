@@ -1,7 +1,7 @@
 
 [versions]
 datafaker= "2.5.3"
-flyway="11.14.0"
+flyway="11.17.0"
 hikaricp = "7.0.2"
 jackson-datatype-jsr = "2.20.0"
 koin="4.1.1"
