@@ -84,7 +84,7 @@ spec:
         - application: isyfo-isdialogmote
           namespace: teamsykefravr
         - application: syfooppfolgingsplanservice
-          cluster: prod-fss
+          cluster: dev-fss
     outbound:
       rules:
         - application: arbeidsgiver-altinn-tilganger
