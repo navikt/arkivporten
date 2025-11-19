@@ -31,6 +31,7 @@ import io.mockk.verify
 import no.nav.syfo.TestDB
 import no.nav.syfo.application.api.installContentNegotiation
 import no.nav.syfo.application.api.installStatusPages
+import no.nav.syfo.document.db.DialogDAO
 import no.nav.syfo.document.db.DocumentDAO
 import no.nav.syfo.document.db.DocumentEntity
 import no.nav.syfo.document.service.ValidationService
@@ -40,6 +41,7 @@ import no.nav.syfo.texas.client.TexasHttpClient
 class InternalDocumentApiTest : DescribeSpec({
     val texasHttpClientMock = mockk<TexasHttpClient>()
     val documentDAOMock = mockk<DocumentDAO>()
+    val dialogDAOMock = mockk<DialogDAO>()
 
     beforeTest {
         clearAllMocks()
@@ -66,6 +68,7 @@ class InternalDocumentApiTest : DescribeSpec({
                     registerApiV1(
                         texasHttpClientMock,
                         documentDAOMock,
+                        dialogDAOMock,
                         validationService = mockk<ValidationService>()
                     )
                 }
