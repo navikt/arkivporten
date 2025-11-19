@@ -89,7 +89,7 @@ class ValidationServiceTest : DescribeSpec({
                 it("should allow access without checking ereg when Principal matches document orgnumber") {
                     // Arrange
                     val systemPrincipal = SystemPrincipal(
-                        "0192:${documentEntity.orgnumber}",
+                        "0192:${documentEntity.orgNumber}",
                         "token",
                         "0192:systemOwner",
                         "systemUserId"
@@ -109,7 +109,7 @@ class ValidationServiceTest : DescribeSpec({
                 it("should throw ForbiddenException when PDP denies access") {
                     // Arrange
                     val systemPrincipal = SystemPrincipal(
-                        "0192:${documentEntity.orgnumber}",
+                        "0192:${documentEntity.orgNumber}",
                         "token",
                         "0192:systemOwner",
                         "systemUserId"
