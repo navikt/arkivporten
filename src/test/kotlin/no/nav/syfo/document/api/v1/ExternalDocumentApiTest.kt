@@ -32,9 +32,11 @@ import no.nav.syfo.document.db.DocumentDAO
 import no.nav.syfo.document.service.ValidationService
 import no.nav.syfo.ereg.EregService
 import no.nav.syfo.ereg.client.FakeEregClient
+import no.nav.syfo.altinn.pdp.service.PdpService
 import no.nav.syfo.registerApiV1
 import no.nav.syfo.texas.MASKINPORTEN_ARKIVPORTEN_SCOPE
 import no.nav.syfo.texas.client.TexasHttpClient
+import org.testcontainers.shaded.org.bouncycastle.asn1.x509.X509ObjectIdentifiers.organization
 import organisasjon
 
 class ExternalDocumentApiTest : DescribeSpec({
@@ -44,14 +46,18 @@ class ExternalDocumentApiTest : DescribeSpec({
     val fakeEregClient = FakeEregClient()
     val eregService = EregService(fakeEregClient)
     val eregServiceSpy = spyk(eregService)
-    val validationService = ValidationService(AltinnTilgangerService(fakeAltinnTilgangerClient), eregServiceSpy)
+    val pdpServiceMock = mockk<PdpService>()
+    val validationService = ValidationService(AltinnTilgangerService(fakeAltinnTilgangerClient), eregServiceSpy, pdpServiceMock)
     val validationServiceSpy = spyk(validationService)
     val tokenXIssuer = "https://tokenx.nav.no"
     val idportenIssuer = "https://test.idporten.no"
+
     beforeTest {
         clearAllMocks()
         TestDB.clearAllData()
+        coEvery { pdpServiceMock.hasAccessToResource(any(), any(), any()) } returns true
     }
+
     fun withTestApplication(
         fn: suspend ApplicationTestBuilder.() -> Unit
     ) {
@@ -88,7 +94,7 @@ class ExternalDocumentApiTest : DescribeSpec({
                     val document = document().toDocumentEntity()
                     coEvery { DocumentDAOMock.getByLinkId(eq(document.linkId)) } returns document
                     texasHttpClientMock.defaultMocks(
-                        consumer = DefaultOrganization.copy(
+                        systemBrukerOrganisasjon = DefaultOrganization.copy(
                             ID = "0192:${document.orgNumber}"
                         ),
                         scope = MASKINPORTEN_ARKIVPORTEN_SCOPE,
@@ -114,7 +120,7 @@ class ExternalDocumentApiTest : DescribeSpec({
                     val document = document().copy(orgNumber = organization.organisasjonsnummer).toDocumentEntity()
                     coEvery { DocumentDAOMock.getByLinkId(eq(document.linkId)) } returns document
                     texasHttpClientMock.defaultMocks(
-                        consumer = DefaultOrganization.copy(
+                        systemBrukerOrganisasjon = DefaultOrganization.copy(
                             ID = "0192:${organization.inngaarIJuridiskEnheter!!.first().organisasjonsnummer}"
                         ),
                         scope = MASKINPORTEN_ARKIVPORTEN_SCOPE,
@@ -142,7 +148,7 @@ class ExternalDocumentApiTest : DescribeSpec({
                     val document = document().copy(orgNumber = organization.organisasjonsnummer).toDocumentEntity()
                     coEvery { DocumentDAOMock.getByLinkId(eq(document.linkId)) } returns document
                     texasHttpClientMock.defaultMocks(
-                        consumer = DefaultOrganization.copy(
+                        systemBrukerOrganisasjon = DefaultOrganization.copy(
                             ID = "0192:$nonMatchingOrgnumber" // Different orgNumber
                         ),
                         scope = MASKINPORTEN_ARKIVPORTEN_SCOPE,

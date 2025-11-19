@@ -14,6 +14,7 @@ import no.nav.syfo.application.auth.JwtIssuer
 import no.nav.syfo.document.api.v1.Document
 import no.nav.syfo.document.api.v1.DocumentType
 import no.nav.syfo.ereg.client.Organisasjon
+import no.nav.syfo.texas.client.AuthorizationDetail
 import no.nav.syfo.texas.client.OrganizationId
 import no.nav.syfo.texas.client.TexasHttpClient
 import no.nav.syfo.texas.client.TexasIntrospectionResponse
@@ -92,6 +93,7 @@ fun getMockEngine(path: String = "", status: HttpStatusCode, headers: Headers, c
 
 
 fun TexasHttpClient.defaultMocks(
+    systemBrukerOrganisasjon: OrganizationId? = DefaultOrganization,
     pid: String? = null,
     acr: String? = null,
     scope: String? = null,
@@ -125,6 +127,16 @@ fun TexasHttpClient.defaultMocks(
                     consumer = consumer,
                     supplier = supplier,
                     scope = scope,
+                    authorizationDetails = systemBrukerOrganisasjon?.let {
+                        listOf(
+                            AuthorizationDetail(
+                                type = "urn:altinn:systemuser",
+                                systemuserOrg = systemBrukerOrganisasjon,
+                                systemuserId = listOf("some-user-id"),
+                                systemId = "some-system-id"
+                            )
+                        )
+                    }
                 )
             }
             else -> TODO("Legg til identityProvider i mock")

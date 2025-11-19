@@ -10,19 +10,22 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import no.nav.syfo.altinntilganger.AltinnTilgangerService
 import no.nav.syfo.application.auth.BrukerPrincipal
-import no.nav.syfo.application.auth.OrganisasjonPrincipal
+import no.nav.syfo.application.auth.SystemPrincipal
 import no.nav.syfo.application.exception.ApiErrorException
 import no.nav.syfo.ereg.EregService
+import no.nav.syfo.altinn.pdp.service.PdpService
 import organisasjon
 
 class ValidationServiceTest : DescribeSpec({
     val altinnTilgangerService = mockk<AltinnTilgangerService>()
     val eregService = mockk<EregService>()
-    val validationService = ValidationService(altinnTilgangerService, eregService)
+    val pdpServiceMock = mockk<PdpService>()
+    val validationService = ValidationService(altinnTilgangerService, eregService, pdpServiceMock)
 
     val documentEntity = document().toDocumentEntity()
     beforeTest {
         clearAllMocks()
+        coEvery { pdpServiceMock.hasAccessToResource(any(), any(), any()) } returns true
     }
 
     describe("ValidationService") {
@@ -85,15 +88,47 @@ class ValidationServiceTest : DescribeSpec({
             context("when orgnumber from token matches document orgnumber") {
                 it("should allow access without checking ereg when Principal matches document orgnumber") {
                     // Arrange
-                    val organisasjonPrincipal = OrganisasjonPrincipal("0192:${documentEntity.orgNumber}", "token")
+                    val systemPrincipal = SystemPrincipal(
+                        "0192:${documentEntity.orgnumber}",
+                        "token",
+                        "0192:systemOwner",
+                        "systemUserId"
+
+                        )
 
                     // Act & Assert - should not throw exception
-                    validationService.validateMaskinportenTilgang(organisasjonPrincipal, documentEntity)
+                    validationService.validateMaskinportenTilgang(systemPrincipal, documentEntity)
                     coVerify(exactly = 0) {
                         eregService.getOrganization(any())
                     }
                     coVerify(exactly = 0) {
                         altinnTilgangerService.validateTilgangToOrganisasjon(any(), any(), any())
+                    }
+                }
+
+                it("should throw ForbiddenException when PDP denies access") {
+                    // Arrange
+                    val systemPrincipal = SystemPrincipal(
+                        "0192:${documentEntity.orgnumber}",
+                        "token",
+                        "0192:systemOwner",
+                        "systemUserId"
+
+                    )
+                    coEvery { pdpServiceMock.hasAccessToResource(any(), any(), any()) } returns false
+
+                    // Act & Assert - should not throw exception
+                    shouldThrow<ApiErrorException.ForbiddenException> {
+                        validationService.validateDocumentAccess(systemPrincipal, documentEntity)
+                    }
+                    coVerify(exactly = 0) {
+                        eregService.getOrganization(any())
+                    }
+                    coVerify(exactly = 0) {
+                        altinnTilgangerService.validateTilgangToOrganisasjon(any(), any(), any())
+                    }
+                    coVerify(exactly = 1) {
+                        pdpServiceMock.hasAccessToResource(any(), any(), any())
                     }
                 }
             }
@@ -105,15 +140,17 @@ class ValidationServiceTest : DescribeSpec({
                         val organization = organisasjon()
                         val entity = documentEntity.copy(orgNumber = organization.organisasjonsnummer)
 
-                        val organisasjonPrincipal = OrganisasjonPrincipal(
+                        val systemPrincipal = SystemPrincipal(
                             "0192:${organization.inngaarIJuridiskEnheter!!.first().organisasjonsnummer}",
-                            "token"
+                            "token",
+                            "0192:systemOwner",
+                            "systemUserId"
                         )
                         coEvery { eregService.getOrganization(entity.orgNumber) } returns organization
 
                         // Act & Assert - should not throw exception
                         validationService.validateMaskinportenTilgang(
-                            organisasjonPrincipal,
+                            systemPrincipal,
                             entity,
                         )
 
@@ -129,18 +166,21 @@ class ValidationServiceTest : DescribeSpec({
                         val organization = organisasjon()
                         val entity = documentEntity.copy(orgNumber = organization.organisasjonsnummer)
 
-                        val organisasjonPrincipal = OrganisasjonPrincipal(
+                        val systemPrincipal = SystemPrincipal(
                             "0192:${organization.inngaarIJuridiskEnheter!!.first().organisasjonsnummer}",
-                            "token"
+                            "token",
+                            "0192:systemOwner",
+                            "systemUserId"
+
                         )
                         coEvery { eregService.getOrganization(entity.orgNumber) } returns organization.copy(
                             inngaarIJuridiskEnheter = null
                         )
 
                         // Act & Assert
-                        val exception = shouldThrow<ApiErrorException.ForbiddenException> {
+                        shouldThrow<ApiErrorException.ForbiddenException> {
                             validationService.validateMaskinportenTilgang(
-                                organisasjonPrincipal, entity
+                                systemPrincipal, entity
                             )
                         }
                         coVerify { eregService.getOrganization(entity.orgNumber) }
@@ -153,16 +193,18 @@ class ValidationServiceTest : DescribeSpec({
                         val organization = organisasjon()
                         val entity = documentEntity.copy(orgNumber = organization.organisasjonsnummer)
 
-                        val organisasjonPrincipal = OrganisasjonPrincipal(
+                        val systemPrincipal = SystemPrincipal(
                             "0192:123456789",
-                            "token"
+                            "token",
+                            "0192:systemOwner",
+                            "systemUserId"
                         )
                         coEvery { eregService.getOrganization(entity.orgNumber) } returns organization
 
                         // Act & Assert
                         val exception = shouldThrow<ApiErrorException.ForbiddenException> {
                             validationService.validateMaskinportenTilgang(
-                                organisasjonPrincipal, entity
+                                systemPrincipal, entity
                             )
                         }
                         exception.message shouldBe "Access denied. Invalid organization."

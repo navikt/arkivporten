@@ -69,6 +69,7 @@ spec:
           atMaxAge: 680
       consumes:
         - name: "digdir:dialogporten.serviceprovider"
+        - name: "altinn:authorization/authorize"
   azure:
     application:
       enabled: true
@@ -84,6 +85,8 @@ spec:
           namespace: team-esyfo
         - application: isyfo-isdialogmote
           namespace: teamsykefravr
+        - application: syfooppfolgingsplanservice
+          cluster: dev-fss
     outbound:
       rules:
         - application: arbeidsgiver-altinn-tilganger
@@ -101,7 +104,9 @@ spec:
       value: http://arbeidsgiver-altinn-tilganger.fager
     - name: DIALOGPORTEN_SCOPE
       value: "digdir:dialogporten.serviceprovider"
-    - name: DIALOGPORTEN_BASE_URL
+    - name: ALTINN_3_BASE_URL
       value: "https://platform.tt02.altinn.no"
     - name: PUBLIC_INGRESS_URL
       value: https://arkivporten.ekstern.dev.nav.no
+  envFrom:
+    - secret: altinn-subscription-key

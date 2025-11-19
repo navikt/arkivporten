@@ -19,10 +19,13 @@ import no.nav.syfo.application.isLocalEnv
 import no.nav.syfo.application.leaderelection.LeaderElection
 import no.nav.syfo.document.service.ValidationService
 import no.nav.syfo.document.db.DocumentDAO
-import no.nav.syfo.dialogporten.client.DialogportenClient
-import no.nav.syfo.dialogporten.client.FakeDialogportenClient
-import no.nav.syfo.dialogporten.service.DialogportenService
-import no.nav.syfo.dialogporten.task.SendDialogTask
+import no.nav.syfo.altinn.dialogporten.client.DialogportenClient
+import no.nav.syfo.altinn.dialogporten.client.FakeDialogportenClient
+import no.nav.syfo.altinn.dialogporten.service.DialogportenService
+import no.nav.syfo.altinn.dialogporten.task.SendDialogTask
+import no.nav.syfo.altinn.pdp.client.FakePdpClient
+import no.nav.syfo.altinn.pdp.client.PdpClient
+import no.nav.syfo.altinn.pdp.service.PdpService
 import no.nav.syfo.texas.client.TexasHttpClient
 import no.nav.syfo.util.httpClientDefault
 import org.koin.core.scope.Scope
@@ -97,14 +100,22 @@ private fun servicesModule() = module {
         if (isLocalEnv()) FakeDialogportenClient() else DialogportenClient(
             texasHttpClient = get(),
             httpClient = get(),
-            baseUrl = env().clientProperties.dialogportenBasePath,
+            baseUrl = env().clientProperties.altinn3BaseUrl,
+        )
+    }
+    single {
+        if (isLocalEnv()) FakePdpClient() else PdpClient(
+            httpClient = get(),
+            baseUrl = env().clientProperties.altinn3BaseUrl,
+            subscriptionKey = env().clientProperties.pdpSubscriptionKey,
+            texasHttpClient = get(),
         )
     }
 
     single { AltinnTilgangerService(get()) }
-
+    single { PdpService(get()) }
     single { EregService(get()) }
-    single { ValidationService(get(), get()) }
+    single { ValidationService(get(), get(), get()) }
     single { LeaderElection(get(), env().clientProperties.electorPath) }
     single { DialogportenService(get(), get(), env().publicIngressUrl) }
     single { SendDialogTask(get(),get()) }

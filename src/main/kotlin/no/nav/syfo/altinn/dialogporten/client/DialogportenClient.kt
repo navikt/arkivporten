@@ -1,4 +1,4 @@
-package no.nav.syfo.dialogporten.client
+package no.nav.syfo.altinn.dialogporten.client
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -10,7 +10,7 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
-import no.nav.syfo.dialogporten.domain.Dialog
+import no.nav.syfo.altinn.dialogporten.domain.Dialog
 import no.nav.syfo.texas.client.TexasHttpClient
 import no.nav.syfo.util.logger
 import java.util.UUID
