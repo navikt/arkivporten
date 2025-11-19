@@ -7,10 +7,10 @@ import no.nav.syfo.ereg.client.Organisasjon
 
 class EregService(private val eregClient: IEaregClient) {
     suspend fun getOrganization(
-        orgnumber: String
+        orgNumber: String
     ): Organisasjon {
         return try {
-            eregClient.getOrganisasjon(orgnummer = orgnumber)
+            eregClient.getOrganisasjon(orgnummer = orgNumber)
         } catch (e: UpstreamRequestException) {
             throw ApiErrorException.InternalServerErrorException(
                 "Could not get organization",

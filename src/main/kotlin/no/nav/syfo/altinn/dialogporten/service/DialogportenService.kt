@@ -62,7 +62,7 @@ class DialogportenService(
     private fun DocumentEntity.toDialog(): Dialog {
         return Dialog(
             serviceResource = "urn:altinn:resource:$dialogRessurs",
-            party = "urn:altinn:organization:identifier-no:$orgnumber",
+            party = "urn:altinn:organization:identifier-no:$orgNumber",
             externalReference = documentId.toString(),
             content = Content.create(
                 title = dialogTitle,

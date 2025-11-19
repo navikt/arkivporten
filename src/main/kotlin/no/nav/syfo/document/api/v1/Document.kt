@@ -9,7 +9,7 @@ data class Document(
     val type: DocumentType,
     val content: ByteArray,
     val contentType: String,
-    val orgnumber: String,
+    val orgNumber: String,
     val dialogTitle: String,
     val dialogSummary: String,
 ) {
@@ -19,7 +19,7 @@ data class Document(
             type = type,
             content = content,
             contentType = contentType,
-            orgnumber = orgnumber,
+            orgNumber = this@Document.orgNumber,
             dialogTitle = dialogTitle,
             dialogSummary = dialogSummary,
             linkId = UUID.randomUUID(),
@@ -37,7 +37,7 @@ data class Document(
         if (type != other.type) return false
         if (!content.contentEquals(other.content)) return false
         if (contentType != other.contentType) return false
-        if (orgnumber != other.orgnumber) return false
+        if (this@Document.orgNumber != other.orgNumber) return false
         if (dialogTitle != other.dialogTitle) return false
         if (dialogSummary != other.dialogSummary) return false
 
@@ -49,7 +49,7 @@ data class Document(
         result = 31 * result + type.hashCode()
         result = 31 * result + content.contentHashCode()
         result = 31 * result + contentType.hashCode()
-        result = 31 * result + orgnumber.hashCode()
+        result = 31 * result + orgNumber.hashCode()
         result = 31 * result + dialogTitle.hashCode()
         result = 31 * result + dialogSummary.hashCode()
         return result

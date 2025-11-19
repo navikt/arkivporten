@@ -36,6 +36,7 @@ import no.nav.syfo.altinn.pdp.service.PdpService
 import no.nav.syfo.registerApiV1
 import no.nav.syfo.texas.MASKINPORTEN_ARKIVPORTEN_SCOPE
 import no.nav.syfo.texas.client.TexasHttpClient
+import org.testcontainers.shaded.org.bouncycastle.asn1.x509.X509ObjectIdentifiers.organization
 import organisasjon
 
 class ExternalDocumentApiTest : DescribeSpec({
@@ -94,13 +95,13 @@ class ExternalDocumentApiTest : DescribeSpec({
                     coEvery { DocumentDAOMock.getByLinkId(eq(document.linkId)) } returns document
                     texasHttpClientMock.defaultMocks(
                         systemBrukerOrganisasjon = DefaultOrganization.copy(
-                            ID = "0192:${document.orgnumber}"
+                            ID = "0192:${document.orgNumber}"
                         ),
                         scope = MASKINPORTEN_ARKIVPORTEN_SCOPE,
                     )
                     // Act
                     val response = client.get("api/v1/documents/${document.linkId}") {
-                        bearerAuth(createMockToken(ident = document.orgnumber))
+                        bearerAuth(createMockToken(ident = document.orgNumber))
                     }
 
                     // Assert
@@ -116,7 +117,7 @@ class ExternalDocumentApiTest : DescribeSpec({
                 withTestApplication {
                     // Arrange
                     val organization = organisasjon()
-                    val document = document().copy(orgnumber = organization.organisasjonsnummer).toDocumentEntity()
+                    val document = document().copy(orgNumber = organization.organisasjonsnummer).toDocumentEntity()
                     coEvery { DocumentDAOMock.getByLinkId(eq(document.linkId)) } returns document
                     texasHttpClientMock.defaultMocks(
                         systemBrukerOrganisasjon = DefaultOrganization.copy(
@@ -124,7 +125,7 @@ class ExternalDocumentApiTest : DescribeSpec({
                         ),
                         scope = MASKINPORTEN_ARKIVPORTEN_SCOPE,
                     )
-                    fakeEregClient.organisasjoner.put(document.orgnumber, organization)
+                    fakeEregClient.organisasjoner.put(document.orgNumber, organization)
                     // Act
                     val response = client.get("api/v1/documents/${document.linkId}") {
                         bearerAuth(createMockToken(ident = organization.inngaarIJuridiskEnheter.first().organisasjonsnummer))
@@ -144,15 +145,15 @@ class ExternalDocumentApiTest : DescribeSpec({
                     // Arrange
                     val nonMatchingOrgnumber = "999999999"
                     val organization = organisasjon()
-                    val document = document().copy(orgnumber = organization.organisasjonsnummer).toDocumentEntity()
+                    val document = document().copy(orgNumber = organization.organisasjonsnummer).toDocumentEntity()
                     coEvery { DocumentDAOMock.getByLinkId(eq(document.linkId)) } returns document
                     texasHttpClientMock.defaultMocks(
                         systemBrukerOrganisasjon = DefaultOrganization.copy(
-                            ID = "0192:$nonMatchingOrgnumber" // Different orgnumber
+                            ID = "0192:$nonMatchingOrgnumber" // Different orgNumber
                         ),
                         scope = MASKINPORTEN_ARKIVPORTEN_SCOPE,
                     )
-                    fakeEregClient.organisasjoner.put(document.orgnumber, organization)
+                    fakeEregClient.organisasjoner.put(document.orgNumber, organization)
                     // Act
                     val response = client.get("api/v1/documents/${document.linkId}") {
                         bearerAuth(createMockToken(ident = nonMatchingOrgnumber))
@@ -177,7 +178,7 @@ class ExternalDocumentApiTest : DescribeSpec({
                         acr = "Level4",
                         pid = callerPid
                     )
-                    fakeAltinnTilgangerClient.usersWithAccess.add(callerPid to document.orgnumber)
+                    fakeAltinnTilgangerClient.usersWithAccess.add(callerPid to document.orgNumber)
                     coEvery { DocumentDAOMock.getByLinkId(eq(document.linkId)) } returns document
                     // Act
                     val response = client.get("api/v1/documents/${document.linkId}") {
@@ -202,7 +203,7 @@ class ExternalDocumentApiTest : DescribeSpec({
                         acr = "Level3",
                         pid = callerPid
                     )
-                    fakeAltinnTilgangerClient.usersWithAccess.add(callerPid to document.orgnumber)
+                    fakeAltinnTilgangerClient.usersWithAccess.add(callerPid to document.orgNumber)
                     coEvery { DocumentDAOMock.getByLinkId(eq(document.linkId)) } returns document
                     // Act
                     val response = client.get("api/v1/documents/${document.linkId}") {
@@ -252,7 +253,7 @@ class ExternalDocumentApiTest : DescribeSpec({
                         acr = "Level4",
                         pid = callerPid
                     )
-                    fakeAltinnTilgangerClient.usersWithAccess.add(callerPid to document.orgnumber)
+                    fakeAltinnTilgangerClient.usersWithAccess.add(callerPid to document.orgNumber)
                     coEvery { DocumentDAOMock.getByLinkId(eq(document.linkId)) } returns document
                     // Act
                     val response = client.get("api/v1/documents/${document.linkId}") {
@@ -276,13 +277,13 @@ class ExternalDocumentApiTest : DescribeSpec({
                         coEvery { DocumentDAOMock.getByLinkId(eq(document.linkId)) } returns null
                         texasHttpClientMock.defaultMocks(
                             consumer = DefaultOrganization.copy(
-                                ID = "0192:${document.orgnumber}"
+                                ID = "0192:${document.orgNumber}"
                             ),
                             scope = MASKINPORTEN_ARKIVPORTEN_SCOPE,
                         )
                         // Act
                         val response = client.get("api/v1/documents/${document.linkId}") {
-                            bearerAuth(createMockToken(ident = document.orgnumber))
+                            bearerAuth(createMockToken(ident = document.orgNumber))
                         }
 
                         // Assert

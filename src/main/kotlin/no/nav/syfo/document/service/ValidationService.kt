@@ -37,19 +37,19 @@ class ValidationService(
     suspend private fun validateAltTilgang(principal: BrukerPrincipal, documentDAO: DocumentEntity) {
         altinnTilgangerService.validateTilgangToOrganisasjon(
             principal,
-            documentDAO.orgnumber,
+            documentDAO.orgNumber,
             documentDAO.type
         )
     }
 
     suspend fun validateMaskinportenTilgang(principal: SystemPrincipal, documentDAO: DocumentEntity) {
         val orgnumberFromToken = maskinportenIdToOrgnumber(principal.ident)
-        if (orgnumberFromToken != documentDAO.orgnumber) {
-            val organisasjon = eregService.getOrganization(documentDAO.orgnumber)
+        if (orgnumberFromToken != documentDAO.orgNumber) {
+            val organisasjon = eregService.getOrganization(documentDAO.orgNumber)
             if (organisasjon.inngaarIJuridiskEnheter?.filter { it.organisasjonsnummer == orgnumberFromToken }
                     .isNullOrEmpty()) {
                 logger.warn(
-                    "Maskinporten orgnummer ${orgnumberFromToken} does not match document orgnummer ${documentDAO.orgnumber} or any parent organization."
+                    "Maskinporten orgnummer ${orgnumberFromToken} does not match document orgnummer ${documentDAO.orgNumber} or any parent organization."
                 )
                 throw ApiErrorException.ForbiddenException("Access denied. Invalid organization.")
             }

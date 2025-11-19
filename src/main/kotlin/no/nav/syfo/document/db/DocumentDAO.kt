@@ -29,7 +29,7 @@ class DocumentDAO(private val database: DatabaseInterface) {
                         preparedStatement.setObject(2, type, java.sql.Types.OTHER)
                         preparedStatement.setBytes(3, content)
                         preparedStatement.setString(4, contentType)
-                        preparedStatement.setString(5, orgnumber)
+                        preparedStatement.setString(5, orgNumber)
                         preparedStatement.setString(6, dialogTitle)
                         preparedStatement.setString(7, dialogSummary)
                         preparedStatement.setObject(8, linkId)
@@ -159,7 +159,7 @@ fun ResultSet.toDocumentDAO(): DocumentEntity =
         type = DocumentType.valueOf(getString("type")),
         content = getBytes("content"),
         contentType = getString("content_type"),
-        orgnumber = getString("orgnumber"),
+        orgNumber = getString("orgnumber"),
         dialogTitle = getString("dialog_title"),
         dialogSummary = getString("dialog_summary"),
         status = DocumentStatus.valueOf(getString("status")),
