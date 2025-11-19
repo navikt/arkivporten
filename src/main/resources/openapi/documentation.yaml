@@ -75,7 +75,7 @@ paths:
                   type: "Dialogmøte"
                   content: "JVBERi0xLjQKJ..."              # base64-encoded binary
                   contentType: "application/pdf"
-                  orgnumber: "123456789"
+                  orgNumber: "123456789"
                   dialogTitle: "Innkalling til dialogmøte"
                   dialogSummary: "Kort oppsummering av dokumentinnhold."
       responses:
@@ -124,7 +124,7 @@ components:
           type: string
           description: MIME type of the content.
           example: application/pdf
-        orgnumber:
+        orgNumber:
           type: string
           description: Organisation number.
           example: "123456789"
@@ -160,7 +160,7 @@ components:
         - type
         - content
         - contentType
-        - orgnumber
+        - orgNumber
         - dialogTitle
         - dialogSummary
         - linkId

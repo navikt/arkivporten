@@ -9,7 +9,7 @@ Content-Type: application/json
   "type": "OPPFOLGINGSPLAN",
   "content": "{{$random.alphabetic(100)}}",
   "contentType": "application/pdf",
-  "orgnumber": "{{orgnumber}}",
+  "orgNumber": "{{orgNumber}}",
   "dialogTitle": "Oppfølgingsplan",
   "dialogSummary": "Sykmeldt: Bjørn\nLeder: Daniel"
 }

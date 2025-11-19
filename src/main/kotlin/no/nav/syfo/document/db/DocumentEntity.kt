@@ -17,7 +17,7 @@ data class DocumentEntity(
     val type: DocumentType,
     val content: ByteArray,
     val contentType: String,
-    val orgnumber: String,
+    val orgNumber: String,
     val dialogTitle: String,
     val dialogSummary: String,
     val linkId: UUID,
@@ -38,7 +38,7 @@ data class DocumentEntity(
         if (type != other.type) return false
         if (!content.contentEquals(other.content)) return false
         if (contentType != other.contentType) return false
-        if (orgnumber != other.orgnumber) return false
+        if (orgNumber != other.orgNumber) return false
         if (dialogTitle != other.dialogTitle) return false
         if (dialogSummary != other.dialogSummary) return false
         if (linkId != other.linkId) return false
@@ -56,7 +56,7 @@ data class DocumentEntity(
         result = 31 * result + type.hashCode()
         result = 31 * result + content.contentHashCode()
         result = 31 * result + contentType.hashCode()
-        result = 31 * result + orgnumber.hashCode()
+        result = 31 * result + orgNumber.hashCode()
         result = 31 * result + dialogTitle.hashCode()
         result = 31 * result + dialogSummary.hashCode()
         result = 31 * result + linkId.hashCode()

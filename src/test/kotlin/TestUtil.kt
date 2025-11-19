@@ -27,7 +27,7 @@ fun document() =
         type = DocumentType.DIALOGMOTE,
         content = faker.lorem().sentence().toByteArray(),
         contentType = "application/pdf",
-        orgnumber = faker.numerify("#########"),
+        orgNumber = faker.numerify("#########"),
         dialogTitle = faker.lorem().sentence(),
         dialogSummary = faker.lorem().sentence(),
     )

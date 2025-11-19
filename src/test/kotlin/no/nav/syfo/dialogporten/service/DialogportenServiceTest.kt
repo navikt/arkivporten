@@ -70,7 +70,7 @@ class DialogportenServiceTest : DescribeSpec({
                 }
 
                 val capturedDialog = dialogSlot.captured
-                capturedDialog.party shouldBe "urn:altinn:organization:identifier-no:${documentEntity.orgnumber}"
+                capturedDialog.party shouldBe "urn:altinn:organization:identifier-no:${documentEntity.orgNumber}"
                 capturedDialog.externalReference shouldBe documentEntity.documentId.toString()
                 capturedDialog.content.title.value.first().value shouldBe documentEntity.dialogTitle
                 capturedDialog.content.summary?.value?.first()?.value shouldBe documentEntity.dialogSummary

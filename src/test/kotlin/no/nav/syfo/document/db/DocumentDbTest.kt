@@ -90,7 +90,7 @@ fun DocumentEntity.assertExpected(expected: DocumentEntity, id: Long) {
     this.type shouldBe expected.type
     this.content shouldBe expected.content
     this.contentType shouldBe expected.contentType
-    this.orgnumber shouldBe expected.orgnumber
+    this.orgNumber shouldBe expected.orgNumber
     this.dialogTitle shouldBe expected.dialogTitle
     this.dialogSummary shouldBe expected.dialogSummary
     this.linkId shouldBe expected.linkId
