@@ -1,6 +1,7 @@
 package no.nav.syfo.document.api.v1
 
 import com.fasterxml.jackson.annotation.JsonEnumDefaultValue
+import no.nav.syfo.document.db.DialogEntity
 import java.util.UUID
 import no.nav.syfo.document.db.DocumentEntity
 
@@ -9,21 +10,35 @@ data class Document(
     val type: DocumentType,
     val content: ByteArray,
     val contentType: String,
-    val orgnumber: String,
-    val dialogTitle: String,
-    val dialogSummary: String,
+    val fnr: String,
+    val fullName: String?,
+    val orgNumber: String,
+    val title: String,
+    val summary: String?,
 ) {
-    fun toDocumentEntity(): DocumentEntity {
+    fun toDocumentEntity(dialog: DialogEntity): DocumentEntity {
         return DocumentEntity(
             documentId = documentId,
             type = type,
             content = content,
             contentType = contentType,
-            orgnumber = orgnumber,
-            dialogTitle = dialogTitle,
-            dialogSummary = dialogSummary,
+            title = title,
+            summary = summary,
             linkId = UUID.randomUUID(),
-            dialogId = null,
+            dialog = dialog,
+        )
+    }
+
+    fun toDialogEntity(): DialogEntity {
+        val nameOrFnr = fullName ?: fnr
+        return DialogEntity(
+            title = "Sykefraværsoppfølging for $nameOrFnr (f. ${fnrToBirthDate(fnr)})",
+            summary = """
+                Her finner du alle dialogmøtebrev fra Nav og oppfølgingsplaner utarbeidet av nærmeste leder for $nameOrFnr.
+                Innholdet er tilgjengelig i 4 måneder fra delingsdatoen. 
+            """.trimIndent(),
+            fnr = fnr,
+            orgNumber = orgNumber,
         )
     }
 
@@ -37,9 +52,9 @@ data class Document(
         if (type != other.type) return false
         if (!content.contentEquals(other.content)) return false
         if (contentType != other.contentType) return false
-        if (orgnumber != other.orgnumber) return false
-        if (dialogTitle != other.dialogTitle) return false
-        if (dialogSummary != other.dialogSummary) return false
+        if (orgNumber != other.orgNumber) return false
+        if (title != other.title) return false
+        if (summary != other.summary) return false
 
         return true
     }
@@ -49,9 +64,9 @@ data class Document(
         result = 31 * result + type.hashCode()
         result = 31 * result + content.contentHashCode()
         result = 31 * result + contentType.hashCode()
-        result = 31 * result + orgnumber.hashCode()
-        result = 31 * result + dialogTitle.hashCode()
-        result = 31 * result + dialogSummary.hashCode()
+        result = 31 * result + orgNumber.hashCode()
+        result = 31 * result + title.hashCode()
+        result = 31 * result + summary.hashCode()
         return result
     }
 }

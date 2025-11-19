@@ -33,6 +33,7 @@ dependencies {
     implementation(libs.koin.logger)
     implementation(libs.logstash)
     implementation(libs.jackson.datatype.jsr310)
+    implementation(libs.fasterxml.uuid)
     // Database
     implementation(libs.bundles.database)
     // Metrics and Prometheus

@@ -10,6 +10,7 @@ import no.nav.syfo.application.isProdEnv
 import no.nav.syfo.application.metric.registerMetricApi
 import no.nav.syfo.altinn.dialogporten.client.IDialogportenClient
 import no.nav.syfo.altinn.dialogporten.registerDialogportenTokenApi
+import no.nav.syfo.document.db.DialogDAO
 import no.nav.syfo.document.db.DocumentDAO
 import no.nav.syfo.document.service.ValidationService
 import no.nav.syfo.registerApiV1
@@ -21,6 +22,7 @@ fun Application.configureRouting() {
     val database by inject<DatabaseInterface>()
     val texasHttpClient by inject<TexasHttpClient>()
     val documentDAO by inject<DocumentDAO>()
+    val dialogDAO by inject<DialogDAO>()
     val validationService by inject<ValidationService>()
     val dialogportenClient by inject<IDialogportenClient>()
 
@@ -31,7 +33,7 @@ fun Application.configureRouting() {
     routing {
         registerPodApi(applicationState, database)
         registerMetricApi()
-        registerApiV1(texasHttpClient, documentDAO, validationService)
+        registerApiV1(texasHttpClient, documentDAO, dialogDAO, validationService)
         if (!isProdEnv()) {
             // TODO: Remove this endpoint later
             registerDialogportenTokenApi(texasHttpClient, dialogportenClient)

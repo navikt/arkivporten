@@ -17,14 +17,15 @@ data class DocumentEntity(
     val type: DocumentType,
     val content: ByteArray,
     val contentType: String,
-    val orgnumber: String,
-    val dialogTitle: String,
-    val dialogSummary: String,
+    val title: String,
+    val summary: String?,
     val linkId: UUID,
     val status: DocumentStatus = DocumentStatus.RECEIVED,
     val isRead: Boolean = false,
-    val dialogId: UUID?,
+    val dialog: DialogEntity,
+    val transmissionId: UUID? = null,
     val created: Instant? = null,
+    val updated: Instant? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -38,12 +39,11 @@ data class DocumentEntity(
         if (type != other.type) return false
         if (!content.contentEquals(other.content)) return false
         if (contentType != other.contentType) return false
-        if (orgnumber != other.orgnumber) return false
-        if (dialogTitle != other.dialogTitle) return false
-        if (dialogSummary != other.dialogSummary) return false
+        if (title != other.title) return false
+        if (summary != other.summary) return false
         if (linkId != other.linkId) return false
         if (status != other.status) return false
-        if (dialogId != other.dialogId) return false
+        if (dialog != other.dialog) return false
         if (created != other.created) return false
 
         return true
@@ -56,12 +56,11 @@ data class DocumentEntity(
         result = 31 * result + type.hashCode()
         result = 31 * result + content.contentHashCode()
         result = 31 * result + contentType.hashCode()
-        result = 31 * result + orgnumber.hashCode()
-        result = 31 * result + dialogTitle.hashCode()
-        result = 31 * result + dialogSummary.hashCode()
+        result = 31 * result + title.hashCode()
+        result = 31 * result + summary.hashCode()
         result = 31 * result + linkId.hashCode()
         result = 31 * result + status.hashCode()
-        result = 31 * result + (dialogId?.hashCode() ?: 0)
+        result = 31 * result + dialog.hashCode()
         result = 31 * result + (created?.hashCode() ?: 0)
         return result
     }

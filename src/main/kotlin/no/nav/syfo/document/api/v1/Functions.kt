@@ -49,3 +49,10 @@ fun RoutingCall.getPrincipal(): Principal =
 
         else -> throw UnauthorizedException()
     }
+
+fun fnrToBirthDate(fnr: String): String {
+    val day = fnr.substring(0, 2)
+    val month = fnr.substring(2, 4)
+    val year = fnr.substring(4, 6)
+    return "$day.$month.$year"
+}

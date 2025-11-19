@@ -25,36 +25,36 @@ class ValidationService(
 
     suspend fun validateDocumentAccess(
         principal: Principal,
-        documentDAO: DocumentEntity
+        documentEntity: DocumentEntity
     ) {
         when (principal) {
-            is BrukerPrincipal -> validateAltTilgang(principal, documentDAO)
-            is SystemPrincipal -> validateMaskinportenTilgang(principal, documentDAO)
+            is BrukerPrincipal -> validateAltTilgang(principal, documentEntity)
+            is SystemPrincipal -> validateMaskinportenTilgang(principal, documentEntity)
         }
     }
 
 
-    suspend private fun validateAltTilgang(principal: BrukerPrincipal, documentDAO: DocumentEntity) {
+    suspend private fun validateAltTilgang(principal: BrukerPrincipal, documentEntity: DocumentEntity) {
         altinnTilgangerService.validateTilgangToOrganisasjon(
             principal,
-            documentDAO.orgnumber,
-            documentDAO.type
+            documentEntity.dialog!!.orgNumber,
+            documentEntity.type
         )
     }
 
-    suspend fun validateMaskinportenTilgang(principal: SystemPrincipal, documentDAO: DocumentEntity) {
+    suspend fun validateMaskinportenTilgang(principal: SystemPrincipal, documentEntity: DocumentEntity) {
         val orgnumberFromToken = maskinportenIdToOrgnumber(principal.ident)
-        if (orgnumberFromToken != documentDAO.orgnumber) {
-            val organisasjon = eregService.getOrganization(documentDAO.orgnumber)
+        if (orgnumberFromToken != documentEntity.dialog!!.orgNumber) {
+            val organisasjon = eregService.getOrganization(documentEntity.dialog.orgNumber)
             if (organisasjon.inngaarIJuridiskEnheter?.filter { it.organisasjonsnummer == orgnumberFromToken }
                     .isNullOrEmpty()) {
                 logger.warn(
-                    "Maskinporten orgnummer ${orgnumberFromToken} does not match document orgnummer ${documentDAO.orgnumber} or any parent organization."
+                    "Maskinporten orgnummer ${orgnumberFromToken} does not match document orgnummer ${documentEntity.dialog.orgNumber} or any parent organization."
                 )
                 throw ApiErrorException.ForbiddenException("Access denied. Invalid organization.")
             }
         }
-        validateAltinnRessursTilgang(principal, documentDAO.type)
+        validateAltinnRessursTilgang(principal, documentEntity.type)
     }
 
     private suspend fun validateAltinnRessursTilgang(principal: SystemPrincipal, documentType: DocumentType) {

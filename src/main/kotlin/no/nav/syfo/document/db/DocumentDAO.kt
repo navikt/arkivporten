@@ -4,6 +4,7 @@ import java.sql.ResultSet
 import java.util.UUID
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.document.api.v1.DocumentType
+import java.sql.Types
 
 class DocumentDAO(private val database: DatabaseInterface) {
     fun insert(documentEntity: DocumentEntity): Long {
@@ -15,25 +16,25 @@ class DocumentDAO(private val database: DatabaseInterface) {
                                              type,
                                              content,
                                              content_type,
-                                             orgnumber,
-                                             dialog_title,
-                                             dialog_summary,
+                                             title,
+                                             summary,
                                              link_id,
-                                             status)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                             status,
+                                             dialog_id)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                         RETURNING id;
                         """.trimIndent()
                 ).use { preparedStatement ->
                     with(documentEntity) {
                         preparedStatement.setObject(1, documentId)
-                        preparedStatement.setObject(2, type, java.sql.Types.OTHER)
+                        preparedStatement.setObject(2, type, Types.OTHER)
                         preparedStatement.setBytes(3, content)
                         preparedStatement.setString(4, contentType)
-                        preparedStatement.setString(5, orgnumber)
-                        preparedStatement.setString(6, dialogTitle)
-                        preparedStatement.setString(7, dialogSummary)
-                        preparedStatement.setObject(8, linkId)
-                        preparedStatement.setObject(9, status, java.sql.Types.OTHER)
+                        preparedStatement.setString(5, title)
+                        preparedStatement.setString(6, summary)
+                        preparedStatement.setObject(7, linkId)
+                        preparedStatement.setObject(8, status, Types.OTHER)
+                        preparedStatement.setLong(9, dialog.id!!)
                     }
                     preparedStatement.execute()
 
@@ -47,7 +48,7 @@ class DocumentDAO(private val database: DatabaseInterface) {
         }
     }
 
-    fun update(documentEntity: DocumentEntity): Boolean {
+    fun update(documentEntity: DocumentEntity) {
         return database.connection.use { connection ->
             connection
                 .prepareStatement(
@@ -61,15 +62,29 @@ class DocumentDAO(private val database: DatabaseInterface) {
                 ).use { preparedStatement ->
                     with(documentEntity) {
                         require(id != null) { "Document ID cannot be null when updating a document." }
-                        preparedStatement.setObject(1, dialogId)
-                        preparedStatement.setObject(2, status, java.sql.Types.OTHER)
+                        preparedStatement.setLong(1, dialog.id!!)
+                        preparedStatement.setObject(2, status, Types.OTHER)
                         preparedStatement.setBoolean(3, isRead)
                         preparedStatement.setLong(4, id)
                     }
                     preparedStatement.execute()
-                }.also {
-                    connection.commit()
                 }
+            if (documentEntity.dialog.dialogportenId != null) {
+                connection.prepareStatement(
+                    """
+                        UPDATE dialogporten_dialog
+                        SET dialogId = ?
+                        WHERE id = ?
+                        """.trimIndent()
+                ).use { preparedStatement ->
+                    with(documentEntity) {
+                        preparedStatement.setObject(1, dialog.dialogportenId)
+                        preparedStatement.setLong(2, dialog.id!!)
+                    }
+                    preparedStatement.execute()
+                }
+            }
+            connection.commit()
         }
     }
 
@@ -78,15 +93,17 @@ class DocumentDAO(private val database: DatabaseInterface) {
             connection
                 .prepareStatement(
                     """
-                        SELECT *
-                        FROM document
-                        WHERE id = ?
+                        SELECT doc.*, dialog.id as dialog_pk_id, dialog.title as dialog_db_title, dialog.summary as dialog_db_summary, 
+                               dialog.dialog_id as dialog_uuid, dialog.fnr, dialog.org_number, dialog.created as dialog_created, 
+                               dialog.updated as dialog_updated
+                        FROM document doc
+                        WHERE doc.id = ?
                         """.trimIndent()
                 ).use { preparedStatement ->
                     preparedStatement.setLong(1, id)
                     val resultSet = preparedStatement.executeQuery()
                     if (resultSet.next()) {
-                        resultSet.toDocumentDAO()
+                        resultSet.toDocumentEntityWithDialog()
                     } else {
                         null
                     }
@@ -99,15 +116,17 @@ class DocumentDAO(private val database: DatabaseInterface) {
             connection
                 .prepareStatement(
                     """
-                        SELECT *
-                        FROM document
-                        WHERE link_id = ?
+                        SELECT doc.*, dialog.id as dialog_pk_id, dialog.title as dialog_db_title, dialog.summary as dialog_db_summary, 
+                               dialog.dialog_id as dialog_uuid, dialog.fnr, dialog.org_number, dialog.created as dialog_created, 
+                               dialog.updated as dialog_updated
+                        FROM document doc
+                        WHERE doc.link_id = ?
                         """.trimIndent()
                 ).use { preparedStatement ->
                     preparedStatement.setObject(1, linkId)
                     val resultSet = preparedStatement.executeQuery()
                     if (resultSet.next()) {
-                        resultSet.toDocumentDAO()
+                        resultSet.toDocumentEntityWithDialog()
                     } else {
                         null
                     }
@@ -115,23 +134,26 @@ class DocumentDAO(private val database: DatabaseInterface) {
         }
     }
 
-    fun getDocumentsByStatus(status: DocumentStatus): List<DocumentEntity> {
+    fun getDocumentsWithDialogByStatus(status: DocumentStatus): List<DocumentEntity> {
         return database.connection.use { connection ->
             connection
                 .prepareStatement(
                     """
-                        SELECT *
-                        FROM document
-                        WHERE status = ?
-                        order by created
+                        SELECT doc.*, dialog.id as dialog_pk_id, dialog.title as dialog_db_title, dialog.summary as dialog_db_summary, 
+                               dialog.dialog_id as dialog_uuid, dialog.fnr, dialog.org_number, dialog.created as dialog_created, 
+                               dialog.updated as dialog_updated
+                        FROM document doc
+                        LEFT JOIN dialogporten_dialog dialog ON d.dialog_id = dialog.id
+                        WHERE doc.status = ?
+                        order by doc.created
                         LIMIT 100
                         """.trimIndent()
                 ).use { preparedStatement ->
-                    preparedStatement.setObject(1, status, java.sql.Types.OTHER)
+                    preparedStatement.setObject(1, status, Types.OTHER)
                     val resultSet = preparedStatement.executeQuery()
                     val documents = mutableListOf<DocumentEntity>()
                     while (resultSet.next()) {
-                        documents.add(resultSet.toDocumentDAO())
+                        documents.add(resultSet.toDocumentEntityWithDialog())
                     }
                     documents
                 }
@@ -151,7 +173,23 @@ private fun ResultSet.getGeneratedId(idColumnLabel: String): Long = this.use {
     )
 }
 
-fun ResultSet.toDocumentDAO(): DocumentEntity =
+//fun ResultSet.toDocumentDAO(): DocumentEntity =
+//    DocumentEntity(
+//        id = getLong("id"),
+//        linkId = getObject("link_id") as UUID,
+//        documentId = getObject("document_id") as UUID,
+//        type = DocumentType.valueOf(getString("type")),
+//        content = getBytes("content"),
+//        contentType = getString("content_type"),
+//        title = getString("dialog_title"),
+//        summary = getString("dialog_summary"),
+//        status = DocumentStatus.valueOf(getString("status")),
+//        isRead = getBoolean("is_read"),
+//        dialogId = getObject("dialog_id") as Long,
+//        created = getTimestamp("created")?.toInstant(),
+//    )
+
+fun ResultSet.toDocumentEntityWithDialog(): DocumentEntity =
     DocumentEntity(
         id = getLong("id"),
         linkId = getObject("link_id") as UUID,
@@ -159,12 +197,20 @@ fun ResultSet.toDocumentDAO(): DocumentEntity =
         type = DocumentType.valueOf(getString("type")),
         content = getBytes("content"),
         contentType = getString("content_type"),
-        orgnumber = getString("orgnumber"),
-        dialogTitle = getString("dialog_title"),
-        dialogSummary = getString("dialog_summary"),
+        title = getString("dialog_title"),
+        summary = getString("dialog_summary"),
         status = DocumentStatus.valueOf(getString("status")),
         isRead = getBoolean("is_read"),
-        dialogId = getObject("dialog_id") as UUID?,
+        dialog = DialogEntity(
+            id = getLong("dialog_pk_id"),
+            title = getString("dialog_db_title"),
+            summary = getString("dialog_db_summary"),
+            fnr = getString("fnr"),
+            orgNumber = getString("org_number"),
+            dialogportenId = getObject("dialog_uuid") as UUID,
+            created = getTimestamp("dialog_created")?.toInstant(),
+            updated = getTimestamp("dialog_updated")?.toInstant(),
+        ),
         created = getTimestamp("created")?.toInstant(),
     )
 
