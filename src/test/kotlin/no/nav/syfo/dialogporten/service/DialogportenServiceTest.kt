@@ -36,13 +36,13 @@ class DialogportenServiceTest : DescribeSpec({
         context("when there are no documents to send") {
             it("should not call dialogporten client") {
                 // Arrange
-                coEvery { documentDAO.getDocumentsWithDialogByStatus(DocumentStatus.RECEIVED) } returns emptyList()
+                coEvery { documentDAO.getDocumentsByStatus(DocumentStatus.RECEIVED) } returns emptyList()
 
                 // Act
                 dialogportenService.sendDocumentsToDialogporten()
 
                 // Assert
-                coVerify(exactly = 1) { documentDAO.getDocumentsWithDialogByStatus(DocumentStatus.RECEIVED) }
+                coVerify(exactly = 1) { documentDAO.getDocumentsByStatus(DocumentStatus.RECEIVED) }
                 coVerify(exactly = 0) { dialogportenClient.createDialog(any()) }
                 coVerify(exactly = 0) { documentDAO.update(any()) }
             }
@@ -55,7 +55,7 @@ class DialogportenServiceTest : DescribeSpec({
                 val dialogId = UUID.randomUUID()
                 val dialogSlot = slot<Dialog>()
 
-                coEvery { documentDAO.getDocumentsWithDialogByStatus(DocumentStatus.RECEIVED) } returns listOf(documentEntity)
+                coEvery { documentDAO.getDocumentsByStatus(DocumentStatus.RECEIVED) } returns listOf(documentEntity)
                 coEvery { dialogportenClient.createDialog(capture(dialogSlot)) } returns dialogId
                 coEvery { documentDAO.update(any()) }
 
@@ -63,7 +63,7 @@ class DialogportenServiceTest : DescribeSpec({
                 dialogportenService.sendDocumentsToDialogporten()
 
                 // Assert
-                coVerify(exactly = 1) { documentDAO.getDocumentsWithDialogByStatus(DocumentStatus.RECEIVED) }
+                coVerify(exactly = 1) { documentDAO.getDocumentsByStatus(DocumentStatus.RECEIVED) }
                 coVerify(exactly = 1) { dialogportenClient.createDialog(any()) }
                 coVerify(exactly = 1) {
                     documentDAO.update(match {
@@ -90,7 +90,7 @@ class DialogportenServiceTest : DescribeSpec({
                 val dialogId1 = UUID.randomUUID()
                 val dialogId2 = UUID.randomUUID()
 
-                coEvery { documentDAO.getDocumentsWithDialogByStatus(DocumentStatus.RECEIVED) } returns listOf(doc1, doc2)
+                coEvery { documentDAO.getDocumentsByStatus(DocumentStatus.RECEIVED) } returns listOf(doc1, doc2)
                 coEvery { dialogportenClient.createDialog(any()) } returnsMany listOf(dialogId1, dialogId2)
                 coEvery { documentDAO.update(any()) } returns
 
@@ -98,7 +98,7 @@ class DialogportenServiceTest : DescribeSpec({
                 dialogportenService.sendDocumentsToDialogporten()
 
                 // Assert
-                coVerify(exactly = 1) { documentDAO.getDocumentsWithDialogByStatus(DocumentStatus.RECEIVED) }
+                coVerify(exactly = 1) { documentDAO.getDocumentsByStatus(DocumentStatus.RECEIVED) }
                 coVerify(exactly = 2) { dialogportenClient.createDialog(any()) }
                 coVerify(exactly = 2) { documentDAO.update(any()) }
             }
@@ -108,14 +108,14 @@ class DialogportenServiceTest : DescribeSpec({
             it("should log error and continue without updating document status") {
                 // Arrange
                 val documentEntity = document().toDocumentEntity(dialogEntity())
-                coEvery { documentDAO.getDocumentsWithDialogByStatus(DocumentStatus.RECEIVED) } returns listOf(documentEntity)
+                coEvery { documentDAO.getDocumentsByStatus(DocumentStatus.RECEIVED) } returns listOf(documentEntity)
                 coEvery { dialogportenClient.createDialog(any()) } throws RuntimeException("Dialogporten error")
 
                 // Act
                 dialogportenService.sendDocumentsToDialogporten()
 
                 // Assert
-                coVerify(exactly = 1) { documentDAO.getDocumentsWithDialogByStatus(DocumentStatus.RECEIVED) }
+                coVerify(exactly = 1) { documentDAO.getDocumentsByStatus(DocumentStatus.RECEIVED) }
                 coVerify(exactly = 1) { dialogportenClient.createDialog(any()) }
                 coVerify(exactly = 0) { documentDAO.update(any()) }
             }
@@ -130,7 +130,7 @@ class DialogportenServiceTest : DescribeSpec({
                 val dialogId2 = UUID.randomUUID()
                 val dialogId3 = UUID.randomUUID()
 
-                coEvery { documentDAO.getDocumentsWithDialogByStatus(DocumentStatus.RECEIVED) } returns listOf(doc1, doc2, doc3)
+                coEvery { documentDAO.getDocumentsByStatus(DocumentStatus.RECEIVED) } returns listOf(doc1, doc2, doc3)
                 coEvery { documentDAO.update(any()) }
 
                 // First call succeeds, second fails, third succeeds
@@ -149,7 +149,7 @@ class DialogportenServiceTest : DescribeSpec({
                 dialogportenService.sendDocumentsToDialogporten()
 
                 // Assert
-                coVerify(exactly = 1) { documentDAO.getDocumentsWithDialogByStatus(DocumentStatus.RECEIVED) }
+                coVerify(exactly = 1) { documentDAO.getDocumentsByStatus(DocumentStatus.RECEIVED) }
                 coVerify(exactly = 3) { dialogportenClient.createDialog(any()) }
                 coVerify(exactly = 2) { documentDAO.update(any()) } // Only 2 successful updates
             }
@@ -162,7 +162,7 @@ class DialogportenServiceTest : DescribeSpec({
                 val dialogId = UUID.randomUUID()
                 val dialogSlot = slot<Dialog>()
 
-                coEvery { documentDAO.getDocumentsWithDialogByStatus(DocumentStatus.RECEIVED) } returns listOf(documentEntity)
+                coEvery { documentDAO.getDocumentsByStatus(DocumentStatus.RECEIVED) } returns listOf(documentEntity)
                 coEvery { dialogportenClient.createDialog(capture(dialogSlot)) } returns dialogId
                 coEvery { documentDAO.update(any()) }
 
@@ -182,7 +182,7 @@ class DialogportenServiceTest : DescribeSpec({
                 val dialogId = UUID.randomUUID()
                 val dialogSlot = slot<Dialog>()
 
-                coEvery { documentDAO.getDocumentsWithDialogByStatus(DocumentStatus.RECEIVED) } returns listOf(documentEntity)
+                coEvery { documentDAO.getDocumentsByStatus(DocumentStatus.RECEIVED) } returns listOf(documentEntity)
                 coEvery { dialogportenClient.createDialog(capture(dialogSlot)) } returns dialogId
                 coEvery { documentDAO.update(any()) }
 
@@ -202,7 +202,7 @@ class DialogportenServiceTest : DescribeSpec({
                 val dialogId = UUID.randomUUID()
                 val dialogSlot = slot<Dialog>()
 
-                coEvery { documentDAO.getDocumentsWithDialogByStatus(DocumentStatus.RECEIVED) } returns listOf(documentEntity)
+                coEvery { documentDAO.getDocumentsByStatus(DocumentStatus.RECEIVED) } returns listOf(documentEntity)
                 coEvery { dialogportenClient.createDialog(capture(dialogSlot)) } returns dialogId
                 coEvery { documentDAO.update(any()) }
 

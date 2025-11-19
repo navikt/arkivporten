@@ -97,13 +97,14 @@ class DocumentDAO(private val database: DatabaseInterface) {
                                dialog.dialog_id as dialog_uuid, dialog.fnr, dialog.org_number, dialog.created as dialog_created, 
                                dialog.updated as dialog_updated
                         FROM document doc
+                        LEFT JOIN dialogporten_dialog dialog ON d.dialog_id = dialog.id
                         WHERE doc.id = ?
                         """.trimIndent()
                 ).use { preparedStatement ->
                     preparedStatement.setLong(1, id)
                     val resultSet = preparedStatement.executeQuery()
                     if (resultSet.next()) {
-                        resultSet.toDocumentEntityWithDialog()
+                        resultSet.toDocumentEntity()
                     } else {
                         null
                     }
@@ -120,13 +121,14 @@ class DocumentDAO(private val database: DatabaseInterface) {
                                dialog.dialog_id as dialog_uuid, dialog.fnr, dialog.org_number, dialog.created as dialog_created, 
                                dialog.updated as dialog_updated
                         FROM document doc
+                        LEFT JOIN dialogporten_dialog dialog ON d.dialog_id = dialog.id
                         WHERE doc.link_id = ?
                         """.trimIndent()
                 ).use { preparedStatement ->
                     preparedStatement.setObject(1, linkId)
                     val resultSet = preparedStatement.executeQuery()
                     if (resultSet.next()) {
-                        resultSet.toDocumentEntityWithDialog()
+                        resultSet.toDocumentEntity()
                     } else {
                         null
                     }
@@ -134,7 +136,7 @@ class DocumentDAO(private val database: DatabaseInterface) {
         }
     }
 
-    fun getDocumentsWithDialogByStatus(status: DocumentStatus): List<DocumentEntity> {
+    fun getDocumentsByStatus(status: DocumentStatus): List<DocumentEntity> {
         return database.connection.use { connection ->
             connection
                 .prepareStatement(
@@ -153,7 +155,7 @@ class DocumentDAO(private val database: DatabaseInterface) {
                     val resultSet = preparedStatement.executeQuery()
                     val documents = mutableListOf<DocumentEntity>()
                     while (resultSet.next()) {
-                        documents.add(resultSet.toDocumentEntityWithDialog())
+                        documents.add(resultSet.toDocumentEntity())
                     }
                     documents
                 }
@@ -173,23 +175,7 @@ private fun ResultSet.getGeneratedId(idColumnLabel: String): Long = this.use {
     )
 }
 
-//fun ResultSet.toDocumentDAO(): DocumentEntity =
-//    DocumentEntity(
-//        id = getLong("id"),
-//        linkId = getObject("link_id") as UUID,
-//        documentId = getObject("document_id") as UUID,
-//        type = DocumentType.valueOf(getString("type")),
-//        content = getBytes("content"),
-//        contentType = getString("content_type"),
-//        title = getString("dialog_title"),
-//        summary = getString("dialog_summary"),
-//        status = DocumentStatus.valueOf(getString("status")),
-//        isRead = getBoolean("is_read"),
-//        dialogId = getObject("dialog_id") as Long,
-//        created = getTimestamp("created")?.toInstant(),
-//    )
-
-fun ResultSet.toDocumentEntityWithDialog(): DocumentEntity =
+fun ResultSet.toDocumentEntity(): DocumentEntity =
     DocumentEntity(
         id = getLong("id"),
         linkId = getObject("link_id") as UUID,

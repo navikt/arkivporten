@@ -66,7 +66,7 @@ class DialogportenService(
         }
     }
 
-    private fun getDocumentsToSend() = documentDAO.getDocumentsWithDialogByStatus(DocumentStatus.RECEIVED)
+    private fun getDocumentsToSend() = documentDAO.getDocumentsByStatus(DocumentStatus.RECEIVED)
 
     private fun createDocumentLink(linkId: String): String =
         "$publicIngressUrl$API_V1_PATH$DOCUMENT_API_PATH/$linkId"
@@ -81,16 +81,13 @@ class DialogportenService(
     }
 
     private fun DocumentEntity.toDialogWithTransmission(transmissionId: UUID): Dialog {
-        val persistedDialog = dialog
-            ?: throw IllegalStateException("Cannot create Dialogporten Dialog without dialog info")
-
         return Dialog(
             serviceResource = "urn:altinn:resource:$dialogRessurs",
-            party = "urn:altinn:organization:identifier-no:${persistedDialog.orgNumber}",
-            externalReference = documentId.toString(),
+            party = "urn:altinn:organization:identifier-no:${dialog.orgNumber}",
+            externalReference = "syfo-arkivporten",
             content = Content.create(
-                title = persistedDialog.title,
-                summary = persistedDialog.summary,
+                title = dialog.title,
+                summary = dialog.summary,
             ),
             isApiOnly = true,
             transmissions = listOf(
