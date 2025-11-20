@@ -44,6 +44,7 @@ class Database(
             config.username,
             config.password,
         )
+        baselineOnMigrate(true)
         load().migrate().migrationsExecuted
     }
 }
