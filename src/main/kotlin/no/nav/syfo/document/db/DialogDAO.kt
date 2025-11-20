@@ -11,8 +11,9 @@ class DialogDAO(private val database: DatabaseInterface) {
                 title,
                 summary,
                 fnr,
-                org_number
-            ) VALUES (?, ?, ?, ?)
+                org_number,
+                dialog_id
+            ) VALUES (?, ?, ?, ?, ?)
             RETURNING *
             """.trimIndent()
 
@@ -23,6 +24,7 @@ class DialogDAO(private val database: DatabaseInterface) {
                 ps.setString(2, dialogEntity.summary)
                 ps.setString(3, dialogEntity.fnr)
                 ps.setString(4, dialogEntity.orgNumber)
+                ps.setObject(5, dialogEntity.dialogportenId)
                 val resultSet = ps.executeQuery()
                 return@use if (resultSet.next()) {
                     resultSet.toDialog()
