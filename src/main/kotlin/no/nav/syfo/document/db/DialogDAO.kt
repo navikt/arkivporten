@@ -4,7 +4,7 @@ import no.nav.syfo.application.database.DatabaseInterface
 import java.sql.ResultSet
 
 class DialogDAO(private val database: DatabaseInterface) {
-    fun insertDialog(dialogEntity: DialogEntity): DialogEntity {
+    fun insertDialog(dialogEntity: DialogEntity): PersistedDialogEntity {
         val insertStatement =
             """
             INSERT INTO dialogporten_dialog (
@@ -35,12 +35,13 @@ class DialogDAO(private val database: DatabaseInterface) {
         }
     }
 
-    fun getByFnrAndOrgNumber(fnr: String, orgNumber: String): DialogEntity? {
+    fun getByFnrAndOrgNumber(fnr: String, orgNumber: String): PersistedDialogEntity? {
         val query =
             """
             SELECT *
             FROM dialogporten_dialog
-            WHERE fnr = ? AND org_number = ?
+            WHERE fnr = ?
+            AND org_number = ?
             """.trimIndent()
 
         database.connection.use { conn ->
@@ -58,14 +59,14 @@ class DialogDAO(private val database: DatabaseInterface) {
     }
 }
 
-fun ResultSet.toDialog(): DialogEntity =
-    DialogEntity(
+fun ResultSet.toDialog(): PersistedDialogEntity =
+    PersistedDialogEntity(
         id = getLong("id"),
         title = getString("title"),
         summary = getString("summary"),
         fnr = getString("fnr"),
         orgNumber = getString("org_number"),
-        created = getTimestamp("created")?.toInstant(),
-        updated = getTimestamp("updated")?.toInstant(),
+        created = getTimestamp("created").toInstant(),
+        updated = getTimestamp("updated").toInstant(),
         dialogportenId = getObject("dialog_id", java.util.UUID::class.java)
     )

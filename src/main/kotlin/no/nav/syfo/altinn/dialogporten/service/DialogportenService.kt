@@ -15,9 +15,12 @@ import no.nav.syfo.document.api.v1.DOCUMENT_API_PATH
 import no.nav.syfo.document.db.DocumentDAO
 import no.nav.syfo.document.db.DocumentEntity
 import no.nav.syfo.document.db.DocumentStatus
+import no.nav.syfo.document.db.PersistedDocumentEntity
 import no.nav.syfo.util.logger
 import java.time.Instant
 import java.util.UUID
+
+const val DIALOG_RESSURS = "nav_syfo_dialog"
 
 class DialogportenService(
     private val dialogportenClient: IDialogportenClient,
@@ -25,49 +28,54 @@ class DialogportenService(
     private val publicIngressUrl: String
 ) {
     private val logger = logger()
-    private val dialogRessurs = "nav_syfo_dialog"
 
     suspend fun sendDocumentsToDialogporten() {
         val documentsToSend = getDocumentsToSend()
         logger.info("Found ${documentsToSend.size} documents to send to dialogporten")
 
         for (document in documentsToSend) {
-            val fullDocumentLink = createDocumentLink(document.linkId.toString())
-            val transmissionId = Generators.timeBasedEpochGenerator().generate()
-
             try {
                 if (document.dialog.dialogportenId != null) {
-                    // add transmission to existing dialog
-                    val transmission = document.toTransmission(transmissionId)
-                    dialogportenClient.addTransmission(transmission, document.dialog.dialogportenId)
-                    documentDAO.update(
-                        document.copy(
-                            transmissionId = transmissionId,
-                            status = DocumentStatus.COMPLETED,
-                            updated = Instant.now()
-                        )
-                    )
+                    addToExistingDialog(document, document.dialog.dialogportenId)
                 } else {
-                    // create new dialog with transmission
-                    val dialog = document.toDialogWithTransmission(transmissionId)
-                    val dialogId = dialogportenClient.createDialog(dialog)
-                    documentDAO.update(
-                        document.copy(
-                            transmissionId = transmissionId,
-                            status = DocumentStatus.COMPLETED,
-                            dialog = document.dialog.copy(
-                                dialogportenId = dialogId,
-                                updated = Instant.now()
-                            ),
-                            updated = Instant.now()
-                        )
-                    )
+                    addToNewDialog(document)
                 }
+                val fullDocumentLink = createDocumentLink(document.linkId.toString())
                 logger.info("Sent document ${document.id} to dialogporten, with link $fullDocumentLink and content type ${document.contentType}")
             } catch (ex: Exception) {
                 logger.error("Failed to send document ${document.id} to dialogporten", ex)
             }
         }
+    }
+
+    private suspend fun addToExistingDialog(document: PersistedDocumentEntity, dialogportenId: UUID) {
+        val transmissionId = Generators.timeBasedEpochGenerator().generate()
+        val transmission = document.toTransmission(transmissionId = transmissionId)
+        dialogportenClient.addTransmission(transmission, dialogportenId)
+        documentDAO.update(
+            document.copy(
+                transmissionId = transmissionId,
+                status = DocumentStatus.COMPLETED,
+                updated = Instant.now()
+            )
+        )
+    }
+
+    private suspend fun addToNewDialog(document: PersistedDocumentEntity) {
+        val transmissionId = Generators.timeBasedEpochGenerator().generate()
+        val dialog = document.toDialogWithTransmission(transmissionId)
+        val dialogId = dialogportenClient.createDialog(dialog)
+        documentDAO.update(
+            document.copy(
+                transmissionId = transmissionId,
+                status = DocumentStatus.COMPLETED,
+                updated = Instant.now(),
+                dialog = document.dialog.copy(
+                    dialogportenId = dialogId,
+                    updated = Instant.now()
+                ),
+            )
+        )
     }
 
     private fun getDocumentsToSend() = documentDAO.getDocumentsByStatus(DocumentStatus.RECEIVED)
@@ -86,7 +94,7 @@ class DialogportenService(
 
     private fun DocumentEntity.toDialogWithTransmission(transmissionId: UUID): Dialog {
         return Dialog(
-            serviceResource = "urn:altinn:resource:$dialogRessurs",
+            serviceResource = "urn:altinn:resource:$DIALOG_RESSURS",
             party = "urn:altinn:organization:identifier-no:${dialog.orgNumber}",
             externalReference = "syfo-arkivporten",
             content = Content.create(

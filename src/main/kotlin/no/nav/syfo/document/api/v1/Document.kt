@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonEnumDefaultValue
 import no.nav.syfo.document.db.DialogEntity
 import java.util.UUID
 import no.nav.syfo.document.db.DocumentEntity
+import no.nav.syfo.document.db.PersistedDialogEntity
 
 data class Document(
     val documentId: UUID,
@@ -16,7 +17,7 @@ data class Document(
     val title: String,
     val summary: String?,
 ) {
-    fun toDocumentEntity(dialog: DialogEntity): DocumentEntity {
+    fun toDocumentEntity(dialog: PersistedDialogEntity): DocumentEntity {
         return DocumentEntity(
             documentId = documentId,
             type = type,

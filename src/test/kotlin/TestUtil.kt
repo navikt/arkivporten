@@ -13,8 +13,8 @@ import net.datafaker.Faker
 import no.nav.syfo.application.auth.JwtIssuer
 import no.nav.syfo.document.api.v1.Document
 import no.nav.syfo.document.api.v1.DocumentType
-import no.nav.syfo.document.db.DialogEntity
-import no.nav.syfo.document.db.DocumentEntity
+import no.nav.syfo.document.db.PersistedDialogEntity
+import no.nav.syfo.document.db.PersistedDocumentEntity
 import no.nav.syfo.ereg.client.Organisasjon
 import no.nav.syfo.texas.client.AuthorizationDetail
 import no.nav.syfo.texas.client.OrganizationId
@@ -36,17 +36,22 @@ fun document() =
         title = faker.lorem().sentence(),
         summary = faker.lorem().sentence(),
     )
+
 fun dialogEntity() =
-    DialogEntity(
+    PersistedDialogEntity(
+        id = faker.number().randomNumber(),
         title = faker.lorem().sentence(),
         summary = faker.lorem().sentence(),
         fnr = faker.numerify("###########"),
         orgNumber = faker.numerify("#########"),
-        dialogportenId = UUID.randomUUID()
+        dialogportenId = UUID.randomUUID(),
+        created = Instant.now(),
+        updated = Instant.now(),
     )
 
-fun documentEntity(dialogEntity: DialogEntity) =
-    DocumentEntity(
+fun documentEntity(dialogEntity: PersistedDialogEntity) =
+    PersistedDocumentEntity(
+        id = faker.number().randomNumber(),
         documentId = UUID.randomUUID(),
         type = DocumentType.DIALOGMOTE,
         content = faker.lorem().sentence().toByteArray(),
@@ -54,7 +59,9 @@ fun documentEntity(dialogEntity: DialogEntity) =
         title = faker.lorem().sentence(),
         summary = faker.lorem().sentence(),
         linkId = UUID.randomUUID(),
-        dialog = dialogEntity
+        dialog = dialogEntity,
+        created = Instant.now(),
+        updated = Instant.now(),
     )
 
 fun organisasjon() = Organisasjon(

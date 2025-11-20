@@ -8,7 +8,7 @@ import java.sql.Timestamp
 import java.sql.Types
 
 class DocumentDAO(private val database: DatabaseInterface) {
-    fun insert(documentEntity: DocumentEntity): DocumentEntity {
+    fun insert(documentEntity: DocumentEntity): PersistedDocumentEntity {
         return database.connection.use { connection ->
             connection
                 .prepareStatement(
@@ -35,14 +35,14 @@ class DocumentDAO(private val database: DatabaseInterface) {
                         preparedStatement.setString(6, summary)
                         preparedStatement.setObject(7, linkId)
                         preparedStatement.setObject(8, status, Types.OTHER)
-                        preparedStatement.setLong(9, dialog.id!!)
+                        preparedStatement.setLong(9, dialog.id)
                     }
                     preparedStatement.execute()
 
                     runCatching {
                         if (preparedStatement.resultSet.next()) {
                             preparedStatement.resultSet.toDocumentEntity(documentEntity.dialog)
-                        } else throw DocumentGeneratedIDException("Could not get the generated id.")
+                        } else throw DocumentInsertException("Could not get the inserted document.")
                     }.getOrElse {
                         connection.rollback()
                         throw it
@@ -53,26 +53,23 @@ class DocumentDAO(private val database: DatabaseInterface) {
         }
     }
 
-    fun update(documentEntity: DocumentEntity) {
+    fun update(documentEntity: PersistedDocumentEntity) {
         return database.connection.use { connection ->
             connection
                 .prepareStatement(
                     """
                         UPDATE document
-                        SET dialog_id = ?,
-                            status     = ?,
+                        SET status     = ?,
                             is_read    = ?,
                             updated    = ?
                         WHERE id = ?
                         """.trimIndent()
                 ).use { preparedStatement ->
                     with(documentEntity) {
-                        require(id != null) { "Document ID cannot be null when updating a document." }
-                        preparedStatement.setLong(1, dialog.id!!)
-                        preparedStatement.setObject(2, status, Types.OTHER)
-                        preparedStatement.setBoolean(3, isRead)
-                        preparedStatement.setTimestamp(4, Timestamp.from(updated))
-                        preparedStatement.setLong(5, id)
+                        preparedStatement.setObject(1, status, Types.OTHER)
+                        preparedStatement.setBoolean(2, isRead)
+                        preparedStatement.setTimestamp(3, Timestamp.from(updated))
+                        preparedStatement.setLong(4, id)
                     }
                     preparedStatement.execute()
                 }
@@ -88,7 +85,7 @@ class DocumentDAO(private val database: DatabaseInterface) {
                     with(documentEntity) {
                         preparedStatement.setObject(1, dialog.dialogportenId)
                         preparedStatement.setTimestamp(2, Timestamp.from(dialog.updated))
-                        preparedStatement.setLong(3, dialog.id!!)
+                        preparedStatement.setLong(3, dialog.id)
                     }
                     preparedStatement.execute()
                 }
@@ -97,7 +94,7 @@ class DocumentDAO(private val database: DatabaseInterface) {
         }
     }
 
-    fun getById(id: Long): DocumentEntity? {
+    fun getById(id: Long): PersistedDocumentEntity? {
         return database.connection.use { connection ->
             connection
                 .prepareStatement(
@@ -121,7 +118,7 @@ class DocumentDAO(private val database: DatabaseInterface) {
         }
     }
 
-    fun getByLinkId(linkId: UUID): DocumentEntity? {
+    fun getByLinkId(linkId: UUID): PersistedDocumentEntity? {
         return database.connection.use { connection ->
             connection
                 .prepareStatement(
@@ -145,7 +142,7 @@ class DocumentDAO(private val database: DatabaseInterface) {
         }
     }
 
-    fun getDocumentsByStatus(status: DocumentStatus): List<DocumentEntity> {
+    fun getDocumentsByStatus(status: DocumentStatus): List<PersistedDocumentEntity> {
         return database.connection.use { connection ->
             connection
                 .prepareStatement(
@@ -162,7 +159,7 @@ class DocumentDAO(private val database: DatabaseInterface) {
                 ).use { preparedStatement ->
                     preparedStatement.setObject(1, status, Types.OTHER)
                     val resultSet = preparedStatement.executeQuery()
-                    val documents = mutableListOf<DocumentEntity>()
+                    val documents = mutableListOf<PersistedDocumentEntity>()
                     while (resultSet.next()) {
                         documents.add(resultSet.toDocumentEntity())
                     }
@@ -172,20 +169,8 @@ class DocumentDAO(private val database: DatabaseInterface) {
     }
 }
 
-private fun ResultSet.getGeneratedId(idColumnLabel: String): Long = this.use {
-    val id = if (this.next()) {
-        this.getObject(idColumnLabel) as? Long
-    } else {
-        null
-    }
-
-    return id ?: throw DocumentGeneratedIDException(
-        "Could not get the generated id."
-    )
-}
-
-fun ResultSet.toDocumentEntity(withDialog: DialogEntity? = null): DocumentEntity =
-    DocumentEntity(
+fun ResultSet.toDocumentEntity(withDialog: PersistedDialogEntity? = null): PersistedDocumentEntity =
+    PersistedDocumentEntity(
         id = getLong("id"),
         linkId = getObject("link_id") as UUID,
         documentId = getObject("document_id") as UUID,
@@ -196,18 +181,18 @@ fun ResultSet.toDocumentEntity(withDialog: DialogEntity? = null): DocumentEntity
         summary = getString("summary"),
         status = DocumentStatus.valueOf(getString("status")),
         isRead = getBoolean("is_read"),
-        dialog = withDialog ?: DialogEntity(
+        dialog = withDialog ?: PersistedDialogEntity(
             id = getLong("dialog_pk_id"),
             title = getString("dialog_title"),
             summary = getString("dialog_summary"),
             fnr = getString("fnr"),
             orgNumber = getString("org_number"),
             dialogportenId = getObject("dialog_uuid") as UUID?,
-            created = getTimestamp("dialog_created")?.toInstant(),
-            updated = getTimestamp("dialog_updated")?.toInstant(),
+            created = getTimestamp("dialog_created").toInstant(),
+            updated = getTimestamp("dialog_updated").toInstant(),
         ),
-        created = getTimestamp("created")?.toInstant(),
-        updated = getTimestamp("updated")?.toInstant(),
+        created = getTimestamp("created").toInstant(),
+        updated = getTimestamp("updated").toInstant(),
     )
 
-class DocumentGeneratedIDException(message: String) : RuntimeException(message)
+class DocumentInsertException(message: String) : RuntimeException(message)

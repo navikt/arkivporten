@@ -1,7 +1,7 @@
 package no.nav.syfo.document.service
 
 import dialogEntity
-import document
+import documentEntity
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
@@ -23,7 +23,7 @@ class ValidationServiceTest : DescribeSpec({
     val pdpServiceMock = mockk<PdpService>()
     val validationService = ValidationService(altinnTilgangerService, eregService, pdpServiceMock)
 
-    val documentEntity = document().toDocumentEntity(dialogEntity())
+    val documentEntity = documentEntity(dialogEntity())
     beforeTest {
         clearAllMocks()
         coEvery { pdpServiceMock.hasAccessToResource(any(), any(), any()) } returns true
