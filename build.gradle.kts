@@ -33,8 +33,8 @@ dependencies {
     implementation(libs.koin.logger)
     implementation(libs.logstash)
     implementation(libs.jackson.datatype.jsr310)
-    implementation("io.ktor:ktor-server-openapi:3.3.1")
-    implementation("io.ktor:ktor-server-swagger:3.3.1")
+    implementation("io.ktor:ktor-server-openapi:3.3.2")
+    implementation("io.ktor:ktor-server-swagger:3.3.2")
     // Database
     implementation(libs.bundles.database)
     // Metrics and Prometheus
