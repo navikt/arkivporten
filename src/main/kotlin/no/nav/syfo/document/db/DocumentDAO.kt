@@ -61,7 +61,8 @@ class DocumentDAO(private val database: DatabaseInterface) {
                         UPDATE document
                         SET status     = ?,
                             is_read    = ?,
-                            updated    = ?
+                            updated    = ?,
+                            transmission_id = ?
                         WHERE id = ?
                         """.trimIndent()
                 ).use { preparedStatement ->
@@ -69,7 +70,8 @@ class DocumentDAO(private val database: DatabaseInterface) {
                         preparedStatement.setObject(1, status, Types.OTHER)
                         preparedStatement.setBoolean(2, isRead)
                         preparedStatement.setTimestamp(3, Timestamp.from(updated))
-                        preparedStatement.setLong(4, id)
+                        preparedStatement.setObject(4, transmissionId)
+                        preparedStatement.setLong(5, id)
                     }
                     preparedStatement.execute()
                 }
@@ -181,6 +183,9 @@ fun ResultSet.toDocumentEntity(withDialog: PersistedDialogEntity? = null): Persi
         summary = getString("summary"),
         status = DocumentStatus.valueOf(getString("status")),
         isRead = getBoolean("is_read"),
+        transmissionId = getObject("transmission_id") as UUID?,
+        created = getTimestamp("created").toInstant(),
+        updated = getTimestamp("updated").toInstant(),
         dialog = withDialog ?: PersistedDialogEntity(
             id = getLong("dialog_pk_id"),
             title = getString("dialog_title"),
@@ -191,8 +196,6 @@ fun ResultSet.toDocumentEntity(withDialog: PersistedDialogEntity? = null): Persi
             created = getTimestamp("dialog_created").toInstant(),
             updated = getTimestamp("dialog_updated").toInstant(),
         ),
-        created = getTimestamp("created").toInstant(),
-        updated = getTimestamp("updated").toInstant(),
     )
 
 class DocumentInsertException(message: String) : RuntimeException(message)

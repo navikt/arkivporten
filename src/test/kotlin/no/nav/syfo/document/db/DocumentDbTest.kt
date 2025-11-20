@@ -8,6 +8,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import java.util.UUID
 import no.nav.syfo.TestDB
+import java.time.Instant
 
 class DocumentDbTest : DescribeSpec({
     val testDb = TestDB.database
@@ -49,18 +50,21 @@ class DocumentDbTest : DescribeSpec({
                 document().toDocumentEntity(dialogEntity)
             )
             // Act
-            val updateddocumentEntity = documentEntity.copy(
+            val updatedDocumentEntity = documentEntity.copy(
                 status = DocumentStatus.COMPLETED,
                 isRead = true,
+                transmissionId = UUID.randomUUID(),
+                updated = Instant.now(),
                 dialog = documentEntity.dialog.copy(
-                    dialogportenId = UUID.randomUUID()
+                    dialogportenId = UUID.randomUUID(),
+                    updated = Instant.now()
                 )
             )
-            documentDAO.update(updateddocumentEntity)
+            documentDAO.update(updatedDocumentEntity)
             val retrievedDocument = documentDAO.getById(documentEntity.id)
             // Assert
             retrievedDocument shouldNotBe null
-            retrievedDocument?.assertExpected(updateddocumentEntity, documentEntity.id)
+            retrievedDocument?.assertExpected(updatedDocumentEntity, documentEntity.id)
         }
     }
 
@@ -99,11 +103,17 @@ fun PersistedDocumentEntity.assertExpected(expected: DocumentEntity, id: Long) {
     this.type shouldBe expected.type
     this.content shouldBe expected.content
     this.contentType shouldBe expected.contentType
+    this.dialog.fnr shouldBe expected.dialog.fnr
     this.dialog.orgNumber shouldBe expected.dialog.orgNumber
     this.title shouldBe expected.title
     this.summary shouldBe expected.summary
     this.linkId shouldBe expected.linkId
     this.status shouldBe expected.status
     this.isRead shouldBe expected.isRead
+    this.transmissionId shouldBe expected.transmissionId
+    this.updated shouldNotBe null
+    this.created shouldNotBe null
     this.dialog.id shouldBe expected.dialog.id
+    this.dialog.dialogportenId shouldBe expected.dialog.dialogportenId
+    this.dialog.updated shouldBe expected.dialog.updated
 }
