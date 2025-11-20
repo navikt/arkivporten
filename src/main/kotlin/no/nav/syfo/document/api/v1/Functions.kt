@@ -58,8 +58,6 @@ fun fnrToBirthDate(fnr: String): LocalDate? {
         val month = fnr.substring(2, 4)
         val year = fnr.substring(4, 8)
         return LocalDate.parse("$year-$month-$day")
-    } catch (e: IndexOutOfBoundsException) {
-        return null
     } catch (e: DateTimeParseException) {
         return null
     }

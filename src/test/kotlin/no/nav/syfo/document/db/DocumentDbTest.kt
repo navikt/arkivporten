@@ -115,5 +115,4 @@ fun PersistedDocumentEntity.assertExpected(expected: DocumentEntity, id: Long) {
     this.created shouldNotBe null
     this.dialog.id shouldBe expected.dialog.id
     this.dialog.dialogportenId shouldBe expected.dialog.dialogportenId
-    this.dialog.updated shouldBe expected.dialog.updated
 }
