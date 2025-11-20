@@ -11,8 +11,8 @@ import java.time.Instant
 import java.util.*
 import net.datafaker.Faker
 import no.nav.syfo.application.auth.JwtIssuer
-import no.nav.syfo.document.api.v1.Document
-import no.nav.syfo.document.api.v1.DocumentType
+import no.nav.syfo.document.api.v1.dto.Document
+import no.nav.syfo.document.api.v1.dto.DocumentType
 import no.nav.syfo.document.db.PersistedDialogEntity
 import no.nav.syfo.document.db.PersistedDocumentEntity
 import no.nav.syfo.ereg.client.Organisasjon

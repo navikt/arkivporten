@@ -14,7 +14,7 @@ import no.nav.syfo.altinn.dialogporten.client.IDialogportenClient
 import no.nav.syfo.altinn.dialogporten.domain.Dialog
 import no.nav.syfo.altinn.dialogporten.domain.Transmission
 import no.nav.syfo.altinn.dialogporten.service.DialogportenService
-import no.nav.syfo.document.api.v1.DocumentType
+import no.nav.syfo.document.api.v1.dto.DocumentType
 import no.nav.syfo.document.db.DocumentDAO
 import no.nav.syfo.document.db.DocumentStatus
 import java.util.UUID

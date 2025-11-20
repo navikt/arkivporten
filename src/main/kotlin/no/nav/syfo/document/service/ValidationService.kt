@@ -7,7 +7,7 @@ import no.nav.syfo.application.auth.SystemPrincipal
 import no.nav.syfo.application.auth.Principal
 import no.nav.syfo.application.auth.maskinportenIdToOrgnumber
 import no.nav.syfo.application.exception.ApiErrorException
-import no.nav.syfo.document.api.v1.DocumentType
+import no.nav.syfo.document.api.v1.dto.DocumentType
 import no.nav.syfo.document.db.DocumentEntity
 import no.nav.syfo.ereg.EregService
 import no.nav.syfo.altinn.pdp.client.System

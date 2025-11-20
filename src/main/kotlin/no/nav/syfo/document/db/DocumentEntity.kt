@@ -2,7 +2,7 @@ package no.nav.syfo.document.db
 
 import java.util.UUID
 import java.time.Instant
-import no.nav.syfo.document.api.v1.DocumentType
+import no.nav.syfo.document.api.v1.dto.DocumentType
 
 enum class DocumentStatus {
     RECEIVED,

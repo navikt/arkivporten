@@ -2,7 +2,7 @@ package no.nav.syfo.application.api
 
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContainAll
-import no.nav.syfo.document.api.v1.Document
+import no.nav.syfo.document.api.v1.dto.Document
 import org.yaml.snakeyaml.Yaml
 import kotlin.reflect.full.memberProperties
 

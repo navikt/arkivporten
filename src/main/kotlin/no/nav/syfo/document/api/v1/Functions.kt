@@ -14,6 +14,8 @@ import no.nav.syfo.application.auth.SystemPrincipal
 import no.nav.syfo.application.auth.Principal
 import no.nav.syfo.application.auth.TOKEN_ISSUER
 import no.nav.syfo.application.exceptions.UnauthorizedException
+import java.time.LocalDate
+import java.time.format.DateTimeParseException
 
 fun Parameters.extractAndValidateUUIDParameter(name: String): UUID {
     val parameter = get(name)
@@ -50,9 +52,16 @@ fun RoutingCall.getPrincipal(): Principal =
         else -> throw UnauthorizedException()
     }
 
-fun fnrToBirthDate(fnr: String): String {
-    val day = fnr.substring(0, 2)
-    val month = fnr.substring(2, 4)
-    val year = fnr.substring(4, 6)
-    return "$day.$month.$year"
+fun fnrToBirthDate(fnr: String): LocalDate? {
+    try {
+        val day = fnr.take(2)
+        val month = fnr.substring(2, 4)
+        val year = fnr.substring(4, 8)
+        return LocalDate.parse("$year-$month-$day")
+    } catch (e: IndexOutOfBoundsException) {
+        return null
+    } catch (e: DateTimeParseException) {
+        return null
+    }
+
 }

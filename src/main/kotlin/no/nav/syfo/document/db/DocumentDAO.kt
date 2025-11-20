@@ -3,7 +3,7 @@ package no.nav.syfo.document.db
 import java.sql.ResultSet
 import java.util.UUID
 import no.nav.syfo.application.database.DatabaseInterface
-import no.nav.syfo.document.api.v1.DocumentType
+import no.nav.syfo.document.api.v1.dto.DocumentType
 import java.sql.Timestamp
 import java.sql.Types
 
