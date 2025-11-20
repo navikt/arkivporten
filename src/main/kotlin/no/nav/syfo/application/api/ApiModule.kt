@@ -1,9 +1,11 @@
 package no.nav.syfo.application.api
 
 import io.ktor.server.application.Application
-import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
+import io.ktor.server.http.content.staticResources
+import io.ktor.server.plugins.swagger.swaggerUI
+import io.ktor.server.response.respondRedirect
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.isProdEnv
@@ -34,12 +36,15 @@ fun Application.configureRouting() {
         registerPodApi(applicationState, database)
         registerMetricApi()
         registerApiV1(texasHttpClient, documentDAO, dialogDAO, validationService)
+        // Static OpenAPI spec + Swagger UI only in non-prod
+        staticResources("/openapi", "openapi")
+        swaggerUI(path = "swagger", swaggerFile = "openapi/documentation.yaml")
         if (!isProdEnv()) {
             // TODO: Remove this endpoint later
             registerDialogportenTokenApi(texasHttpClient, dialogportenClient)
         }
         get("/") {
-            call.respondText("Hello World!")
+            call.respondRedirect("/swagger")
         }
     }
 }
