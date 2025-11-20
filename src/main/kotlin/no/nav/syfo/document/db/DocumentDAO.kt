@@ -4,10 +4,11 @@ import java.sql.ResultSet
 import java.util.UUID
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.document.api.v1.DocumentType
+import java.sql.Timestamp
 import java.sql.Types
 
 class DocumentDAO(private val database: DatabaseInterface) {
-    fun insert(documentEntity: DocumentEntity): Long {
+    fun insert(documentEntity: DocumentEntity): DocumentEntity {
         return database.connection.use { connection ->
             connection
                 .prepareStatement(
@@ -22,7 +23,7 @@ class DocumentDAO(private val database: DatabaseInterface) {
                                              status,
                                              dialog_id)
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                        RETURNING id;
+                        RETURNING *;
                         """.trimIndent()
                 ).use { preparedStatement ->
                     with(documentEntity) {
@@ -38,7 +39,11 @@ class DocumentDAO(private val database: DatabaseInterface) {
                     }
                     preparedStatement.execute()
 
-                    runCatching { preparedStatement.resultSet.getGeneratedId("id") }.getOrElse {
+                    runCatching {
+                        if (preparedStatement.resultSet.next()) {
+                            preparedStatement.resultSet.toDocumentEntity(documentEntity.dialog)
+                        } else throw DocumentGeneratedIDException("Could not get the generated id.")
+                    }.getOrElse {
                         connection.rollback()
                         throw it
                     }
@@ -56,7 +61,8 @@ class DocumentDAO(private val database: DatabaseInterface) {
                         UPDATE document
                         SET dialog_id = ?,
                             status     = ?,
-                            is_read    = ?
+                            is_read    = ?,
+                            updated    = ?
                         WHERE id = ?
                         """.trimIndent()
                 ).use { preparedStatement ->
@@ -65,7 +71,8 @@ class DocumentDAO(private val database: DatabaseInterface) {
                         preparedStatement.setLong(1, dialog.id!!)
                         preparedStatement.setObject(2, status, Types.OTHER)
                         preparedStatement.setBoolean(3, isRead)
-                        preparedStatement.setLong(4, id)
+                        preparedStatement.setTimestamp(4, Timestamp.from(updated))
+                        preparedStatement.setLong(5, id)
                     }
                     preparedStatement.execute()
                 }
@@ -73,13 +80,15 @@ class DocumentDAO(private val database: DatabaseInterface) {
                 connection.prepareStatement(
                     """
                         UPDATE dialogporten_dialog
-                        SET dialog_id = ?
+                        SET dialog_id = ?,
+                            updated   = ?
                         WHERE id = ?
                         """.trimIndent()
                 ).use { preparedStatement ->
                     with(documentEntity) {
                         preparedStatement.setObject(1, dialog.dialogportenId)
-                        preparedStatement.setLong(2, dialog.id!!)
+                        preparedStatement.setTimestamp(2, Timestamp.from(dialog.updated))
+                        preparedStatement.setLong(3, dialog.id!!)
                     }
                     preparedStatement.execute()
                 }
@@ -175,7 +184,7 @@ private fun ResultSet.getGeneratedId(idColumnLabel: String): Long = this.use {
     )
 }
 
-fun ResultSet.toDocumentEntity(): DocumentEntity =
+fun ResultSet.toDocumentEntity(withDialog: DialogEntity? = null): DocumentEntity =
     DocumentEntity(
         id = getLong("id"),
         linkId = getObject("link_id") as UUID,
@@ -187,7 +196,7 @@ fun ResultSet.toDocumentEntity(): DocumentEntity =
         summary = getString("summary"),
         status = DocumentStatus.valueOf(getString("status")),
         isRead = getBoolean("is_read"),
-        dialog = DialogEntity(
+        dialog = withDialog ?: DialogEntity(
             id = getLong("dialog_pk_id"),
             title = getString("dialog_title"),
             summary = getString("dialog_summary"),
@@ -198,6 +207,7 @@ fun ResultSet.toDocumentEntity(): DocumentEntity =
             updated = getTimestamp("dialog_updated")?.toInstant(),
         ),
         created = getTimestamp("created")?.toInstant(),
+        updated = getTimestamp("updated")?.toInstant(),
     )
 
 class DocumentGeneratedIDException(message: String) : RuntimeException(message)

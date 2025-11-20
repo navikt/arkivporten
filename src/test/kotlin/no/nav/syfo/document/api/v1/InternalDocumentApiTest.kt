@@ -8,6 +8,7 @@ import createMockToken
 import defaultMocks
 import dialogEntity
 import document
+import documentEntity
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldNotContain
@@ -83,7 +84,7 @@ class InternalDocumentApiTest : DescribeSpec({
                 // Arrange
                 val capturedSlot = slot<DocumentEntity>()
                 coEvery { dialogDAOMock.getByFnrAndOrgNumber(any(), any()) } returns dialogEntity()
-                coEvery { documentDAOMock.insert(capture(capturedSlot)) } returns 1L
+                coEvery { documentDAOMock.insert(capture(capturedSlot)) } returns documentEntity(dialogEntity())
                 texasHttpClientMock.defaultMocks()
                 val document = document()
                 // Act
@@ -109,7 +110,7 @@ class InternalDocumentApiTest : DescribeSpec({
                 // Arrange
                 texasHttpClientMock.defaultMocks()
                 coEvery { dialogDAOMock.getByFnrAndOrgNumber(any(), any()) } returns dialogEntity()
-                every { documentDAOMock.insert(any()) } returns 1L
+                every { documentDAOMock.insert(any()) } returns documentEntity(dialogEntity())
                 // Act
                 val response = client.post("/internal/api/v1/documents") {
                     contentType(ContentType.Application.Json)

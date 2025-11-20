@@ -16,6 +16,7 @@ import no.nav.syfo.document.db.DocumentDAO
 import no.nav.syfo.document.db.DocumentEntity
 import no.nav.syfo.document.db.DocumentStatus
 import no.nav.syfo.util.logger
+import java.time.Instant
 import java.util.UUID
 
 class DialogportenService(
@@ -42,7 +43,8 @@ class DialogportenService(
                     documentDAO.update(
                         document.copy(
                             transmissionId = transmissionId,
-                            status = DocumentStatus.COMPLETED
+                            status = DocumentStatus.COMPLETED,
+                            updated = Instant.now()
                         )
                     )
                 } else {
@@ -54,8 +56,10 @@ class DialogportenService(
                             transmissionId = transmissionId,
                             status = DocumentStatus.COMPLETED,
                             dialog = document.dialog.copy(
-                                dialogportenId = dialogId
-                            )
+                                dialogportenId = dialogId,
+                                updated = Instant.now()
+                            ),
+                            updated = Instant.now()
                         )
                     )
                 }
@@ -106,6 +110,7 @@ class DialogportenService(
             type = Transmission.TransmissionType.Information,
             sender = Transmission.Sender("ServiceOwner"),
             externalReference = documentId.toString(),
+            extendedType = type.name,
             attachments = listOf(
                 Attachment(
                     displayName = listOf(

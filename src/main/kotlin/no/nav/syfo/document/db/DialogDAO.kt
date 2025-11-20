@@ -13,7 +13,7 @@ class DialogDAO(private val database: DatabaseInterface) {
                 fnr,
                 org_number
             ) VALUES (?, ?, ?, ?)
-            RETURNING id, title, summary, fnr, org_number, created, updated, dialog_id
+            RETURNING *
             """.trimIndent()
 
         val connection = database.connection

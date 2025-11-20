@@ -23,7 +23,7 @@ class DocumentDbTest : DescribeSpec({
             val dialogEntity = dialogDAO.insertDialog(dialogEntity())
             val documentEntity = document().toDocumentEntity(dialogEntity)
             // Act
-            val id = documentDAO.insert(documentEntity)
+            val id = documentDAO.insert(documentEntity).id!!
             // Assert
             id shouldNotBe null
             id shouldBeGreaterThan 0L
@@ -34,7 +34,7 @@ class DocumentDbTest : DescribeSpec({
             val dialogEntity = dialogDAO.insertDialog(dialogEntity())
             val documentEntity = document().toDocumentEntity(dialogEntity)
             // Act
-            val id = documentDAO.insert(documentEntity)
+            val id = documentDAO.insert(documentEntity).id!!
             // Assert
             val retrievedDocument = documentDAO.getById(id)
             retrievedDocument shouldNotBe null
@@ -45,11 +45,11 @@ class DocumentDbTest : DescribeSpec({
         it("should return a generated id") {
             // Arrange
             val dialogEntity = dialogDAO.insertDialog(dialogEntity())
-            val documentEntity = document().toDocumentEntity(dialogEntity)
+            val documentEntity = documentDAO.insert(
+                document().toDocumentEntity(dialogEntity)
+            )
             // Act
-            val id = documentDAO.insert(documentEntity)
             val updateddocumentEntity = documentEntity.copy(
-                id = id,
                 status = DocumentStatus.COMPLETED,
                 isRead = true,
                 dialog = documentEntity.dialog.copy(
@@ -57,10 +57,10 @@ class DocumentDbTest : DescribeSpec({
                 )
             )
             documentDAO.update(updateddocumentEntity)
-            val retrievedDocument = documentDAO.getById(id)
+            val retrievedDocument = documentDAO.getById(documentEntity.id!!)
             // Assert
             retrievedDocument shouldNotBe null
-            retrievedDocument?.assertExpected(updateddocumentEntity, id)
+            retrievedDocument?.assertExpected(updateddocumentEntity, documentEntity.id)
         }
     }
 
@@ -70,7 +70,7 @@ class DocumentDbTest : DescribeSpec({
             val dialogEntity = dialogDAO.insertDialog(dialogEntity())
             val documentEntity = document().toDocumentEntity(dialogEntity)
             // Act
-            val id = documentDAO.insert(documentEntity)
+            val id = documentDAO.insert(documentEntity).id!!
             val retrievedDocument = documentDAO.getById(id)
             // Assert
             retrievedDocument shouldNotBe null
@@ -84,7 +84,7 @@ class DocumentDbTest : DescribeSpec({
             val dialogEntity = dialogDAO.insertDialog(dialogEntity())
             val documentEntity = document().toDocumentEntity(dialogEntity)
             // Act
-            val id = documentDAO.insert(documentEntity)
+            val id = documentDAO.insert(documentEntity).id!!
             val retrievedDocument = documentDAO.getByLinkId(documentEntity.linkId)
             // Assert
             retrievedDocument shouldNotBe null

@@ -10,11 +10,11 @@ import io.mockk.coEvery
 import java.time.Instant
 import java.util.*
 import net.datafaker.Faker
-import no.nav.syfo.altinn.dialogporten.domain.Dialog
 import no.nav.syfo.application.auth.JwtIssuer
 import no.nav.syfo.document.api.v1.Document
 import no.nav.syfo.document.api.v1.DocumentType
 import no.nav.syfo.document.db.DialogEntity
+import no.nav.syfo.document.db.DocumentEntity
 import no.nav.syfo.ereg.client.Organisasjon
 import no.nav.syfo.texas.client.AuthorizationDetail
 import no.nav.syfo.texas.client.OrganizationId
@@ -43,6 +43,18 @@ fun dialogEntity() =
         fnr = faker.numerify("###########"),
         orgNumber = faker.numerify("#########"),
         dialogportenId = UUID.randomUUID()
+    )
+
+fun documentEntity(dialogEntity: DialogEntity) =
+    DocumentEntity(
+        documentId = UUID.randomUUID(),
+        type = DocumentType.DIALOGMOTE,
+        content = faker.lorem().sentence().toByteArray(),
+        contentType = "application/pdf",
+        title = faker.lorem().sentence(),
+        summary = faker.lorem().sentence(),
+        linkId = UUID.randomUUID(),
+        dialog = dialogEntity
     )
 
 fun organisasjon() = Organisasjon(

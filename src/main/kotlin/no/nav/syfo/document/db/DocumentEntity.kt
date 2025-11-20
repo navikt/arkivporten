@@ -44,7 +44,9 @@ data class DocumentEntity(
         if (linkId != other.linkId) return false
         if (status != other.status) return false
         if (dialog != other.dialog) return false
+        if (transmissionId != other.transmissionId) return false
         if (created != other.created) return false
+        if (updated != other.updated) return false
 
         return true
     }
@@ -57,11 +59,14 @@ data class DocumentEntity(
         result = 31 * result + content.contentHashCode()
         result = 31 * result + contentType.hashCode()
         result = 31 * result + title.hashCode()
-        result = 31 * result + summary.hashCode()
+        result = 31 * result + (summary?.hashCode() ?: 0)
         result = 31 * result + linkId.hashCode()
         result = 31 * result + status.hashCode()
         result = 31 * result + dialog.hashCode()
+        result = 31 * result + (transmissionId?.hashCode() ?: 0)
         result = 31 * result + (created?.hashCode() ?: 0)
+        result = 31 * result + (updated?.hashCode() ?: 0)
         return result
     }
+
 }

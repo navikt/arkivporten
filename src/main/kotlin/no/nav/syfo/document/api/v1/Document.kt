@@ -52,6 +52,8 @@ data class Document(
         if (type != other.type) return false
         if (!content.contentEquals(other.content)) return false
         if (contentType != other.contentType) return false
+        if (fnr != other.fnr) return false
+        if (fullName != other.fullName) return false
         if (orgNumber != other.orgNumber) return false
         if (title != other.title) return false
         if (summary != other.summary) return false
@@ -64,11 +66,14 @@ data class Document(
         result = 31 * result + type.hashCode()
         result = 31 * result + content.contentHashCode()
         result = 31 * result + contentType.hashCode()
+        result = 31 * result + fnr.hashCode()
+        result = 31 * result + (fullName?.hashCode() ?: 0)
         result = 31 * result + orgNumber.hashCode()
         result = 31 * result + title.hashCode()
-        result = 31 * result + summary.hashCode()
+        result = 31 * result + (summary?.hashCode() ?: 0)
         return result
     }
+
 }
 
 enum class DocumentType(val displayName: String) {
