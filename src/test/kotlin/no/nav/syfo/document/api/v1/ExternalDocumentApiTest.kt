@@ -146,20 +146,20 @@ class ExternalDocumentApiTest : DescribeSpec({
             it("should return 403 Forbidden for unauthorized token") {
                 withTestApplication {
                     // Arrange
-                    val nonMatchingOrgnumber = "999999999"
+                    val nonMatchingOrgNumber = "999999999"
                     val organization = organisasjon()
                     val document = document().copy(orgNumber = organization.organisasjonsnummer).toDocumentEntity(dialogEntity())
                     coEvery { documentDAO.getByLinkId(eq(document.linkId)) } returns document
                     texasHttpClientMock.defaultMocks(
                         systemBrukerOrganisasjon = DefaultOrganization.copy(
-                            ID = "0192:$nonMatchingOrgnumber" // Different orgnumber
+                            ID = "0192:$nonMatchingOrgNumber" // Different orgnumber
                         ),
                         scope = MASKINPORTEN_ARKIVPORTEN_SCOPE,
                     )
                     fakeEregClient.organisasjoner.put(document.dialog.orgNumber, organization)
                     // Act
                     val response = client.get("api/v1/documents/${document.linkId}") {
-                        bearerAuth(createMockToken(ident = nonMatchingOrgnumber))
+                        bearerAuth(createMockToken(ident = nonMatchingOrgNumber))
                     }
 
                     // Assert

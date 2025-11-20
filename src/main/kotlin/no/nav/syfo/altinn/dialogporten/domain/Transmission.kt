@@ -7,7 +7,7 @@ data class Transmission(
     val id: UUID? = null,
     val type: TransmissionType,
     val extendedType: String? = null,
-    val externalReferance: String? = null,
+    val externalReference: String? = null,
     val sender: Sender,
     val content: Content,
     val attachments: List<Attachment>? = null,

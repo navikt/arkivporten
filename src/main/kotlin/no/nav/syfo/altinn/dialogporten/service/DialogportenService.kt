@@ -105,7 +105,7 @@ class DialogportenService(
             ),
             type = Transmission.TransmissionType.Information,
             sender = Transmission.Sender("ServiceOwner"),
-            externalReferance = documentId.toString(),
+            externalReference = documentId.toString(),
             attachments = listOf(
                 Attachment(
                     displayName = listOf(

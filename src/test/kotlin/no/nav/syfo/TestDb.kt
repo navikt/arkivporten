@@ -82,6 +82,9 @@ class TestDB private constructor() {
                 it.prepareStatement(
                     "DELETE FROM document;"
                 ).use { ps -> ps.executeUpdate() }
+                it.prepareStatement(
+                    "DELETE FROM dialogporten_dialog;"
+                ).use { ps -> ps.executeUpdate() }
                 it.commit()
             }
     }

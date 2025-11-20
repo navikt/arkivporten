@@ -21,7 +21,7 @@ class DocumentDAO(private val database: DatabaseInterface) {
                                              link_id,
                                              status,
                                              dialog_id)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                         RETURNING id;
                         """.trimIndent()
                 ).use { preparedStatement ->
@@ -73,7 +73,7 @@ class DocumentDAO(private val database: DatabaseInterface) {
                 connection.prepareStatement(
                     """
                         UPDATE dialogporten_dialog
-                        SET dialogId = ?
+                        SET dialog_id = ?
                         WHERE id = ?
                         """.trimIndent()
                 ).use { preparedStatement ->
@@ -93,11 +93,11 @@ class DocumentDAO(private val database: DatabaseInterface) {
             connection
                 .prepareStatement(
                     """
-                        SELECT doc.*, dialog.id as dialog_pk_id, dialog.title as dialog_db_title, dialog.summary as dialog_db_summary, 
+                        SELECT doc.*, dialog.id as dialog_pk_id, dialog.title as dialog_title, dialog.summary as dialog_summary, 
                                dialog.dialog_id as dialog_uuid, dialog.fnr, dialog.org_number, dialog.created as dialog_created, 
                                dialog.updated as dialog_updated
                         FROM document doc
-                        LEFT JOIN dialogporten_dialog dialog ON d.dialog_id = dialog.id
+                        LEFT JOIN dialogporten_dialog dialog ON doc.dialog_id = dialog.id
                         WHERE doc.id = ?
                         """.trimIndent()
                 ).use { preparedStatement ->
@@ -117,11 +117,11 @@ class DocumentDAO(private val database: DatabaseInterface) {
             connection
                 .prepareStatement(
                     """
-                        SELECT doc.*, dialog.id as dialog_pk_id, dialog.title as dialog_db_title, dialog.summary as dialog_db_summary, 
+                        SELECT doc.*, dialog.id as dialog_pk_id, dialog.title as dialog_title, dialog.summary as dialog_summary, 
                                dialog.dialog_id as dialog_uuid, dialog.fnr, dialog.org_number, dialog.created as dialog_created, 
                                dialog.updated as dialog_updated
                         FROM document doc
-                        LEFT JOIN dialogporten_dialog dialog ON d.dialog_id = dialog.id
+                        LEFT JOIN dialogporten_dialog dialog ON doc.dialog_id = dialog.id
                         WHERE doc.link_id = ?
                         """.trimIndent()
                 ).use { preparedStatement ->
@@ -141,11 +141,11 @@ class DocumentDAO(private val database: DatabaseInterface) {
             connection
                 .prepareStatement(
                     """
-                        SELECT doc.*, dialog.id as dialog_pk_id, dialog.title as dialog_db_title, dialog.summary as dialog_db_summary, 
+                        SELECT doc.*, dialog.id as dialog_pk_id, dialog.title as dialog_title, dialog.summary as dialog_summary, 
                                dialog.dialog_id as dialog_uuid, dialog.fnr, dialog.org_number, dialog.created as dialog_created, 
                                dialog.updated as dialog_updated
                         FROM document doc
-                        LEFT JOIN dialogporten_dialog dialog ON d.dialog_id = dialog.id
+                        LEFT JOIN dialogporten_dialog dialog ON doc.dialog_id = dialog.id
                         WHERE doc.status = ?
                         order by doc.created
                         LIMIT 100
@@ -183,17 +183,17 @@ fun ResultSet.toDocumentEntity(): DocumentEntity =
         type = DocumentType.valueOf(getString("type")),
         content = getBytes("content"),
         contentType = getString("content_type"),
-        title = getString("dialog_title"),
-        summary = getString("dialog_summary"),
+        title = getString("title"),
+        summary = getString("summary"),
         status = DocumentStatus.valueOf(getString("status")),
         isRead = getBoolean("is_read"),
         dialog = DialogEntity(
             id = getLong("dialog_pk_id"),
-            title = getString("dialog_db_title"),
-            summary = getString("dialog_db_summary"),
+            title = getString("dialog_title"),
+            summary = getString("dialog_summary"),
             fnr = getString("fnr"),
             orgNumber = getString("org_number"),
-            dialogportenId = getObject("dialog_uuid") as UUID,
+            dialogportenId = getObject("dialog_uuid") as UUID?,
             created = getTimestamp("dialog_created")?.toInstant(),
             updated = getTimestamp("dialog_updated")?.toInstant(),
         ),

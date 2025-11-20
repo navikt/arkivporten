@@ -6,6 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import createMockToken
 import defaultMocks
+import dialogEntity
 import document
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
@@ -81,6 +82,7 @@ class InternalDocumentApiTest : DescribeSpec({
             withTestApplication {
                 // Arrange
                 val capturedSlot = slot<DocumentEntity>()
+                coEvery { dialogDAOMock.getByFnrAndOrgNumber(any(), any()) } returns dialogEntity()
                 coEvery { documentDAOMock.insert(capture(capturedSlot)) } returns 1L
                 texasHttpClientMock.defaultMocks()
                 val document = document()
@@ -106,6 +108,7 @@ class InternalDocumentApiTest : DescribeSpec({
             withTestApplication {
                 // Arrange
                 texasHttpClientMock.defaultMocks()
+                coEvery { dialogDAOMock.getByFnrAndOrgNumber(any(), any()) } returns dialogEntity()
                 every { documentDAOMock.insert(any()) } returns 1L
                 // Act
                 val response = client.post("/internal/api/v1/documents") {
@@ -126,6 +129,7 @@ class InternalDocumentApiTest : DescribeSpec({
             withTestApplication {
                 // Arrange
                 texasHttpClientMock.defaultMocks()
+                coEvery { dialogDAOMock.getByFnrAndOrgNumber(any(), any()) } returns dialogEntity()
                 coEvery { documentDAOMock.insert(any()) } throws RuntimeException("DB error")
                 // Act
                 val response = client.post("/internal/api/v1/documents") {

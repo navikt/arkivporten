@@ -17,20 +17,20 @@ class DialogDAO(private val database: DatabaseInterface) {
             """.trimIndent()
 
         val connection = database.connection
-        connection.use { conn ->
-            val preparedStatement = conn.prepareStatement(insertStatement)
-            preparedStatement.use { ps ->
+        return connection.use { conn ->
+            conn.prepareStatement(insertStatement).use { ps ->
                 ps.setString(1, dialogEntity.title)
                 ps.setString(2, dialogEntity.summary)
                 ps.setString(3, dialogEntity.fnr)
                 ps.setString(4, dialogEntity.orgNumber)
-                ps.setObject(5, dialogEntity.dialogportenId)
                 val resultSet = ps.executeQuery()
-                if (resultSet.next()) {
-                    return resultSet.toDialog()
+                return@use if (resultSet.next()) {
+                    resultSet.toDialog()
                 } else {
                     throw Exception("Inserting dialog failed, no rows returned.")
                 }
+            }.also {
+                conn.commit()
             }
         }
     }

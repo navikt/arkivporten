@@ -12,6 +12,7 @@ import no.nav.syfo.TestDB
 class DocumentDbTest : DescribeSpec({
     val testDb = TestDB.database
     val documentDAO = DocumentDAO(testDb)
+    val dialogDAO = DialogDAO(testDb)
     beforeTest {
         TestDB.clearAllData()
     }
@@ -19,7 +20,8 @@ class DocumentDbTest : DescribeSpec({
     describe("DocumentDb -> insert") {
         it("should return a generated id") {
             // Arrange
-            val documentEntity = document().toDocumentEntity(dialogEntity())
+            val dialogEntity = dialogDAO.insertDialog(dialogEntity())
+            val documentEntity = document().toDocumentEntity(dialogEntity)
             // Act
             val id = documentDAO.insert(documentEntity)
             // Assert
@@ -29,7 +31,8 @@ class DocumentDbTest : DescribeSpec({
 
         it("should persist the document with the correct fields") {
             // Arrange
-            val documentEntity = document().toDocumentEntity(dialogEntity())
+            val dialogEntity = dialogDAO.insertDialog(dialogEntity())
+            val documentEntity = document().toDocumentEntity(dialogEntity)
             // Act
             val id = documentDAO.insert(documentEntity)
             // Assert
@@ -41,7 +44,8 @@ class DocumentDbTest : DescribeSpec({
     describe("DocumentDb -> update") {
         it("should return a generated id") {
             // Arrange
-            val documentEntity = document().toDocumentEntity(dialogEntity())
+            val dialogEntity = dialogDAO.insertDialog(dialogEntity())
+            val documentEntity = document().toDocumentEntity(dialogEntity)
             // Act
             val id = documentDAO.insert(documentEntity)
             val updateddocumentEntity = documentEntity.copy(
@@ -63,7 +67,8 @@ class DocumentDbTest : DescribeSpec({
     describe("DocumentDb -> getById") {
         it("should return a documentEntity for the id") {
             // Arrange
-            val documentEntity = document().toDocumentEntity(dialogEntity())
+            val dialogEntity = dialogDAO.insertDialog(dialogEntity())
+            val documentEntity = document().toDocumentEntity(dialogEntity)
             // Act
             val id = documentDAO.insert(documentEntity)
             val retrievedDocument = documentDAO.getById(id)
@@ -76,7 +81,8 @@ class DocumentDbTest : DescribeSpec({
     describe("DocumentDb -> getByLinkId") {
         it("should return a documentEntity for the linktId") {
             // Arrange
-            val documentEntity = document().toDocumentEntity(dialogEntity())
+            val dialogEntity = dialogDAO.insertDialog(dialogEntity())
+            val documentEntity = document().toDocumentEntity(dialogEntity)
             // Act
             val id = documentDAO.insert(documentEntity)
             val retrievedDocument = documentDAO.getByLinkId(documentEntity.linkId)

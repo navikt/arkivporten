@@ -43,13 +43,13 @@ class ValidationService(
     }
 
     suspend fun validateMaskinportenTilgang(principal: SystemPrincipal, documentEntity: DocumentEntity) {
-        val orgnumberFromToken = maskinportenIdToOrgnumber(principal.ident)
-        if (orgnumberFromToken != documentEntity.dialog!!.orgNumber) {
+        val orgNumberFromToken = maskinportenIdToOrgnumber(principal.ident)
+        if (orgNumberFromToken != documentEntity.dialog!!.orgNumber) {
             val organisasjon = eregService.getOrganization(documentEntity.dialog.orgNumber)
-            if (organisasjon.inngaarIJuridiskEnheter?.filter { it.organisasjonsnummer == orgnumberFromToken }
+            if (organisasjon.inngaarIJuridiskEnheter?.filter { it.organisasjonsnummer == orgNumberFromToken }
                     .isNullOrEmpty()) {
                 logger.warn(
-                    "Maskinporten orgnummer ${orgnumberFromToken} does not match document orgnummer ${documentEntity.dialog.orgNumber} or any parent organization."
+                    "Maskinporten orgnummer ${orgNumberFromToken} does not match document orgnummer ${documentEntity.dialog.orgNumber} or any parent organization."
                 )
                 throw ApiErrorException.ForbiddenException("Access denied. Invalid organization.")
             }
