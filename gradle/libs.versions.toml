@@ -13,7 +13,7 @@ micrometer-prometheus = "1.16.0"
 mockk="1.14.6"
 postgresql = "42.7.8"
 testcontainers = "1.21.3"
-fasterxml-uuid = "4.1.0"
+fasterxml-uuid = "5.1.1"
 logstashEncoder = "9.0"
 
 [libraries]
