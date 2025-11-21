@@ -81,7 +81,7 @@ class DialogportenServiceTest : DescribeSpec({
                 capturedDialog.externalReference shouldBe "syfo-arkivporten"
                 capturedDialog.content.title.value.first().value shouldBe dialogEntity.title
                 capturedDialog.content.summary?.value?.first()?.value shouldBe dialogEntity.summary
-                capturedDialog.isApiOnly shouldBe true
+                capturedDialog.isApiOnly shouldBe false
                 capturedDialog.attachments shouldBe emptyList()
                 capturedDialog.transmissions.size shouldBe 1
                 capturedDialog.transmissions.first().externalReference shouldBe documentEntity.documentId.toString()
