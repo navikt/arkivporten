@@ -36,11 +36,10 @@ class DialogportenService(
         val newDialogs = mutableMapOf<Long, UUID>()
         for (document in documentsToSend) {
             try {
-                if (document.dialog.dialogportenId != null || newDialogs.containsKey(document.dialog.id)) {
-                    val dialogportenId =
-                        document.dialog.dialogportenId ?: checkNotNull(newDialogs[document.dialog.id]) {
-                            "dialogportenId not found in newDialogs map"
-                        }
+                val dialogportenId = document.dialog.dialogportenId
+                    ?: newDialogs[document.dialog.id]
+
+                if (dialogportenId != null) {
                     addToExistingDialog(document, dialogportenId)
                 } else {
                     val dialogportenId = addToNewDialog(document)
