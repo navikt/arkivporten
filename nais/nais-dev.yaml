@@ -83,7 +83,7 @@ spec:
           namespace: nais
         - application: syfo-oppfolgingsplan-backend
           namespace: team-esyfo
-        - application: isyfo-isdialogmote
+        - application: isdialogmote
           namespace: teamsykefravr
         - application: syfooppfolgingsplanservice
           cluster: dev-fss
