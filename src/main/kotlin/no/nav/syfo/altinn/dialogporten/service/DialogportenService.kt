@@ -109,7 +109,7 @@ class DialogportenService(
                 title = dialog.title,
                 summary = dialog.summary,
             ),
-            isApiOnly = true,
+            isApiOnly = false,
             transmissions = listOf(
                 toTransmission(transmissionId)
             )
@@ -140,6 +140,12 @@ class DialogportenService(
                             url = createDocumentLink(linkId.toString()),
                             mediaType = contentType,
                             consumerType = AttachmentUrlConsumerType.Api,
+                        ),
+                        Url(
+                            // TODO: temp url for demo purposes
+                            url = "https://www.ekstern.dev.nav.no/syfo/dokumenter/$linkId",
+                            mediaType = contentType,
+                            consumerType = AttachmentUrlConsumerType.Gui,
                         ),
                     ),
                 ),
