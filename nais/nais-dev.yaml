@@ -11,6 +11,7 @@ spec:
     - https://arkivporten.ekstern.dev.nav.no/api/v1/documents
     - https://arkivporten.ekstern.dev.nav.no/swagger
     - https://arkivporten.ekstern.dev.nav.no/openapi
+    - https://arkivporten.ekstern.dev.nav.no/oauth2
   image: {{image}} #
   port: 8080
   liveness:
