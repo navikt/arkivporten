@@ -55,8 +55,15 @@ spec:
             envVarPrefix: ARKIVPORTEN_DB
         diskAutoresize: true
   idporten:
+    enabled: true
     sidecar:
+      enabled: true
       autoLogin: true
+      level: Level4
+      autoLoginIgnorePaths:
+        - /swagger
+        - /openapi
+        - /internal/**
   tokenx:
     enabled: true
   maskinporten:
