@@ -10,7 +10,7 @@ data class Transmission(
     val externalReference: String? = null,
     val sender: Sender,
     val content: Content,
-    val attachments: List<Attachment>? = null,
+    val attachments: List<Attachment> = emptyList(),
 ) {
     data class Sender(
         val actorType: String,

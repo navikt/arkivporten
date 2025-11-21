@@ -82,11 +82,11 @@ class DialogportenServiceTest : DescribeSpec({
                 capturedDialog.content.title.value.first().value shouldBe dialogEntity.title
                 capturedDialog.content.summary?.value?.first()?.value shouldBe dialogEntity.summary
                 capturedDialog.isApiOnly shouldBe true
-                capturedDialog.attachments shouldBe null
+                capturedDialog.attachments shouldBe emptyList()
                 capturedDialog.transmissions.size shouldBe 1
                 capturedDialog.transmissions.first().externalReference shouldBe documentEntity.documentId.toString()
-                capturedDialog.transmissions.first().attachments?.first()
-                    ?.displayName?.first()?.value shouldBe "${documentEntity.type.displayName}.pdf"
+                capturedDialog.transmissions.first().attachments.first()
+                    .displayName.first().value shouldBe "${documentEntity.type.displayName}.pdf"
             }
 
             it("should send document to dialogporten with addTransmission and update status to COMPLETED") {
@@ -119,9 +119,9 @@ class DialogportenServiceTest : DescribeSpec({
                 capturedTransmission.externalReference shouldBe documentEntity.documentId.toString()
                 capturedTransmission.content.title.value.first().value shouldBe documentEntity.title
                 capturedTransmission.content.summary?.value?.first()?.value shouldBe documentEntity.summary
-                capturedTransmission.attachments?.size shouldBe 1
-                capturedTransmission.attachments?.first()
-                    ?.displayName?.first()?.value shouldBe "${documentEntity.type.displayName}.pdf"
+                capturedTransmission.attachments.size shouldBe 1
+                capturedTransmission.attachments.first()
+                    .displayName.first().value shouldBe "${documentEntity.type.displayName}.pdf"
             }
         }
 
@@ -217,8 +217,8 @@ class DialogportenServiceTest : DescribeSpec({
                 // Assert
                 val capturedDialog = dialogSlot.captured
                 capturedDialog.transmissions.first()
-                    .attachments?.first()
-                    ?.displayName?.first()?.value shouldBe "${documentEntity.type.displayName}.json"
+                    .attachments.first()
+                    .displayName.first().value shouldBe "${documentEntity.type.displayName}.json"
             }
         }
 
@@ -258,7 +258,7 @@ class DialogportenServiceTest : DescribeSpec({
 
                 // Assert
                 val capturedDialog = dialogSlot.captured
-                val attachmentUrl = capturedDialog.transmissions.first().attachments?.first()?.urls?.first()?.url
+                val attachmentUrl = capturedDialog.transmissions.first().attachments.first().urls.first().url
                 attachmentUrl shouldBe "$publicIngressUrl/api/v1/documents/${documentEntity.linkId}"
             }
         }
