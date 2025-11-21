@@ -7,7 +7,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import createMockToken
 import defaultMocks
+import dialogEntity
 import document
+import documentEntity
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -33,15 +35,16 @@ import no.nav.syfo.document.service.ValidationService
 import no.nav.syfo.ereg.EregService
 import no.nav.syfo.ereg.client.FakeEregClient
 import no.nav.syfo.altinn.pdp.service.PdpService
+import no.nav.syfo.document.db.DialogDAO
 import no.nav.syfo.registerApiV1
 import no.nav.syfo.texas.MASKINPORTEN_ARKIVPORTEN_SCOPE
 import no.nav.syfo.texas.client.TexasHttpClient
-import org.testcontainers.shaded.org.bouncycastle.asn1.x509.X509ObjectIdentifiers.organization
 import organisasjon
 
 class ExternalDocumentApiTest : DescribeSpec({
     val texasHttpClientMock = mockk<TexasHttpClient>()
-    val DocumentDAOMock = mockk<DocumentDAO>()
+    val documentDAO = mockk<DocumentDAO>()
+    val dialogDAO = mockk<DialogDAO>()
     val fakeAltinnTilgangerClient = FakeAltinnTilgangerClient()
     val fakeEregClient = FakeEregClient()
     val eregService = EregService(fakeEregClient)
@@ -78,7 +81,8 @@ class ExternalDocumentApiTest : DescribeSpec({
                 routing {
                     registerApiV1(
                         texasHttpClient = texasHttpClientMock,
-                        DocumentDAO = DocumentDAOMock,
+                        documentDAO = documentDAO,
+                        dialogDAO = dialogDAO,
                         validationService = validationServiceSpy
                     )
                 }
@@ -91,17 +95,17 @@ class ExternalDocumentApiTest : DescribeSpec({
             it("should return 200 OK for authorized token") {
                 withTestApplication {
                     // Arrange
-                    val document = document().toDocumentEntity()
-                    coEvery { DocumentDAOMock.getByLinkId(eq(document.linkId)) } returns document
+                    val document = documentEntity(dialogEntity())
+                    coEvery { documentDAO.getByLinkId(eq(document.linkId)) } returns document
                     texasHttpClientMock.defaultMocks(
                         systemBrukerOrganisasjon = DefaultOrganization.copy(
-                            ID = "0192:${document.orgNumber}"
+                            ID = "0192:${document.dialog.orgNumber}"
                         ),
                         scope = MASKINPORTEN_ARKIVPORTEN_SCOPE,
                     )
                     // Act
                     val response = client.get("api/v1/documents/${document.linkId}") {
-                        bearerAuth(createMockToken(ident = document.orgNumber))
+                        bearerAuth(createMockToken(ident = document.dialog.orgNumber))
                     }
 
                     // Assert
@@ -117,15 +121,15 @@ class ExternalDocumentApiTest : DescribeSpec({
                 withTestApplication {
                     // Arrange
                     val organization = organisasjon()
-                    val document = document().copy(orgNumber = organization.organisasjonsnummer).toDocumentEntity()
-                    coEvery { DocumentDAOMock.getByLinkId(eq(document.linkId)) } returns document
+                    val document = documentEntity(dialogEntity().copy(orgNumber = organization.organisasjonsnummer))
+                    coEvery { documentDAO.getByLinkId(eq(document.linkId)) } returns document
                     texasHttpClientMock.defaultMocks(
                         systemBrukerOrganisasjon = DefaultOrganization.copy(
                             ID = "0192:${organization.inngaarIJuridiskEnheter!!.first().organisasjonsnummer}"
                         ),
                         scope = MASKINPORTEN_ARKIVPORTEN_SCOPE,
                     )
-                    fakeEregClient.organisasjoner.put(document.orgNumber, organization)
+                    fakeEregClient.organisasjoner[document.dialog.orgNumber] = organization
                     // Act
                     val response = client.get("api/v1/documents/${document.linkId}") {
                         bearerAuth(createMockToken(ident = organization.inngaarIJuridiskEnheter.first().organisasjonsnummer))
@@ -143,20 +147,20 @@ class ExternalDocumentApiTest : DescribeSpec({
             it("should return 403 Forbidden for unauthorized token") {
                 withTestApplication {
                     // Arrange
-                    val nonMatchingOrgnumber = "999999999"
+                    val nonMatchingOrgNumber = "999999999"
                     val organization = organisasjon()
-                    val document = document().copy(orgNumber = organization.organisasjonsnummer).toDocumentEntity()
-                    coEvery { DocumentDAOMock.getByLinkId(eq(document.linkId)) } returns document
+                    val document = documentEntity(dialogEntity().copy(orgNumber = organization.organisasjonsnummer))
+                    coEvery { documentDAO.getByLinkId(eq(document.linkId)) } returns document
                     texasHttpClientMock.defaultMocks(
                         systemBrukerOrganisasjon = DefaultOrganization.copy(
-                            ID = "0192:$nonMatchingOrgnumber" // Different orgNumber
+                            ID = "0192:$nonMatchingOrgNumber" // Different orgnumber
                         ),
                         scope = MASKINPORTEN_ARKIVPORTEN_SCOPE,
                     )
-                    fakeEregClient.organisasjoner.put(document.orgNumber, organization)
+                    fakeEregClient.organisasjoner[document.dialog.orgNumber] = organization
                     // Act
                     val response = client.get("api/v1/documents/${document.linkId}") {
-                        bearerAuth(createMockToken(ident = nonMatchingOrgnumber))
+                        bearerAuth(createMockToken(ident = nonMatchingOrgNumber))
                     }
 
                     // Assert
@@ -172,14 +176,14 @@ class ExternalDocumentApiTest : DescribeSpec({
             it("should return 200 OK for authorized token") {
                 withTestApplication {
                     // Arrange
-                    val document = document().toDocumentEntity()
+                    val document = documentEntity(dialogEntity())
                     val callerPid = "11223344556"
                     texasHttpClientMock.defaultMocks(
                         acr = "Level4",
                         pid = callerPid
                     )
-                    fakeAltinnTilgangerClient.usersWithAccess.add(callerPid to document.orgNumber)
-                    coEvery { DocumentDAOMock.getByLinkId(eq(document.linkId)) } returns document
+                    fakeAltinnTilgangerClient.usersWithAccess.add(callerPid to document.dialog.orgNumber)
+                    coEvery { documentDAO.getByLinkId(eq(document.linkId)) } returns document
                     // Act
                     val response = client.get("api/v1/documents/${document.linkId}") {
                         bearerAuth(createMockToken(callerPid, issuer = tokenXIssuer))
@@ -197,14 +201,14 @@ class ExternalDocumentApiTest : DescribeSpec({
             it("should return 403 Forbidden if token lacks Level4") {
                 withTestApplication {
                     // Arrange
-                    val document = document().toDocumentEntity()
+                    val document = documentEntity(dialogEntity())
                     val callerPid = "11223344556"
                     texasHttpClientMock.defaultMocks(
                         acr = "Level3",
                         pid = callerPid
                     )
-                    fakeAltinnTilgangerClient.usersWithAccess.add(callerPid to document.orgNumber)
-                    coEvery { DocumentDAOMock.getByLinkId(eq(document.linkId)) } returns document
+                    fakeAltinnTilgangerClient.usersWithAccess.add(callerPid to document.dialog.orgNumber)
+                    coEvery { documentDAO.getByLinkId(eq(document.linkId)) } returns document
                     // Act
                     val response = client.get("api/v1/documents/${document.linkId}") {
                         bearerAuth(createMockToken(callerPid, issuer = tokenXIssuer))
@@ -221,14 +225,14 @@ class ExternalDocumentApiTest : DescribeSpec({
             it("should return 403 Forbidden when token user lacks altinn resource") {
                 withTestApplication {
                     // Arrange
-                    val document = document().toDocumentEntity()
+                    val document = documentEntity(dialogEntity())
                     val callerPid = "11223344556"
                     texasHttpClientMock.defaultMocks(
                         acr = "Level4",
                         pid = callerPid
                     )
                     fakeAltinnTilgangerClient.usersWithAccess.clear()
-                    coEvery { DocumentDAOMock.getByLinkId(eq(document.linkId)) } returns document
+                    coEvery { documentDAO.getByLinkId(eq(document.linkId)) } returns document
                     // Act
                     val response = client.get("api/v1/documents/${document.linkId}") {
                         bearerAuth(createMockToken(callerPid, issuer = tokenXIssuer))
@@ -247,14 +251,14 @@ class ExternalDocumentApiTest : DescribeSpec({
             it("should return 200 OK for authorized token") {
                 withTestApplication {
                     // Arrange
-                    val document = document().toDocumentEntity()
+                    val document = documentEntity(dialogEntity())
                     val callerPid = "11223344556"
                     texasHttpClientMock.defaultMocks(
                         acr = "Level4",
                         pid = callerPid
                     )
-                    fakeAltinnTilgangerClient.usersWithAccess.add(callerPid to document.orgNumber)
-                    coEvery { DocumentDAOMock.getByLinkId(eq(document.linkId)) } returns document
+                    fakeAltinnTilgangerClient.usersWithAccess.add(callerPid to document.dialog.orgNumber)
+                    coEvery { documentDAO.getByLinkId(eq(document.linkId)) } returns document
                     // Act
                     val response = client.get("api/v1/documents/${document.linkId}") {
                         bearerAuth(createMockToken(callerPid, issuer = idportenIssuer))
@@ -273,17 +277,17 @@ class ExternalDocumentApiTest : DescribeSpec({
                 it("should return 404 Not found for unknown id") {
                     withTestApplication {
                         // Arrange
-                        val document = document().toDocumentEntity()
-                        coEvery { DocumentDAOMock.getByLinkId(eq(document.linkId)) } returns null
+                        val document = document().toDocumentEntity(dialogEntity())
+                        coEvery { documentDAO.getByLinkId(eq(document.linkId)) } returns null
                         texasHttpClientMock.defaultMocks(
                             consumer = DefaultOrganization.copy(
-                                ID = "0192:${document.orgNumber}"
+                                ID = "0192:${document.dialog.orgNumber}"
                             ),
                             scope = MASKINPORTEN_ARKIVPORTEN_SCOPE,
                         )
                         // Act
                         val response = client.get("api/v1/documents/${document.linkId}") {
-                            bearerAuth(createMockToken(ident = document.orgNumber))
+                            bearerAuth(createMockToken(ident = document.dialog.orgNumber))
                         }
 
                         // Assert

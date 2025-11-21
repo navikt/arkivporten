@@ -1,6 +1,7 @@
 package no.nav.syfo.document.service
 
-import document
+import dialogEntity
+import documentEntity
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
@@ -22,7 +23,7 @@ class ValidationServiceTest : DescribeSpec({
     val pdpServiceMock = mockk<PdpService>()
     val validationService = ValidationService(altinnTilgangerService, eregService, pdpServiceMock)
 
-    val documentEntity = document().toDocumentEntity()
+    val documentEntity = documentEntity(dialogEntity())
     beforeTest {
         clearAllMocks()
         coEvery { pdpServiceMock.hasAccessToResource(any(), any(), any()) } returns true
@@ -89,7 +90,7 @@ class ValidationServiceTest : DescribeSpec({
                 it("should allow access without checking ereg when Principal matches document orgnumber") {
                     // Arrange
                     val systemPrincipal = SystemPrincipal(
-                        "0192:${documentEntity.orgNumber}",
+                        "0192:${documentEntity.dialog.orgNumber}",
                         "token",
                         "0192:systemOwner",
                         "systemUserId"
@@ -109,7 +110,7 @@ class ValidationServiceTest : DescribeSpec({
                 it("should throw ForbiddenException when PDP denies access") {
                     // Arrange
                     val systemPrincipal = SystemPrincipal(
-                        "0192:${documentEntity.orgNumber}",
+                        "0192:${documentEntity.dialog.orgNumber}",
                         "token",
                         "0192:systemOwner",
                         "systemUserId"
@@ -138,7 +139,11 @@ class ValidationServiceTest : DescribeSpec({
                     it("should allow access") {
                         // Arrange
                         val organization = organisasjon()
-                        val entity = documentEntity.copy(orgNumber = organization.organisasjonsnummer)
+                        val entity = documentEntity.copy(
+                            dialog = documentEntity.dialog.copy(
+                                orgNumber = organization.organisasjonsnummer
+                            ),
+                        )
 
                         val systemPrincipal = SystemPrincipal(
                             "0192:${organization.inngaarIJuridiskEnheter!!.first().organisasjonsnummer}",
@@ -146,7 +151,7 @@ class ValidationServiceTest : DescribeSpec({
                             "0192:systemOwner",
                             "systemUserId"
                         )
-                        coEvery { eregService.getOrganization(entity.orgNumber) } returns organization
+                        coEvery { eregService.getOrganization(entity.dialog.orgNumber) } returns organization
 
                         // Act & Assert - should not throw exception
                         validationService.validateMaskinportenTilgang(
@@ -155,7 +160,7 @@ class ValidationServiceTest : DescribeSpec({
                         )
 
                         coVerify(exactly = 1) {
-                            eregService.getOrganization(eq(entity.orgNumber))
+                            eregService.getOrganization(eq(entity.dialog.orgNumber))
                         }
                     }
                 }
@@ -164,7 +169,11 @@ class ValidationServiceTest : DescribeSpec({
                     it("should deny access") {
                         // Arrange
                         val organization = organisasjon()
-                        val entity = documentEntity.copy(orgNumber = organization.organisasjonsnummer)
+                        val entity = documentEntity.copy(
+                            dialog = documentEntity.dialog.copy(
+                                orgNumber = organization.organisasjonsnummer
+                            ),
+                        )
 
                         val systemPrincipal = SystemPrincipal(
                             "0192:${organization.inngaarIJuridiskEnheter!!.first().organisasjonsnummer}",
@@ -173,7 +182,7 @@ class ValidationServiceTest : DescribeSpec({
                             "systemUserId"
 
                         )
-                        coEvery { eregService.getOrganization(entity.orgNumber) } returns organization.copy(
+                        coEvery { eregService.getOrganization(entity.dialog.orgNumber) } returns organization.copy(
                             inngaarIJuridiskEnheter = null
                         )
 
@@ -183,7 +192,7 @@ class ValidationServiceTest : DescribeSpec({
                                 systemPrincipal, entity
                             )
                         }
-                        coVerify { eregService.getOrganization(entity.orgNumber) }
+                        coVerify { eregService.getOrganization(entity.dialog.orgNumber) }
                     }
                 }
 
@@ -191,7 +200,11 @@ class ValidationServiceTest : DescribeSpec({
                     it("should deny access") {
                         // Arrange
                         val organization = organisasjon()
-                        val entity = documentEntity.copy(orgNumber = organization.organisasjonsnummer)
+                        val entity = documentEntity.copy(
+                            dialog = documentEntity.dialog.copy(
+                                orgNumber = organization.organisasjonsnummer
+                            ),
+                        )
 
                         val systemPrincipal = SystemPrincipal(
                             "0192:123456789",
@@ -199,7 +212,7 @@ class ValidationServiceTest : DescribeSpec({
                             "0192:systemOwner",
                             "systemUserId"
                         )
-                        coEvery { eregService.getOrganization(entity.orgNumber) } returns organization
+                        coEvery { eregService.getOrganization(entity.dialog.orgNumber) } returns organization
 
                         // Act & Assert
                         val exception = shouldThrow<ApiErrorException.ForbiddenException> {
@@ -209,7 +222,7 @@ class ValidationServiceTest : DescribeSpec({
                         }
                         exception.message shouldBe "Access denied. Invalid organization."
 
-                        coVerify { eregService.getOrganization(eq(entity.orgNumber)) }
+                        coVerify { eregService.getOrganization(eq(entity.dialog.orgNumber)) }
                     }
                 }
             }

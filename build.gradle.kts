@@ -35,6 +35,7 @@ dependencies {
     implementation(libs.jackson.datatype.jsr310)
     implementation("io.ktor:ktor-server-openapi:3.3.2")
     implementation("io.ktor:ktor-server-swagger:3.3.2")
+    implementation(libs.fasterxml.uuid)
     // Database
     implementation(libs.bundles.database)
     // Metrics and Prometheus

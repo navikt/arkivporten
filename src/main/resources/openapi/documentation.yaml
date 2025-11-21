@@ -124,14 +124,21 @@ components:
           type: string
           description: MIME type of the content.
           example: application/pdf
+        fnr:
+          type: string
+          description: Person identifier.
+          example: "12345678901"
+        fullName:
+          type: string
+          description: Full name of the person associated with the document.
         orgNumber:
           type: string
           description: Organisation number.
           example: "123456789"
-        dialogTitle:
+        title:
           type: string
           description: Title shown in dialog.
-        dialogSummary:
+        summary:
           type: string
           description: Summary shown in dialog.
         linkId:

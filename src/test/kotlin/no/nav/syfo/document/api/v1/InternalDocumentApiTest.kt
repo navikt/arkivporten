@@ -6,7 +6,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import createMockToken
 import defaultMocks
+import dialogEntity
 import document
+import documentEntity
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldNotContain
@@ -31,6 +33,7 @@ import io.mockk.verify
 import no.nav.syfo.TestDB
 import no.nav.syfo.application.api.installContentNegotiation
 import no.nav.syfo.application.api.installStatusPages
+import no.nav.syfo.document.db.DialogDAO
 import no.nav.syfo.document.db.DocumentDAO
 import no.nav.syfo.document.db.DocumentEntity
 import no.nav.syfo.document.service.ValidationService
@@ -40,6 +43,7 @@ import no.nav.syfo.texas.client.TexasHttpClient
 class InternalDocumentApiTest : DescribeSpec({
     val texasHttpClientMock = mockk<TexasHttpClient>()
     val documentDAOMock = mockk<DocumentDAO>()
+    val dialogDAOMock = mockk<DialogDAO>()
 
     beforeTest {
         clearAllMocks()
@@ -66,6 +70,7 @@ class InternalDocumentApiTest : DescribeSpec({
                     registerApiV1(
                         texasHttpClientMock,
                         documentDAOMock,
+                        dialogDAOMock,
                         validationService = mockk<ValidationService>()
                     )
                 }
@@ -78,7 +83,8 @@ class InternalDocumentApiTest : DescribeSpec({
             withTestApplication {
                 // Arrange
                 val capturedSlot = slot<DocumentEntity>()
-                coEvery { documentDAOMock.insert(capture(capturedSlot)) } returns 1L
+                coEvery { dialogDAOMock.getByFnrAndOrgNumber(any(), any()) } returns dialogEntity()
+                coEvery { documentDAOMock.insert(capture(capturedSlot)) } returns documentEntity(dialogEntity())
                 texasHttpClientMock.defaultMocks()
                 val document = document()
                 // Act
@@ -103,7 +109,8 @@ class InternalDocumentApiTest : DescribeSpec({
             withTestApplication {
                 // Arrange
                 texasHttpClientMock.defaultMocks()
-                every { documentDAOMock.insert(any()) } returns 1L
+                coEvery { dialogDAOMock.getByFnrAndOrgNumber(any(), any()) } returns dialogEntity()
+                every { documentDAOMock.insert(any()) } returns documentEntity(dialogEntity())
                 // Act
                 val response = client.post("/internal/api/v1/documents") {
                     contentType(ContentType.Application.Json)
@@ -123,6 +130,7 @@ class InternalDocumentApiTest : DescribeSpec({
             withTestApplication {
                 // Arrange
                 texasHttpClientMock.defaultMocks()
+                coEvery { dialogDAOMock.getByFnrAndOrgNumber(any(), any()) } returns dialogEntity()
                 coEvery { documentDAOMock.insert(any()) } throws RuntimeException("DB error")
                 // Act
                 val response = client.post("/internal/api/v1/documents") {

@@ -3,7 +3,6 @@
 datafaker= "2.5.3"
 flyway="11.17.0"
 hikaricp = "7.0.2"
-jackson-datatype-jsr = "2.20.0"
 koin="4.1.1"
 kotest-extensions="2.0.0"
 kotest="6.0.5"
@@ -14,6 +13,7 @@ micrometer-prometheus = "1.16.0"
 mockk="1.14.6"
 postgresql = "42.7.8"
 testcontainers = "1.21.3"
+fasterxml-uuid = "4.1.0"
 logstashEncoder = "9.0"
 
 [libraries]
@@ -40,6 +40,7 @@ mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers"}
 testcontainers-postgres = { module = "org.testcontainers:postgresql", version.ref = "testcontainers"}
 logstash = {module = "net.logstash.logback:logstash-logback-encoder",  version.ref = "logstashEncoder"}
+fasterxml-uuid = { module = "com.fasterxml.uuid:java-uuid-generator", version.ref = "fasterxml-uuid" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin-version" }
