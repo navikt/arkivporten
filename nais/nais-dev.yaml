@@ -54,6 +54,9 @@ spec:
           - name: arkivporten-db
             envVarPrefix: ARKIVPORTEN_DB
         diskAutoresize: true
+  idporten:
+    sidecar:
+      autoLogin: true
   tokenx:
     enabled: true
   maskinporten:

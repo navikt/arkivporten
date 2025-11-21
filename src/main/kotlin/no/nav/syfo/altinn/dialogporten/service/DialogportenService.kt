@@ -143,7 +143,7 @@ class DialogportenService(
                         ),
                         Url(
                             // TODO: temp url for demo purposes
-                            url = "https://www.ekstern.dev.nav.no/syfo/dokumenter/$linkId",
+                            url = createDocumentLink(linkId.toString()),
                             mediaType = contentType,
                             consumerType = AttachmentUrlConsumerType.Gui,
                         ),
