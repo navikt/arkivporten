@@ -60,7 +60,7 @@ class DialogportenServiceTest : DescribeSpec({
 
                 coEvery { documentDAO.getDocumentsByStatus(DocumentStatus.RECEIVED) } returns listOf(documentEntity)
                 coEvery { dialogportenClient.createDialog(capture(dialogSlot)) } returns dialogId
-                coEvery { documentDAO.update(any()) }
+                coEvery { documentDAO.update(any()) } returns Unit
 
                 // Act
                 dialogportenService.sendDocumentsToDialogporten()
@@ -97,7 +97,7 @@ class DialogportenServiceTest : DescribeSpec({
 
                 coEvery { documentDAO.getDocumentsByStatus(DocumentStatus.RECEIVED) } returns listOf(documentEntity)
                 coEvery { dialogportenClient.addTransmission(capture(transmissionSlot), any()) } returns UUID.randomUUID()
-                coEvery { documentDAO.update(any()) }
+                coEvery { documentDAO.update(any()) } returns Unit
 
                 // Act
                 dialogportenService.sendDocumentsToDialogporten()
@@ -136,7 +136,7 @@ class DialogportenServiceTest : DescribeSpec({
 
                 coEvery { documentDAO.getDocumentsByStatus(DocumentStatus.RECEIVED) } returns listOf(doc1, doc2)
                 coEvery { dialogportenClient.createDialog(any()) } returnsMany listOf(dialogId1, dialogId2)
-                coEvery { documentDAO.update(any()) } returns
+                coEvery { documentDAO.update(any()) } returns Unit
 
                 // Act
                 dialogportenService.sendDocumentsToDialogporten()
@@ -175,7 +175,7 @@ class DialogportenServiceTest : DescribeSpec({
                 val dialogId3 = UUID.randomUUID()
 
                 coEvery { documentDAO.getDocumentsByStatus(DocumentStatus.RECEIVED) } returns listOf(doc1, doc2, doc3)
-                coEvery { documentDAO.update(any()) }
+                coEvery { documentDAO.update(any()) } returns Unit
 
                 // First call succeeds, second fails, third succeeds
                 var callCount = 0
@@ -209,7 +209,7 @@ class DialogportenServiceTest : DescribeSpec({
 
                 coEvery { documentDAO.getDocumentsByStatus(DocumentStatus.RECEIVED) } returns listOf(documentEntity)
                 coEvery { dialogportenClient.createDialog(capture(dialogSlot)) } returns dialogId
-                coEvery { documentDAO.update(any()) }
+                coEvery { documentDAO.update(any()) } returns Unit
 
                 // Act
                 dialogportenService.sendDocumentsToDialogporten()
@@ -231,7 +231,7 @@ class DialogportenServiceTest : DescribeSpec({
 
                 coEvery { documentDAO.getDocumentsByStatus(DocumentStatus.RECEIVED) } returns listOf(documentEntity)
                 coEvery { dialogportenClient.createDialog(capture(dialogSlot)) } returns dialogId
-                coEvery { documentDAO.update(any()) }
+                coEvery { documentDAO.update(any()) } returns Unit
 
                 // Act
                 dialogportenService.sendDocumentsToDialogporten()
@@ -251,7 +251,7 @@ class DialogportenServiceTest : DescribeSpec({
 
                 coEvery { documentDAO.getDocumentsByStatus(DocumentStatus.RECEIVED) } returns listOf(documentEntity)
                 coEvery { dialogportenClient.createDialog(capture(dialogSlot)) } returns dialogId
-                coEvery { documentDAO.update(any()) }
+                coEvery { documentDAO.update(any()) } returns Unit
 
                 // Act
                 dialogportenService.sendDocumentsToDialogporten()
@@ -260,6 +260,33 @@ class DialogportenServiceTest : DescribeSpec({
                 val capturedDialog = dialogSlot.captured
                 val attachmentUrl = capturedDialog.transmissions.first().attachments.first().urls.first().url
                 attachmentUrl shouldBe "$publicIngressUrl/api/v1/documents/${documentEntity.linkId}"
+            }
+        }
+
+        context("when 3 documents belongs to same dialog") {
+            it("should create 1 dialog and add 2 transmissions") {
+                // Arrange
+                val dialogEntity = dialogEntity().copy(
+                    dialogportenId = null
+                )
+                val doc1 = documentEntity(dialogEntity)
+                val doc2 = documentEntity(dialogEntity)
+                val doc3 = documentEntity(dialogEntity)
+
+                coEvery { documentDAO.getDocumentsByStatus(DocumentStatus.RECEIVED) } returns listOf(doc1, doc2, doc3)
+                coEvery { documentDAO.update(any()) } returns Unit
+                val returnedDialogId = UUID.randomUUID()
+                coEvery { dialogportenClient.createDialog(any()) } returns returnedDialogId
+                coEvery { dialogportenClient.addTransmission(any(), any()) } returns UUID.randomUUID()
+
+                // Act
+                dialogportenService.sendDocumentsToDialogporten()
+
+                // Assert
+                coVerify(exactly = 1) { documentDAO.getDocumentsByStatus(DocumentStatus.RECEIVED) }
+                coVerify(exactly = 1) { dialogportenClient.createDialog(any()) }
+                coVerify(exactly = 2) { dialogportenClient.addTransmission(any(), returnedDialogId) }
+                coVerify(exactly = 3) { documentDAO.update(any()) }
             }
         }
     }

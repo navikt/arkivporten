@@ -33,15 +33,19 @@ class DialogportenService(
         val documentsToSend = getDocumentsToSend()
         logger.info("Found ${documentsToSend.size} documents to send to dialogporten")
 
+        val newDialogs = mutableMapOf<Long, UUID>()
         for (document in documentsToSend) {
             try {
-                if (document.dialog.dialogportenId != null) {
-                    addToExistingDialog(document, document.dialog.dialogportenId)
+                if (document.dialog.dialogportenId != null || newDialogs.containsKey(document.dialog.id)) {
+                    val dialogportenId =
+                        document.dialog.dialogportenId ?: checkNotNull(newDialogs[document.dialog.id]) {
+                            "dialogportenId not found in newDialogs map"
+                        }
+                    addToExistingDialog(document, dialogportenId)
                 } else {
-                    addToNewDialog(document)
+                    val dialogportenId = addToNewDialog(document)
+                    newDialogs[document.dialog.id] = dialogportenId
                 }
-                val fullDocumentLink = createDocumentLink(document.linkId.toString())
-                logger.info("Sent document ${document.id} to dialogporten, with link $fullDocumentLink and content type ${document.contentType}")
             } catch (ex: Exception) {
                 logger.error("Failed to send document ${document.id} to dialogporten", ex)
             }
@@ -59,9 +63,11 @@ class DialogportenService(
                 updated = Instant.now()
             )
         )
+        val fullDocumentLink = createDocumentLink(document.linkId.toString())
+        logger.info("Added transmission $transmissionId for document ${document.id}, dialogportenId $dialogportenId, with link $fullDocumentLink and content type ${document.contentType}")
     }
 
-    private suspend fun addToNewDialog(document: PersistedDocumentEntity) {
+    private suspend fun addToNewDialog(document: PersistedDocumentEntity): UUID {
         val transmissionId = Generators.timeBasedEpochGenerator().generate()
         val dialog = document.toDialogWithTransmission(transmissionId)
         val dialogId = dialogportenClient.createDialog(dialog)
@@ -76,6 +82,9 @@ class DialogportenService(
                 ),
             )
         )
+        val fullDocumentLink = createDocumentLink(document.linkId.toString())
+        logger.info("Create dialog $dialogId, with transmission $transmissionId for document ${document.id}, with link $fullDocumentLink and content type ${document.contentType}")
+        return dialogId
     }
 
     private fun getDocumentsToSend() = documentDAO.getDocumentsByStatus(DocumentStatus.RECEIVED)
