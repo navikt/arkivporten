@@ -59,6 +59,12 @@ spec:
     enabled: true
     sidecar:
       enabled: true
+      autoLogin: true
+      level: Level4
+      autoLoginIgnorePaths:
+        - /swagger
+        - /openapi
+        - /internal/**
   tokenx:
     enabled: true
   maskinporten:
