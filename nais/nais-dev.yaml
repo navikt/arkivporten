@@ -62,8 +62,8 @@ spec:
       autoLogin: true
       level: Level4
       autoLoginIgnorePaths:
-        - /swagger
-        - /openapi
+        - /swagger/**
+        - /openapi/**
         - /internal/**
   tokenx:
     enabled: true
