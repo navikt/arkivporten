@@ -3,36 +3,33 @@ package no.nav.syfo.altinn.dialogporten.client
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
-import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
+import no.nav.syfo.altinn.common.AltinnTokenProvider
 import no.nav.syfo.altinn.dialogporten.domain.Dialog
 import no.nav.syfo.altinn.dialogporten.domain.Transmission
-import no.nav.syfo.texas.client.TexasHttpClient
 import no.nav.syfo.util.logger
 import java.util.UUID
 
 interface IDialogportenClient {
     suspend fun createDialog(dialog: Dialog): UUID
     suspend fun addTransmission(transmission: Transmission, dialogId: UUID): UUID
-    suspend fun getDialogportenToken(): String
 }
 
 class DialogportenClient(
-    private val baseUrl: String,
+    baseUrl: String,
     private val httpClient: HttpClient,
-    private val texasHttpClient: TexasHttpClient,
+    private val altinnTokenProvider: AltinnTokenProvider
 ) : IDialogportenClient {
     private val dialogportenUrl = "$baseUrl/dialogporten/api/v1/serviceowner/dialogs"
     private val logger = logger()
 
     override suspend fun createDialog(dialog: Dialog): UUID {
-        val texasResponse = texasHttpClient.systemToken("maskinporten", "digdir:dialogporten.serviceprovider")
-        val token = altinnExchange(texasResponse.accessToken)
+        val token = altinnTokenProvider.token(AltinnTokenProvider.DIALOGPORTEN_TARGET_SCOPE)
+            .accessToken
 
         return runCatching<DialogportenClient, UUID> {
             val response =
@@ -52,8 +49,8 @@ class DialogportenClient(
     }
 
     override suspend fun addTransmission(transmission: Transmission, dialogId: UUID): UUID {
-        val texasResponse = texasHttpClient.systemToken("maskinporten", "digdir:dialogporten.serviceprovider")
-        val token = altinnExchange(texasResponse.accessToken)
+        val token = altinnTokenProvider.token(AltinnTokenProvider.DIALOGPORTEN_TARGET_SCOPE)
+            .accessToken
 
         return runCatching<DialogportenClient, UUID> {
             val response =
@@ -70,34 +67,5 @@ class DialogportenClient(
             logger.error("Feil ved kall til Dialogporten for å opprette transmission", e)
             throw DialogportenClientException(e.message ?: "Feil ved kall til Dialogporten: add transmission")
         }
-    }
-
-    private suspend fun altinnExchange(token: String): String =
-        httpClient
-            .get("$baseUrl/authentication/api/v1/exchange/maskinporten") {
-                bearerAuth(token)
-            }.bodyAsText()
-            .replace("\"", "")
-
-    override suspend fun getDialogportenToken(): String {
-        val texasResponse = texasHttpClient.systemToken("maskinporten", "digdir:dialogporten.serviceprovider")
-        return altinnExchange(texasResponse.accessToken)
-    }
-}
-
-class FakeDialogportenClient() : IDialogportenClient {
-    override suspend fun createDialog(dialog: Dialog): UUID {
-        return UUID.randomUUID()
-    }
-
-    override suspend fun addTransmission(
-        transmission: Transmission,
-        dialogId: UUID
-    ): UUID {
-        return UUID.randomUUID()
-    }
-
-    override suspend fun getDialogportenToken(): String {
-        throw NotImplementedError("Not implemented for local application")
     }
 }

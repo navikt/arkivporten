@@ -4,13 +4,11 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.bearerAuth
-import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsText
+import no.nav.syfo.altinn.common.AltinnTokenProvider
 import no.nav.syfo.application.exception.UpstreamRequestException
-import no.nav.syfo.texas.client.TexasHttpClient
 
 interface IPdpClient {
     suspend fun authorize(
@@ -23,7 +21,7 @@ interface IPdpClient {
 class PdpClient(
     private val baseUrl: String,
     private val httpClient: HttpClient,
-    private val texasHttpClient: TexasHttpClient,
+    private val altinnTokenProvider: AltinnTokenProvider,
     private val subscriptionKey: String,
 ): IPdpClient {
     override suspend fun authorize(
@@ -33,8 +31,8 @@ class PdpClient(
     ): PdpResponse {
         val request = lagPdpRequest(bruker, orgnrSet, ressurs)
         val response = try {
-            val texasResponse = texasHttpClient.systemToken("maskinporten", "altinn:authorization/authorize")
-            val token = altinnExchange(texasResponse.accessToken)
+            val token = altinnTokenProvider.token(AltinnTokenProvider.PDP_TARGET_SCOPE)
+                .accessToken
 
             httpClient
                 .post("$baseUrl/authorization/api/v1/authorize") {
@@ -50,11 +48,4 @@ class PdpClient(
         }
         return response
     }
-
-    private suspend fun altinnExchange(token: String): String =
-        httpClient
-            .get("$baseUrl/authentication/api/v1/exchange/maskinporten") {
-                bearerAuth(token)
-            }.bodyAsText()
-            .replace("\"", "")
 }

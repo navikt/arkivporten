@@ -2,6 +2,7 @@ package no.nav.syfo.plugins
 
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
+import no.nav.syfo.altinn.common.AltinnTokenProvider
 import no.nav.syfo.ereg.EregService
 import no.nav.syfo.ereg.client.EregClient
 import no.nav.syfo.ereg.client.FakeEregClient
@@ -99,8 +100,15 @@ private fun servicesModule() = module {
         )
     }
     single {
-        if (isLocalEnv()) FakeDialogportenClient() else DialogportenClient(
+        AltinnTokenProvider(
             texasHttpClient = get(),
+            altinnBaseUrl = env().clientProperties.altinn3BaseUrl,
+            httpClient = get()
+        )
+    }
+    single {
+        if (isLocalEnv()) FakeDialogportenClient() else DialogportenClient(
+            altinnTokenProvider = get(),
             httpClient = get(),
             baseUrl = env().clientProperties.altinn3BaseUrl,
         )
@@ -110,7 +118,7 @@ private fun servicesModule() = module {
             httpClient = get(),
             baseUrl = env().clientProperties.altinn3BaseUrl,
             subscriptionKey = env().clientProperties.pdpSubscriptionKey,
-            texasHttpClient = get(),
+            altinnTokenProvider = get(),
         )
     }
 
