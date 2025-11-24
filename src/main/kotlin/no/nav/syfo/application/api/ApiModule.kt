@@ -6,11 +6,11 @@ import io.ktor.server.routing.routing
 import io.ktor.server.http.content.staticResources
 import io.ktor.server.plugins.swagger.swaggerUI
 import io.ktor.server.response.respondRedirect
+import no.nav.syfo.altinn.common.AltinnTokenProvider
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.database.DatabaseInterface
 import no.nav.syfo.application.isProdEnv
 import no.nav.syfo.application.metric.registerMetricApi
-import no.nav.syfo.altinn.dialogporten.client.IDialogportenClient
 import no.nav.syfo.altinn.dialogporten.registerDialogportenTokenApi
 import no.nav.syfo.document.db.DialogDAO
 import no.nav.syfo.document.db.DocumentDAO
@@ -26,7 +26,7 @@ fun Application.configureRouting() {
     val documentDAO by inject<DocumentDAO>()
     val dialogDAO by inject<DialogDAO>()
     val validationService by inject<ValidationService>()
-    val dialogportenClient by inject<IDialogportenClient>()
+    val altinnTokenProvider by inject<AltinnTokenProvider>()
 
     installCallId()
     installContentNegotiation()
@@ -41,7 +41,7 @@ fun Application.configureRouting() {
         swaggerUI(path = "swagger", swaggerFile = "openapi/documentation.yaml")
         if (!isProdEnv()) {
             // TODO: Remove this endpoint later
-            registerDialogportenTokenApi(texasHttpClient, dialogportenClient)
+            registerDialogportenTokenApi(texasHttpClient, altinnTokenProvider)
         }
         get("/") {
             call.respondRedirect("/swagger")
