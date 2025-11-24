@@ -1,6 +1,5 @@
 package no.nav.syfo.texas.client
 
-import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonProperty
 
 

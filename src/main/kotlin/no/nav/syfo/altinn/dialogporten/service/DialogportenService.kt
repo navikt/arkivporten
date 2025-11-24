@@ -142,7 +142,6 @@ class DialogportenService(
                             consumerType = AttachmentUrlConsumerType.Api,
                         ),
                         Url(
-                            // TODO: temp url for demo purposes
                             url = createDocumentLink(linkId.toString()),
                             mediaType = contentType,
                             consumerType = AttachmentUrlConsumerType.Gui,
