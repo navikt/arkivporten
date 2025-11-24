@@ -7,7 +7,7 @@ import no.nav.syfo.application.auth.SystemPrincipal
 import no.nav.syfo.application.auth.Principal
 import no.nav.syfo.application.auth.maskinportenIdToOrgnumber
 import no.nav.syfo.application.exception.ApiErrorException
-import no.nav.syfo.document.api.v1.DocumentType
+import no.nav.syfo.document.api.v1.dto.DocumentType
 import no.nav.syfo.document.db.DocumentEntity
 import no.nav.syfo.ereg.EregService
 import no.nav.syfo.altinn.pdp.client.System
@@ -25,36 +25,36 @@ class ValidationService(
 
     suspend fun validateDocumentAccess(
         principal: Principal,
-        documentDAO: DocumentEntity
+        documentEntity: DocumentEntity
     ) {
         when (principal) {
-            is BrukerPrincipal -> validateAltTilgang(principal, documentDAO)
-            is SystemPrincipal -> validateMaskinportenTilgang(principal, documentDAO)
+            is BrukerPrincipal -> validateAltTilgang(principal, documentEntity)
+            is SystemPrincipal -> validateMaskinportenTilgang(principal, documentEntity)
         }
     }
 
 
-    suspend private fun validateAltTilgang(principal: BrukerPrincipal, documentDAO: DocumentEntity) {
+    suspend private fun validateAltTilgang(principal: BrukerPrincipal, documentEntity: DocumentEntity) {
         altinnTilgangerService.validateTilgangToOrganisasjon(
             principal,
-            documentDAO.orgnumber,
-            documentDAO.type
+            documentEntity.dialog!!.orgNumber,
+            documentEntity.type
         )
     }
 
-    suspend fun validateMaskinportenTilgang(principal: SystemPrincipal, documentDAO: DocumentEntity) {
-        val orgnumberFromToken = maskinportenIdToOrgnumber(principal.ident)
-        if (orgnumberFromToken != documentDAO.orgnumber) {
-            val organisasjon = eregService.getOrganization(documentDAO.orgnumber)
-            if (organisasjon.inngaarIJuridiskEnheter?.filter { it.organisasjonsnummer == orgnumberFromToken }
+    suspend fun validateMaskinportenTilgang(principal: SystemPrincipal, documentEntity: DocumentEntity) {
+        val orgNumberFromToken = maskinportenIdToOrgnumber(principal.ident)
+        if (orgNumberFromToken != documentEntity.dialog!!.orgNumber) {
+            val organisasjon = eregService.getOrganization(documentEntity.dialog.orgNumber)
+            if (organisasjon.inngaarIJuridiskEnheter?.filter { it.organisasjonsnummer == orgNumberFromToken }
                     .isNullOrEmpty()) {
                 logger.warn(
-                    "Maskinporten orgnummer ${orgnumberFromToken} does not match document orgnummer ${documentDAO.orgnumber} or any parent organization."
+                    "Maskinporten orgnummer ${orgNumberFromToken} does not match document orgnummer ${documentEntity.dialog.orgNumber} or any parent organization."
                 )
                 throw ApiErrorException.ForbiddenException("Access denied. Invalid organization.")
             }
         }
-        validateAltinnRessursTilgang(principal, documentDAO.type)
+        validateAltinnRessursTilgang(principal, documentEntity.type)
     }
 
     private suspend fun validateAltinnRessursTilgang(principal: SystemPrincipal, documentType: DocumentType) {

@@ -7,6 +7,6 @@ data class Dialog(
     val status: DialogStatus? = null,
     val content: Content,
     val transmissions: List<Transmission> = emptyList(),
-    val attachments: List<Attachment>? = null,
+    val attachments: List<Attachment> = emptyList(),
     val isApiOnly: Boolean? = true,
 )

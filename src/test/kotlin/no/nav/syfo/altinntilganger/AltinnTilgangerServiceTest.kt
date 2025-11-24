@@ -10,7 +10,7 @@ import no.nav.syfo.altinntilganger.client.FakeAltinnTilgangerClient
 import no.nav.syfo.application.auth.BrukerPrincipal
 import no.nav.syfo.application.exception.ApiErrorException
 import no.nav.syfo.application.exception.UpstreamRequestException
-import no.nav.syfo.document.api.v1.DocumentType
+import no.nav.syfo.document.api.v1.dto.DocumentType
 
 class AltinnTilgangerServiceTest : DescribeSpec({
     val altinnTilgangerClient = FakeAltinnTilgangerClient()

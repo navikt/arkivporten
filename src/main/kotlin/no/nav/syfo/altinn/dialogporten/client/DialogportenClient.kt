@@ -11,12 +11,14 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import no.nav.syfo.altinn.dialogporten.domain.Dialog
+import no.nav.syfo.altinn.dialogporten.domain.Transmission
 import no.nav.syfo.texas.client.TexasHttpClient
 import no.nav.syfo.util.logger
 import java.util.UUID
 
 interface IDialogportenClient {
     suspend fun createDialog(dialog: Dialog): UUID
+    suspend fun addTransmission(transmission: Transmission, dialogId: UUID): UUID
     suspend fun getDialogportenToken(): String
 }
 
@@ -45,7 +47,28 @@ class DialogportenClient(
             UUID.fromString(response.removeSurrounding("\""))
         }.getOrElse { e ->
             logger.error("Feil ved kall til Dialogporten for å opprette dialog", e)
-            throw DialogportenClientException(e.message ?: "Feil ved kall til Dialogporten")
+            throw DialogportenClientException(e.message ?: "Feil ved kall til Dialogporten: create dialog")
+        }
+    }
+
+    override suspend fun addTransmission(transmission: Transmission, dialogId: UUID): UUID {
+        val texasResponse = texasHttpClient.systemToken("maskinporten", "digdir:dialogporten.serviceprovider")
+        val token = altinnExchange(texasResponse.accessToken)
+
+        return runCatching<DialogportenClient, UUID> {
+            val response =
+                httpClient
+                    .post("$dialogportenUrl/$dialogId/transmissions") {
+                        header(HttpHeaders.ContentType, ContentType.Application.Json)
+                        header(HttpHeaders.Accept, ContentType.Application.Json)
+                        bearerAuth(token)
+
+                        setBody(transmission)
+                    }.body<String>()
+            UUID.fromString(response.removeSurrounding("\""))
+        }.getOrElse { e ->
+            logger.error("Feil ved kall til Dialogporten for å opprette transmission", e)
+            throw DialogportenClientException(e.message ?: "Feil ved kall til Dialogporten: add transmission")
         }
     }
 
@@ -64,6 +87,13 @@ class DialogportenClient(
 
 class FakeDialogportenClient() : IDialogportenClient {
     override suspend fun createDialog(dialog: Dialog): UUID {
+        return UUID.randomUUID()
+    }
+
+    override suspend fun addTransmission(
+        transmission: Transmission,
+        dialogId: UUID
+    ): UUID {
         return UUID.randomUUID()
     }
 

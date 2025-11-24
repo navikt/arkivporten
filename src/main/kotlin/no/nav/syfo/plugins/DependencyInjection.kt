@@ -26,6 +26,7 @@ import no.nav.syfo.altinn.dialogporten.task.SendDialogTask
 import no.nav.syfo.altinn.pdp.client.FakePdpClient
 import no.nav.syfo.altinn.pdp.client.PdpClient
 import no.nav.syfo.altinn.pdp.service.PdpService
+import no.nav.syfo.document.db.DialogDAO
 import no.nav.syfo.texas.client.TexasHttpClient
 import no.nav.syfo.util.httpClientDefault
 import org.koin.core.scope.Scope
@@ -75,6 +76,7 @@ private fun databaseModule() = module {
     single {
         DocumentDAO(get())
     }
+    single { DialogDAO(get()) }
 }
 
 private fun servicesModule() = module {
