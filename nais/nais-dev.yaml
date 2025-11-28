@@ -11,6 +11,7 @@ spec:
     - https://arkivporten.ekstern.dev.nav.no/api/v1/documents
     - https://arkivporten.ekstern.dev.nav.no/swagger
     - https://arkivporten.ekstern.dev.nav.no/openapi
+    - https://arkivporten.ekstern.dev.nav.no/oauth2
   image: {{image}} #
   port: 8080
   liveness:
@@ -54,6 +55,16 @@ spec:
           - name: arkivporten-db
             envVarPrefix: ARKIVPORTEN_DB
         diskAutoresize: true
+  idporten:
+    enabled: true
+    sidecar:
+      enabled: true
+      autoLogin: true
+      level: Level4
+      autoLoginIgnorePaths:
+        - /swagger/**
+        - /openapi/**
+        - /internal/**
   tokenx:
     enabled: true
   maskinporten:
