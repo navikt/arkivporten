@@ -144,6 +144,30 @@ class DocumentDAO(private val database: DatabaseInterface) {
         }
     }
 
+    fun getByDocumentId(documentId: UUID): PersistedDocumentEntity? {
+        return database.connection.use { connection ->
+            connection
+                .prepareStatement(
+                    """
+                        SELECT doc.*, dialog.id as dialog_pk_id, dialog.title as dialog_title, dialog.summary as dialog_summary, 
+                               dialog.dialog_id as dialog_uuid, dialog.fnr, dialog.org_number, dialog.created as dialog_created, 
+                               dialog.updated as dialog_updated
+                        FROM document doc
+                        LEFT JOIN dialogporten_dialog dialog ON doc.dialog_id = dialog.id
+                        WHERE doc.document_id = ?
+                        """.trimIndent()
+                ).use { preparedStatement ->
+                    preparedStatement.setObject(1, documentId)
+                    val resultSet = preparedStatement.executeQuery()
+                    if (resultSet.next()) {
+                        resultSet.toDocumentEntity()
+                    } else {
+                        null
+                    }
+                }
+        }
+    }
+
     fun getDocumentsByStatus(status: DocumentStatus): List<PersistedDocumentEntity> {
         return database.connection.use { connection ->
             connection
