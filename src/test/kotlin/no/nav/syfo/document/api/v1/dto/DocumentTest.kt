@@ -64,7 +64,7 @@ class DocumentTest : DescribeSpec({
             // Act
             val dialog = document.toDialogEntity()
             // Assert
-            dialog.title shouldBe "Sykefraværsoppfølging for 41011999000 (41011999000)"
+            dialog.title shouldBe "Sykefraværsoppfølging for 41011999000"
             dialog.summary shouldBe """
                 Her finner du alle dialogmøtebrev fra Nav og oppfølgingsplaner utarbeidet av nærmeste leder for 41011999000.
                 Innholdet er tilgjengelig i 4 måneder fra delingsdatoen. 

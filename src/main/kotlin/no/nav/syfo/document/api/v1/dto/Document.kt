@@ -38,10 +38,10 @@ data class Document(
         val titleEnding = if (birthDate != null) {
             "(f. ${birthDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))})"
         } else {
-            "($fnr)"
+            if (!fullName.isNullOrEmpty()) "($fnr)" else ""
         }
         return DialogEntity(
-            title = "Sykefraværsoppfølging for $nameOrFnr $titleEnding",
+            title = "Sykefraværsoppfølging for $nameOrFnr $titleEnding".trim(),
             summary = """
                 Her finner du alle dialogmøtebrev fra Nav og oppfølgingsplaner utarbeidet av nærmeste leder for $nameOrFnr.
                 Innholdet er tilgjengelig i 4 måneder fra delingsdatoen. 
