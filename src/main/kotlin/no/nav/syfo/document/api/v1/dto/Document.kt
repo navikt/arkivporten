@@ -38,7 +38,7 @@ data class Document(
         val titleEnding = if (birthDate != null) {
             "(f. ${birthDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))})"
         } else {
-            "(d-nummer: $fnr)"
+            "($fnr)"
         }
         return DialogEntity(
             title = "Sykefraværsoppfølging for $nameOrFnr $titleEnding",
