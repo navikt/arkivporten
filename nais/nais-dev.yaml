@@ -73,6 +73,11 @@ spec:
   azure:
     application:
       enabled: true
+      allowAllUsers: true
+      tenant: trygdeetaten.no
+      claims:
+        extra:
+          - "NAVident"
   leaderElection: true
   accessPolicy:
     inbound:
