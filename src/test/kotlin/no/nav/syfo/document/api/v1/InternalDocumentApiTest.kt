@@ -26,10 +26,9 @@ import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
-import io.mockk.every
+import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.slot
-import io.mockk.verify
 import no.nav.syfo.TestDB
 import no.nav.syfo.application.api.installContentNegotiation
 import no.nav.syfo.application.api.installStatusPages
@@ -97,7 +96,7 @@ class InternalDocumentApiTest : DescribeSpec({
                 // Assert
                 response.status shouldBe HttpStatusCode.OK
                 // Verify that the document was inserted into the database
-                verify(exactly = 1) {
+                coVerify(exactly = 1) {
                     documentDAOMock.insert(any())
                     val captured = capturedSlot.captured
                     captured.content.toString(Charsets.UTF_8) shouldBe document.content.toString(Charsets.UTF_8)
@@ -110,7 +109,7 @@ class InternalDocumentApiTest : DescribeSpec({
                 // Arrange
                 texasHttpClientMock.defaultMocks()
                 coEvery { dialogDAOMock.getByFnrAndOrgNumber(any(), any()) } returns dialogEntity()
-                every { documentDAOMock.insert(any()) } returns documentEntity(dialogEntity())
+                coEvery { documentDAOMock.insert(any()) } returns documentEntity(dialogEntity())
                 // Act
                 val response = client.post("/internal/api/v1/documents") {
                     contentType(ContentType.Application.Json)
@@ -121,7 +120,7 @@ class InternalDocumentApiTest : DescribeSpec({
                 // Assert
                 response.status shouldBe HttpStatusCode.BadRequest
                 // Verify that the document was inserted into the database
-                verify(exactly = 0) {
+                coVerify(exactly = 0) {
                     documentDAOMock.insert(any())
                 }
             }
@@ -143,7 +142,7 @@ class InternalDocumentApiTest : DescribeSpec({
                 response.status shouldBe HttpStatusCode.InternalServerError
                 response.body<String>() shouldNotContain "DB error"
                 // Verify that the document was inserted into the database
-                verify(exactly = 1) {
+                coVerify(exactly = 1) {
                     documentDAOMock.insert(any())
                 }
             }
