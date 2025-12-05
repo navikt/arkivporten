@@ -109,7 +109,7 @@ class DialogportenService(
                 title = dialog.title,
                 summary = dialog.summary,
             ),
-            isApiOnly = true,
+            isApiOnly = false,
             transmissions = listOf(
                 toTransmission(transmissionId)
             )
@@ -140,6 +140,11 @@ class DialogportenService(
                             url = createDocumentLink(linkId.toString()),
                             mediaType = contentType,
                             consumerType = AttachmentUrlConsumerType.Api,
+                        ),
+                        Url(
+                            url = createDocumentLink(linkId.toString()),
+                            mediaType = contentType,
+                            consumerType = AttachmentUrlConsumerType.Gui,
                         ),
                     ),
                 ),
