@@ -83,7 +83,8 @@ class ExternalDocumentApiTest : DescribeSpec({
                         texasHttpClient = texasHttpClientMock,
                         documentDAO = documentDAO,
                         dialogDAO = dialogDAO,
-                        validationService = validationServiceSpy
+                        validationService = validationServiceSpy,
+                        allowedClients = listOf("test:some:client")
                     )
                 }
             }
