@@ -14,6 +14,8 @@ import no.nav.syfo.document.db.DocumentDAO
 import no.nav.syfo.document.service.ValidationService
 import no.nav.syfo.texas.MaskinportenIdportenAndTokenXAuthPlugin
 import no.nav.syfo.texas.client.TexasHttpClient
+import no.nav.syfo.util.logger
+import org.slf4j.Logger
 
 const val DOCUMENT_API_PATH = "/documents"
 
@@ -22,6 +24,7 @@ fun Route.registerExternalDocumentsApiV1(
     texasHttpClient: TexasHttpClient,
     validationService: ValidationService
 ) {
+    val logger = logger("ExternalDocumentAPi")
     route("$DOCUMENT_API_PATH/{id}") {
 
         install(MaskinportenIdportenAndTokenXAuthPlugin) {
@@ -37,18 +40,30 @@ fun Route.registerExternalDocumentsApiV1(
             }
             call.response.headers.append(HttpHeaders.ContentType, documentDAO.contentType)
             call.respond<ByteArray>(documentDAO.content)
-            countRead(principal, documentDAO.isRead)
+            countRead(logger, principal, documentDAO.isRead, documentDAO.dialog.orgNumber)
             call.response.status(HttpStatusCode.OK)
         }
     }
 
 }
 
-fun countRead(principal: no.nav.syfo.application.auth.Principal, isRead: Boolean) {
+fun countRead(
+    logger: Logger,
+    principal: no.nav.syfo.application.auth.Principal,
+    isRead: Boolean,
+    orgNumber: String,
+) {
     if (isRead) {
         when (principal) {
-            is BrukerPrincipal -> COUNT_DOCUMENTS_REREAD_BY_EXTERNAL_IDPORTENUSER.increment()
-            is SystemPrincipal -> COUNT_DOCUMENTS_REREAD_BY_EXTERNAL_SYSTEMUSER.increment()
+            is BrukerPrincipal -> {
+                COUNT_DOCUMENTS_REREAD_BY_EXTERNAL_IDPORTENUSER.increment()
+                logger.warn("Document belonging to orgNUmber $orgNumber was idporten user")
+            }
+
+            is SystemPrincipal -> {
+                COUNT_DOCUMENTS_REREAD_BY_EXTERNAL_SYSTEMUSER.increment()
+                logger.warn("Document belonging to orgNUmber $orgNumber was system user with owner ${principal.systemOwner}")
+            }
         }
     } else {
         when (principal) {
