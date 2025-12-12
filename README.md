@@ -1,5 +1,7 @@
 # arkivporten
 
+## NB: We are coming to change the name of this repo and it's related resources to maybe syfo-dokumentporten or syfo-document-porten.
+
 This project was created using the [Ktor Project Generator](https://start.ktor.io).
 
 Here are some useful links to get you started:
