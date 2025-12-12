@@ -30,7 +30,7 @@ val COUNT_DOCUMENTS_READ_BY_EXTERNAL_SYSTEMUSER: Counter = Counter.builder(DOCUM
     .register(METRICS_REGISTRY)
 
 const val DOCUMENTS_REREAD_BY_EXTERNAL_IDPORTENUSER = "${METRICS_NS}_documents_REread_by_external_idportenuser"
-val COUNT_DOCUMENTS_REREAD_BY_EXTERNAL_IDPORTENUSER: Counter = Counter.builder(DOCUMENTS_READ_BY_EXTERNAL_IDPORTENUSER)
+val COUNT_DOCUMENTS_REREAD_BY_EXTERNAL_IDPORTENUSER: Counter = Counter.builder(DOCUMENTS_REREAD_BY_EXTERNAL_IDPORTENUSER)
     .description("Counts the number of documents reread by external idporten user")
     .register(METRICS_REGISTRY)
 
