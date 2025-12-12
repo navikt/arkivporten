@@ -39,3 +39,4 @@ out/
 src/test/http/http-client.private.env.json
 
 bruno/arkivporten/.env
+bruno/syfo-dokumentporten/.env

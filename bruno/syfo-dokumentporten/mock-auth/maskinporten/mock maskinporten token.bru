@@ -1,0 +1,36 @@
+meta {
+  name: mock maskinporten token
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:6969/maskinporten/token
+  body: formUrlEncoded
+  auth: inherit
+}
+
+body:form-urlencoded {
+  grant_type: authorization_code
+  code: maskinporten
+  client_id: maskinporten
+  consumerAuthority: consumerAuthority
+  consumerId: 0192:{{systemEierOrgnr}}
+  supplierAuthority: supplierAuthority
+  scope: nav:syfo/syfo-dokumentporten
+  systemUserOrg: 0192:{{systemKundeOrgnr}}
+}
+
+script:post-response {
+  const token = res.getBody();
+  
+  if (token != null) {
+    bru.setEnvVar("token", token.access_token)
+    bru.setEnvVar("identityProvider", "maskinporten")
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

@@ -67,6 +67,13 @@ spec:
           separator: "/"
           name: arkivporten
           atMaxAge: 680
+        - accessibleForAll: true
+          delegationSource: altinn
+          enabled: true
+          product: syfo
+          separator: "/"
+          name: syfo-dokumentporten
+          atMaxAge: 680
       consumes:
         - name: "digdir:dialogporten.serviceprovider"
         - name: "altinn:authorization/authorize"
