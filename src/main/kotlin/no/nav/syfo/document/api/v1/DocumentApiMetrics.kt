@@ -9,16 +9,6 @@ val COUNT_DOCUMENT_RECIEVED: Counter = Counter.builder(DOCUMENT_RECIEVED)
     .description("Counts the number of documents recieved")
     .register(METRICS_REGISTRY)
 
-const val DIALOGPORTEN_DIALOGS_CREATED = "${METRICS_NS}_dialogporten_dialogs_created"
-val COUNT_DIALOGPORTEN_DIALOGS_CREATED: Counter = Counter.builder(DIALOGPORTEN_DIALOGS_CREATED)
-    .description("Counts the number of dialogs created in dialogporten")
-    .register(METRICS_REGISTRY)
-
-const val DIALOGPORTEN_TRANSMISSION_CREATED = "${METRICS_NS}_dialogporten_transmissions_created"
-val COUNT_DIALOGPORTEN_TRANSMISSION_CREATED: Counter = Counter.builder(DIALOGPORTEN_TRANSMISSION_CREATED)
-    .description("Counts the number of tranmissions created in dialogporten")
-    .register(METRICS_REGISTRY)
-
 const val DOCUMENTS_READ_BY_EXTERNAL_IDPORTENUSER = "${METRICS_NS}_documents_read_by_external_idportenuser"
 val COUNT_DOCUMENTS_READ_BY_EXTERNAL_IDPORTENUSER: Counter = Counter.builder(DOCUMENTS_READ_BY_EXTERNAL_IDPORTENUSER)
     .description("Counts the number of documents read by external idporten user")
