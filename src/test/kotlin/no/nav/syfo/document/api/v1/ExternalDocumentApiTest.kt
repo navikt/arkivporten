@@ -43,14 +43,15 @@ import organisasjon
 
 class ExternalDocumentApiTest : DescribeSpec({
     val texasHttpClientMock = mockk<TexasHttpClient>()
-    val documentDAO = mockk<DocumentDAO>()
+    val documentDAO = mockk<DocumentDAO>(relaxed = true)
     val dialogDAO = mockk<DialogDAO>()
     val fakeAltinnTilgangerClient = FakeAltinnTilgangerClient()
     val fakeEregClient = FakeEregClient()
     val eregService = EregService(fakeEregClient)
     val eregServiceSpy = spyk(eregService)
     val pdpServiceMock = mockk<PdpService>()
-    val validationService = ValidationService(AltinnTilgangerService(fakeAltinnTilgangerClient), eregServiceSpy, pdpServiceMock)
+    val validationService =
+        ValidationService(AltinnTilgangerService(fakeAltinnTilgangerClient), eregServiceSpy, pdpServiceMock)
     val validationServiceSpy = spyk(validationService)
     val tokenXIssuer = "https://tokenx.nav.no"
     val idportenIssuer = "https://test.idporten.no"
@@ -114,6 +115,11 @@ class ExternalDocumentApiTest : DescribeSpec({
                     coVerify(exactly = 1) {
                         validationServiceSpy.validateDocumentAccess(any(), eq(document))
                     }
+                    coVerify(exactly = 1) {
+                        documentDAO.update(match {
+                            it.isRead == true
+                        })
+                    }
                 }
             }
 
@@ -141,6 +147,11 @@ class ExternalDocumentApiTest : DescribeSpec({
                     coVerify(exactly = 1) {
                         validationServiceSpy.validateDocumentAccess(any(), eq(document))
                     }
+                    coVerify(exactly = 1) {
+                        documentDAO.update(match {
+                            it.isRead == true
+                        })
+                    }
                 }
             }
 
@@ -167,6 +178,9 @@ class ExternalDocumentApiTest : DescribeSpec({
                     response.status shouldBe HttpStatusCode.Forbidden
                     coVerify(exactly = 1) {
                         validationServiceSpy.validateDocumentAccess(any(), eq(document))
+                    }
+                    coVerify(exactly = 0) {
+                        documentDAO.update(any())
                     }
                 }
             }
