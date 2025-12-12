@@ -29,9 +29,11 @@ data class TexasIntrospectionResponse(
     val active: Boolean,
     val error: String? = null,
     val pid: String? = null,
+    val oid: String? = null,
     val acr: String? = null,
     val aud: String? = null,
-    val azp: String? = null,
+    @get:JsonProperty("azp_name")
+    val azpName: String? = null,
     val exp: Long? = null,
     val iat: Long? = null,
     val iss: String? = null,
