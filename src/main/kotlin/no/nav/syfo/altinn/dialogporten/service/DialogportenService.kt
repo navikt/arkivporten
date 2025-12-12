@@ -19,6 +19,8 @@ import no.nav.syfo.document.db.PersistedDocumentEntity
 import no.nav.syfo.util.logger
 import java.time.Instant
 import java.util.UUID
+import no.nav.syfo.altinn.dialogporten.COUNT_DIALOGPORTEN_DIALOGS_CREATED
+import no.nav.syfo.altinn.dialogporten.COUNT_DIALOGPORTEN_TRANSMISSIONS_CREATED
 
 const val DIALOG_RESSURS = "nav_syfo_dialog"
 
@@ -63,6 +65,7 @@ class DialogportenService(
             )
         )
         val fullDocumentLink = createDocumentLink(document.linkId.toString())
+        COUNT_DIALOGPORTEN_TRANSMISSIONS_CREATED.increment()
         logger.info("Added transmission $transmissionId for document ${document.id}, dialogportenId $dialogportenId, with link $fullDocumentLink and content type ${document.contentType}")
     }
 
@@ -82,6 +85,8 @@ class DialogportenService(
             )
         )
         val fullDocumentLink = createDocumentLink(document.linkId.toString())
+        COUNT_DIALOGPORTEN_DIALOGS_CREATED.increment()
+        COUNT_DIALOGPORTEN_TRANSMISSIONS_CREATED.increment()
         logger.info("Create dialog $dialogId, with transmission $transmissionId for document ${document.id}, with link $fullDocumentLink and content type ${document.contentType}")
         return dialogId
     }

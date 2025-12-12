@@ -22,6 +22,7 @@ fun Route.registerInternalDocumentsApiV1(
                 val existingDialog = dialogDAO.getByFnrAndOrgNumber(document.fnr, document.orgNumber)
                     ?: dialogDAO.insertDialog(document.toDialogEntity())
                 documentDAO.insert(document.toDocumentEntity(existingDialog))
+                COUNT_DOCUMENT_RECIEVED.increment()
                 call.respond(HttpStatusCode.OK)
             }.onFailure {
                 logger().error("Failed to insert document: ${it.message}", it)
