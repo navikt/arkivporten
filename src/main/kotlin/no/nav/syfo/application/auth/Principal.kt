@@ -15,3 +15,9 @@ data class SystemPrincipal(
     val systemOwner: String,
     val systemUserId: String,
 ) : Principal()
+
+data class AzureAdPrincipal(
+    override val ident: String,
+    override val token: String,
+    val clientId: String,
+) : Principal()

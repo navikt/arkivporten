@@ -181,6 +181,8 @@ fun TexasHttpClient.defaultMocks(pid: String = "userIdentifier", acr: String = "
         pid = pid,
         acr = acr,
         sub = UUID.randomUUID().toString(),
-        NAVident = navident
+        oid = UUID.randomUUID().toString(),
+        NAVident = navident,
+        azpName = "test:some:client",
     )
 }

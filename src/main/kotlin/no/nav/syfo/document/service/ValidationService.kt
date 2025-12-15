@@ -30,6 +30,7 @@ class ValidationService(
         when (principal) {
             is BrukerPrincipal -> validateAltTilgang(principal, documentEntity)
             is SystemPrincipal -> validateMaskinportenTilgang(principal, documentEntity)
+            else -> throw ApiErrorException.ForbiddenException("Unsupported principal type for document access validation.")
         }
     }
 
@@ -37,14 +38,14 @@ class ValidationService(
     suspend private fun validateAltTilgang(principal: BrukerPrincipal, documentEntity: DocumentEntity) {
         altinnTilgangerService.validateTilgangToOrganisasjon(
             principal,
-            documentEntity.dialog!!.orgNumber,
+            documentEntity.dialog.orgNumber,
             documentEntity.type
         )
     }
 
     suspend fun validateMaskinportenTilgang(principal: SystemPrincipal, documentEntity: DocumentEntity) {
         val orgNumberFromToken = maskinportenIdToOrgnumber(principal.ident)
-        if (orgNumberFromToken != documentEntity.dialog!!.orgNumber) {
+        if (orgNumberFromToken != documentEntity.dialog.orgNumber) {
             val organisasjon = eregService.getOrganization(documentEntity.dialog.orgNumber)
             if (organisasjon.inngaarIJuridiskEnheter?.filter { it.organisasjonsnummer == orgNumberFromToken }
                     .isNullOrEmpty()) {

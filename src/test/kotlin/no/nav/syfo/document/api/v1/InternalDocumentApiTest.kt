@@ -70,7 +70,8 @@ class InternalDocumentApiTest : DescribeSpec({
                         texasHttpClientMock,
                         documentDAOMock,
                         dialogDAOMock,
-                        validationService = mockk<ValidationService>()
+                        validationService = mockk<ValidationService>(),
+                        allowedClients = listOf("test:some:client"),
                     )
                 }
             }
