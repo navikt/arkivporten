@@ -75,11 +75,11 @@ docker-compose \
 In order to get a token for consumer, you can use the following url:
 https://tokenx-token-generator.intern.dev.nav.no/api/obo?aud=dev-gcp:team-esyfo:arkivporten
 
-Select "på høyt nivå" and give the ident of a user that has access the the desired resouerce in altinn, like the Daglig
+Select "på høyt nivå" and give the ident of a user that has access the desired resource in altinn, like the Daglig
 leder for the organisasjonsnummer you want to test with.
 Altinn resources needed
 
-In order to get a azuread token, use the following url:
+In order to get an azuread token, use the following url:
 Open this in your browser:
 https://azure-token-generator.intern.dev.nav.no/api/m2m?aud=dev-gcp.team-esyfo.arkivporten
 Use a login from @trygdeetaten from Ida.
