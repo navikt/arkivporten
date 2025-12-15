@@ -18,6 +18,9 @@ import no.nav.syfo.document.db.DocumentStatus
 import no.nav.syfo.document.db.PersistedDocumentEntity
 import no.nav.syfo.util.logger
 import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneId
 import java.util.UUID
 import no.nav.syfo.altinn.dialogporten.COUNT_DIALOGPORTEN_DIALOGS_CREATED
 import no.nav.syfo.altinn.dialogporten.COUNT_DIALOGPORTEN_TRANSMISSIONS_CREATED
@@ -147,8 +150,18 @@ class DialogportenService(
                             consumerType = AttachmentUrlConsumerType.Api,
                         ),
                     ),
+                    expiresAt = instantStartOfFollowingDay4MonthsAhead()
                 ),
             ),
         )
+    }
+
+     private fun instantStartOfFollowingDay4MonthsAhead(): Instant {
+        return LocalDate.now()
+            .plusMonths(4)
+            .plusDays(1)
+            .atTime(LocalTime.MIN)
+            .atZone(ZoneId.systemDefault())
+            .toInstant()
     }
 }
