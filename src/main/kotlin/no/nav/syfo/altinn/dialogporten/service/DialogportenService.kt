@@ -150,16 +150,17 @@ class DialogportenService(
                             consumerType = AttachmentUrlConsumerType.Api,
                         ),
                     ),
-                    expiresAt = instantEndOfDay4MonthsAhead()
+                    expiresAt = instantStartOfFollowingDay4MonthsAhead()
                 ),
             ),
         )
     }
 
-    private fun instantEndOfDay4MonthsAhead(): Instant {
+     private fun instantStartOfFollowingDay4MonthsAhead(): Instant {
         return LocalDate.now()
             .plusMonths(4)
-            .atTime(LocalTime.MAX)
+            .plusDays(1)
+            .atTime(LocalTime.MIN)
             .atZone(ZoneId.systemDefault())
             .toInstant()
     }
