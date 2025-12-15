@@ -72,7 +72,7 @@ spec:
           enabled: true
           product: syfo
           separator: "/"
-          name: syfo-dokumentporten
+          name: syfo.dokumentporten
           atMaxAge: 680
       consumes:
         - name: "digdir:dialogporten.serviceprovider"
