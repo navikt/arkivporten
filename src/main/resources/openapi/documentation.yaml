@@ -8,7 +8,7 @@ info:
     This api require authentication with Maskinporten or Idporten Level 4 issued JWT.
 
     The Maskinporten token must be issued to a SystemUser with
-    scope `nav:syfo/arkivporten` or `nav:syfo/syfo.dokumentporten` and Altinn resources `nav_syfo_oppfolgingsplan` and `nav_syfo_dialogmote`.
+    scope `nav:syfo/arkivporten` or `nav:syfo/dokumentporten` and Altinn resources `nav_syfo_oppfolgingsplan` and `nav_syfo_dialogmote`.
 servers:
   - url: https://arkivporten.ekstern.dev.nav.no
     description: Dev environment
@@ -93,7 +93,7 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: Systemuser token from Maskinporten. Using scope nav:syfo/arkivporten or nav:syfo/syfo.dokumentporten and resources `nav_syfo_oppfolgingsplan` and `nav_syfo_dialogmote`.
+      description: Systemuser token from Maskinporten. Using scope nav:syfo/arkivporten or nav:syfo/dokumentporten and resources `nav_syfo_oppfolgingsplan` and `nav_syfo_dialogmote`.
     tokenx_jwt:
       type: http
       scheme: bearer
