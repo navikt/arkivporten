@@ -57,11 +57,11 @@ class DialogDAO(private val database: DatabaseInterface) {
                     ps.setString(2, orgNumber)
                     val resultSet = ps.executeQuery()
                     if (resultSet.next()) {
-                        resultSet.toDialog()
+                        return@withContext resultSet.toDialog()
                     }
+                    return@withContext null
                 }
             }
-            null
         }
     }
 }
