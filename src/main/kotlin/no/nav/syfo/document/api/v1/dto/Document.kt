@@ -23,7 +23,6 @@ data class Document(
         return DocumentEntity(
             documentId = documentId,
             type = type,
-            content = content,
             contentType = contentType,
             title = title,
             summary = summary,

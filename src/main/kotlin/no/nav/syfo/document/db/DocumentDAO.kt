@@ -20,34 +20,33 @@ private const val SELECT_DOC_WITH_DIALOG_JOIN =
     """
 
 class DocumentDAO(private val database: DatabaseInterface) {
-    suspend fun insert(documentEntity: DocumentEntity): PersistedDocumentEntity {
+    suspend fun insert(documentEntity: DocumentEntity, content: ByteArray): PersistedDocumentEntity {
         return withContext(Dispatchers.IO) {
             database.connection.use { connection ->
-                connection.prepareStatement(
+                val insertedDocument = connection.prepareStatement(
                     """
                         INSERT INTO document(document_id,
                                              type,
-                                             content,
                                              content_type,
                                              title,
                                              summary,
                                              link_id,
                                              status,
                                              dialog_id)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                         RETURNING *;
                         """.trimIndent()
                 ).use { preparedStatement ->
                     with(documentEntity) {
-                        preparedStatement.setObject(1, documentId)
-                        preparedStatement.setObject(2, type, Types.OTHER)
-                        preparedStatement.setBytes(3, content)
-                        preparedStatement.setString(4, contentType)
-                        preparedStatement.setString(5, title)
-                        preparedStatement.setString(6, summary)
-                        preparedStatement.setObject(7, linkId)
-                        preparedStatement.setObject(8, status, Types.OTHER)
-                        preparedStatement.setLong(9, dialog.id)
+                        var idx = 1
+                        preparedStatement.setObject(idx++, documentId)
+                        preparedStatement.setObject(idx++, type, Types.OTHER)
+                        preparedStatement.setString(idx++, contentType)
+                        preparedStatement.setString(idx++, title)
+                        preparedStatement.setString(idx++, summary)
+                        preparedStatement.setObject(idx++, linkId)
+                        preparedStatement.setObject(idx++, status, Types.OTHER)
+                        preparedStatement.setLong(idx++, dialog.id)
                     }
                     preparedStatement.execute()
 
@@ -59,9 +58,21 @@ class DocumentDAO(private val database: DatabaseInterface) {
                         connection.rollback()
                         throw it
                     }
-                }.also {
-                    connection.commit()
                 }
+
+                connection.prepareStatement(
+                    """
+                        INSERT INTO document_content(id, content)
+                        VALUES (?, ?)
+                        """.trimIndent()
+                ).use { preparedStatement ->
+                    preparedStatement.setLong(1, insertedDocument.id)
+                    preparedStatement.setBytes(2, content)
+                    preparedStatement.execute()
+                }
+
+                connection.commit()
+                insertedDocument
             }
         }
     }
@@ -157,11 +168,7 @@ class DocumentDAO(private val database: DatabaseInterface) {
             database.connection.use { connection ->
                 connection.prepareStatement(
                     """
-                        SELECT doc.*, dialog.id as dialog_pk_id, dialog.title as dialog_title, dialog.summary as dialog_summary, 
-                               dialog.dialog_id as dialog_uuid, dialog.fnr, dialog.org_number, dialog.created as dialog_created, 
-                               dialog.updated as dialog_updated
-                        FROM document doc
-                        LEFT JOIN dialogporten_dialog dialog ON doc.dialog_id = dialog.id
+                        $SELECT_DOC_WITH_DIALOG_JOIN
                         WHERE doc.status = ?
                         order by doc.created
                         LIMIT 100
@@ -186,7 +193,6 @@ fun ResultSet.toDocumentEntity(withDialog: PersistedDialogEntity? = null): Persi
         linkId = getObject("link_id") as UUID,
         documentId = getObject("document_id") as UUID,
         type = DocumentType.valueOf(getString("type")),
-        content = getBytes("content"),
         contentType = getString("content_type"),
         title = getString("title"),
         summary = getString("summary"),

@@ -33,6 +33,7 @@ import no.nav.syfo.TestDB
 import no.nav.syfo.application.api.installContentNegotiation
 import no.nav.syfo.application.api.installStatusPages
 import no.nav.syfo.document.db.DialogDAO
+import no.nav.syfo.document.db.DocumentContentDAO
 import no.nav.syfo.document.db.DocumentDAO
 import no.nav.syfo.document.db.DocumentEntity
 import no.nav.syfo.document.service.ValidationService
@@ -43,6 +44,7 @@ class InternalDocumentApiTest : DescribeSpec({
     val texasHttpClientMock = mockk<TexasHttpClient>()
     val documentDAOMock = mockk<DocumentDAO>()
     val dialogDAOMock = mockk<DialogDAO>()
+    val documentContentDAOMock = mockk<DocumentContentDAO>()
 
     beforeTest {
         clearAllMocks()
@@ -69,6 +71,7 @@ class InternalDocumentApiTest : DescribeSpec({
                     registerApiV1(
                         texasHttpClientMock,
                         documentDAOMock,
+                        documentContentDAOMock,
                         dialogDAOMock,
                         validationService = mockk<ValidationService>()
                     )
@@ -82,8 +85,9 @@ class InternalDocumentApiTest : DescribeSpec({
             withTestApplication {
                 // Arrange
                 val capturedSlot = slot<DocumentEntity>()
+                val capturedContent = slot<ByteArray>()
                 coEvery { dialogDAOMock.getByFnrAndOrgNumber(any(), any()) } returns dialogEntity()
-                coEvery { documentDAOMock.insert(capture(capturedSlot)) } returns documentEntity(dialogEntity())
+                coEvery { documentDAOMock.insert(capture(capturedSlot), capture(capturedContent)) } returns documentEntity(dialogEntity())
                 texasHttpClientMock.defaultMocks()
                 val document = document()
                 // Act
@@ -97,9 +101,10 @@ class InternalDocumentApiTest : DescribeSpec({
                 response.status shouldBe HttpStatusCode.OK
                 // Verify that the document was inserted into the database
                 coVerify(exactly = 1) {
-                    documentDAOMock.insert(any())
-                    val captured = capturedSlot.captured
-                    captured.content.toString(Charsets.UTF_8) shouldBe document.content.toString(Charsets.UTF_8)
+                    documentDAOMock.insert(any(), any())
+                    capturedContent
+                        .captured
+                        .toString(Charsets.UTF_8) shouldBe document.content.toString(Charsets.UTF_8)
                 }
             }
         }
@@ -109,7 +114,7 @@ class InternalDocumentApiTest : DescribeSpec({
                 // Arrange
                 texasHttpClientMock.defaultMocks()
                 coEvery { dialogDAOMock.getByFnrAndOrgNumber(any(), any()) } returns dialogEntity()
-                coEvery { documentDAOMock.insert(any()) } returns documentEntity(dialogEntity())
+                coEvery { documentDAOMock.insert(any(), any()) } returns documentEntity(dialogEntity())
                 // Act
                 val response = client.post("/internal/api/v1/documents") {
                     contentType(ContentType.Application.Json)
@@ -121,7 +126,7 @@ class InternalDocumentApiTest : DescribeSpec({
                 response.status shouldBe HttpStatusCode.BadRequest
                 // Verify that the document was inserted into the database
                 coVerify(exactly = 0) {
-                    documentDAOMock.insert(any())
+                    documentDAOMock.insert(any(), any())
                 }
             }
         }
@@ -130,7 +135,7 @@ class InternalDocumentApiTest : DescribeSpec({
                 // Arrange
                 texasHttpClientMock.defaultMocks()
                 coEvery { dialogDAOMock.getByFnrAndOrgNumber(any(), any()) } returns dialogEntity()
-                coEvery { documentDAOMock.insert(any()) } throws RuntimeException("DB error")
+                coEvery { documentDAOMock.insert(any(), any()) } throws RuntimeException("DB error")
                 // Act
                 val response = client.post("/internal/api/v1/documents") {
                     contentType(ContentType.Application.Json)
@@ -143,7 +148,7 @@ class InternalDocumentApiTest : DescribeSpec({
                 response.body<String>() shouldNotContain "DB error"
                 // Verify that the document was inserted into the database
                 coVerify(exactly = 1) {
-                    documentDAOMock.insert(any())
+                    documentDAOMock.insert(any(), any())
                 }
             }
         }

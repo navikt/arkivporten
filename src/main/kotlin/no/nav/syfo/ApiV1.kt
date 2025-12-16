@@ -6,6 +6,7 @@ import no.nav.syfo.application.auth.AddTokenIssuerPlugin
 import no.nav.syfo.document.api.v1.registerExternalDocumentsApiV1
 import no.nav.syfo.document.api.v1.registerInternalDocumentsApiV1
 import no.nav.syfo.document.db.DialogDAO
+import no.nav.syfo.document.db.DocumentContentDAO
 import no.nav.syfo.document.db.DocumentDAO
 import no.nav.syfo.document.service.ValidationService
 import no.nav.syfo.texas.TexasAzureADAuthPlugin
@@ -17,6 +18,7 @@ const val API_V1_PATH = "/api/v1"
 fun Route.registerApiV1(
     texasHttpClient: TexasHttpClient,
     documentDAO: DocumentDAO,
+    documentContentDAO: DocumentContentDAO,
     dialogDAO: DialogDAO,
     validationService: ValidationService,
 ) {
@@ -28,7 +30,7 @@ fun Route.registerApiV1(
     }
     route(API_V1_PATH) {
         install(AddTokenIssuerPlugin)
-        registerExternalDocumentsApiV1(documentDAO, texasHttpClient, validationService)
+        registerExternalDocumentsApiV1(documentDAO, documentContentDAO, texasHttpClient, validationService)
     }
 
 }

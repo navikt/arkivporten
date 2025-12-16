@@ -54,7 +54,6 @@ fun documentEntity(dialogEntity: PersistedDialogEntity) =
         id = faker.number().randomNumber(),
         documentId = UUID.randomUUID(),
         type = DocumentType.DIALOGMOTE,
-        content = faker.lorem().sentence().toByteArray(),
         contentType = "application/pdf",
         title = faker.lorem().sentence(),
         summary = faker.lorem().sentence(),
@@ -63,6 +62,8 @@ fun documentEntity(dialogEntity: PersistedDialogEntity) =
         created = Instant.now(),
         updated = Instant.now(),
     )
+
+fun documentContent() = faker.lorem().sentence().toByteArray()
 
 fun organisasjon() = Organisasjon(
     organisasjonsnummer = faker.numerify("#########"),
