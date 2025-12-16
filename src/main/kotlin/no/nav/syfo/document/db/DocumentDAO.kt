@@ -169,7 +169,6 @@ class DocumentDAO(private val database: DatabaseInterface) {
                 connection.prepareStatement(
                     """
                         $SELECT_DOC_WITH_DIALOG_JOIN
-                        LEFT JOIN dialogporten_dialog dialog ON doc.dialog_id = dialog.id
                         WHERE doc.status = ?
                         order by doc.created
                         LIMIT 100
