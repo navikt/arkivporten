@@ -80,10 +80,11 @@ class TestDB private constructor() {
         fun clearAllData() =
             database.connection.use {
                 it.prepareStatement(
-                    "DELETE FROM document;"
-                ).use { ps -> ps.executeUpdate() }
-                it.prepareStatement(
-                    "DELETE FROM dialogporten_dialog;"
+                    """
+                        DELETE FROM document_content;
+                        DELETE FROM document;
+                        DELETE FROM dialogporten_dialog;
+                    """.trimIndent()
                 ).use { ps -> ps.executeUpdate() }
                 it.commit()
             }

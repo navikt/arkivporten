@@ -13,6 +13,7 @@ import java.time.Instant
 class DocumentDbTest : DescribeSpec({
     val testDb = TestDB.database
     val documentDAO = DocumentDAO(testDb)
+    val documentContentDAO = DocumentContentDAO(testDb)
     val dialogDAO = DialogDAO(testDb)
     beforeTest {
         TestDB.clearAllData()
@@ -24,7 +25,7 @@ class DocumentDbTest : DescribeSpec({
             val dialogEntity = dialogDAO.insertDialog(dialogEntity())
             val documentEntity = document().toDocumentEntity(dialogEntity)
             // Act
-            val id = documentDAO.insert(documentEntity).id
+            val id = documentDAO.insert(documentEntity, "test".toByteArray()).id
             // Assert
             id shouldNotBe null
             id shouldBeGreaterThan 0L
@@ -35,11 +36,24 @@ class DocumentDbTest : DescribeSpec({
             val dialogEntity = dialogDAO.insertDialog(dialogEntity())
             val documentEntity = document().toDocumentEntity(dialogEntity)
             // Act
-            val id = documentDAO.insert(documentEntity).id
+            val id = documentDAO.insert(documentEntity, "test".toByteArray()).id
             // Assert
             val retrievedDocument = documentDAO.getById(id)
             retrievedDocument shouldNotBe null
             retrievedDocument?.assertExpected(documentEntity, id)
+        }
+
+        it("should persist and retrieve document content correctly") {
+            // Arrange
+            val dialogEntity = dialogDAO.insertDialog(dialogEntity())
+            val documentEntity = document().toDocumentEntity(dialogEntity)
+            val contentBytes = "This is a test document content.".toByteArray()
+            // Act
+            val id = documentDAO.insert(documentEntity, contentBytes).id
+            val retrievedContent = documentContentDAO.getDocumentContentById(id)
+            // Assert
+            retrievedContent shouldNotBe null
+            retrievedContent shouldBe contentBytes
         }
     }
     describe("DocumentDb -> update") {
@@ -47,7 +61,8 @@ class DocumentDbTest : DescribeSpec({
             // Arrange
             val dialogEntity = dialogDAO.insertDialog(dialogEntity())
             val documentEntity = documentDAO.insert(
-                document().toDocumentEntity(dialogEntity)
+                document().toDocumentEntity(dialogEntity),
+                "test".toByteArray()
             )
             // Act
             val updatedDocumentEntity = documentEntity.copy(
@@ -74,7 +89,7 @@ class DocumentDbTest : DescribeSpec({
             val dialogEntity = dialogDAO.insertDialog(dialogEntity())
             val documentEntity = document().toDocumentEntity(dialogEntity)
             // Act
-            val id = documentDAO.insert(documentEntity).id
+            val id = documentDAO.insert(documentEntity, "test".toByteArray()).id
             val retrievedDocument = documentDAO.getById(id)
             // Assert
             retrievedDocument shouldNotBe null
@@ -88,7 +103,7 @@ class DocumentDbTest : DescribeSpec({
             val dialogEntity = dialogDAO.insertDialog(dialogEntity())
             val documentEntity = document().toDocumentEntity(dialogEntity)
             // Act
-            val id = documentDAO.insert(documentEntity).id
+            val id = documentDAO.insert(documentEntity, "test".toByteArray()).id
             val retrievedDocument = documentDAO.getByLinkId(documentEntity.linkId)
             // Assert
             retrievedDocument shouldNotBe null
@@ -105,7 +120,10 @@ class DocumentDbTest : DescribeSpec({
         existingDialog shouldNotBe null
         existingDialog?.fnr shouldBe document.fnr
         // Act
-        val persistedDocument = documentDAO.insert(document.toDocumentEntity(existingDialog!!))
+        val persistedDocument = documentDAO.insert(
+            document.toDocumentEntity(existingDialog!!),
+            "test".toByteArray()
+        )
 
         // Assert
         persistedDocument.dialog.id shouldBe existingDialog.id
@@ -116,7 +134,6 @@ fun PersistedDocumentEntity.assertExpected(expected: DocumentEntity, id: Long) {
     this.id shouldBe id
     this.documentId shouldBe expected.documentId
     this.type shouldBe expected.type
-    this.content shouldBe expected.content
     this.contentType shouldBe expected.contentType
     this.dialog.fnr shouldBe expected.dialog.fnr
     this.dialog.orgNumber shouldBe expected.dialog.orgNumber
