@@ -9,6 +9,7 @@ import createMockToken
 import defaultMocks
 import dialogEntity
 import document
+import documentContent
 import documentEntity
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.shouldBe
@@ -36,6 +37,7 @@ import no.nav.syfo.ereg.EregService
 import no.nav.syfo.ereg.client.FakeEregClient
 import no.nav.syfo.altinn.pdp.service.PdpService
 import no.nav.syfo.document.db.DialogDAO
+import no.nav.syfo.document.db.DocumentContentDAO
 import no.nav.syfo.registerApiV1
 import no.nav.syfo.texas.MASKINPORTEN_ARKIVPORTEN_SCOPE
 import no.nav.syfo.texas.client.TexasHttpClient
@@ -44,6 +46,7 @@ import organisasjon
 class ExternalDocumentApiTest : DescribeSpec({
     val texasHttpClientMock = mockk<TexasHttpClient>()
     val documentDAO = mockk<DocumentDAO>(relaxed = true)
+    val documentContentDAO = mockk<DocumentContentDAO>(relaxed = true)
     val dialogDAO = mockk<DialogDAO>()
     val fakeAltinnTilgangerClient = FakeAltinnTilgangerClient()
     val fakeEregClient = FakeEregClient()
@@ -83,6 +86,7 @@ class ExternalDocumentApiTest : DescribeSpec({
                     registerApiV1(
                         texasHttpClient = texasHttpClientMock,
                         documentDAO = documentDAO,
+                        documentContentDAO = documentContentDAO,
                         dialogDAO = dialogDAO,
                         validationService = validationServiceSpy
                     )
@@ -98,6 +102,7 @@ class ExternalDocumentApiTest : DescribeSpec({
                     // Arrange
                     val document = documentEntity(dialogEntity())
                     coEvery { documentDAO.getByLinkId(eq(document.linkId)) } returns document
+                    coEvery { documentContentDAO.getDocumentContentById(eq(document.id)) } returns documentContent()
                     texasHttpClientMock.defaultMocks(
                         systemBrukerOrganisasjon = DefaultOrganization.copy(
                             ID = "0192:${document.dialog.orgNumber}"
@@ -129,6 +134,7 @@ class ExternalDocumentApiTest : DescribeSpec({
                     val organization = organisasjon()
                     val document = documentEntity(dialogEntity().copy(orgNumber = organization.organisasjonsnummer))
                     coEvery { documentDAO.getByLinkId(eq(document.linkId)) } returns document
+                    coEvery { documentContentDAO.getDocumentContentById(eq(document.id)) } returns documentContent()
                     texasHttpClientMock.defaultMocks(
                         systemBrukerOrganisasjon = DefaultOrganization.copy(
                             ID = "0192:${organization.inngaarIJuridiskEnheter!!.first().organisasjonsnummer}"
@@ -198,6 +204,7 @@ class ExternalDocumentApiTest : DescribeSpec({
                     )
                     fakeAltinnTilgangerClient.usersWithAccess.add(callerPid to document.dialog.orgNumber)
                     coEvery { documentDAO.getByLinkId(eq(document.linkId)) } returns document
+                    coEvery { documentContentDAO.getDocumentContentById(eq(document.id)) } returns documentContent()
                     // Act
                     val response = client.get("api/v1/documents/${document.linkId}") {
                         bearerAuth(createMockToken(callerPid, issuer = tokenXIssuer))
@@ -273,6 +280,7 @@ class ExternalDocumentApiTest : DescribeSpec({
                     )
                     fakeAltinnTilgangerClient.usersWithAccess.add(callerPid to document.dialog.orgNumber)
                     coEvery { documentDAO.getByLinkId(eq(document.linkId)) } returns document
+                    coEvery { documentContentDAO.getDocumentContentById(eq(document.id)) } returns documentContent()
                     // Act
                     val response = client.get("api/v1/documents/${document.linkId}") {
                         bearerAuth(createMockToken(callerPid, issuer = idportenIssuer))

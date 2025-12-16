@@ -14,7 +14,6 @@ enum class DocumentStatus {
 open class DocumentEntity(
     open val documentId: UUID,
     open val type: DocumentType,
-    open val content: ByteArray,
     open val contentType: String,
     open val title: String,
     open val summary: String?,
@@ -33,7 +32,6 @@ open class DocumentEntity(
         if (isRead != other.isRead) return false
         if (documentId != other.documentId) return false
         if (type != other.type) return false
-        if (!content.contentEquals(other.content)) return false
         if (contentType != other.contentType) return false
         if (title != other.title) return false
         if (summary != other.summary) return false
@@ -49,7 +47,6 @@ open class DocumentEntity(
         var result = isRead.hashCode()
         result = 31 * result + documentId.hashCode()
         result = 31 * result + type.hashCode()
-        result = 31 * result + content.contentHashCode()
         result = 31 * result + contentType.hashCode()
         result = 31 * result + title.hashCode()
         result = 31 * result + (summary?.hashCode() ?: 0)
@@ -67,7 +64,6 @@ data class PersistedDocumentEntity(
     val id: Long,
     override val documentId: UUID,
     override val type: DocumentType,
-    override val content: ByteArray,
     override val contentType: String,
     override val title: String,
     override val summary: String?,
@@ -81,7 +77,6 @@ data class PersistedDocumentEntity(
 ) : DocumentEntity(
     documentId = documentId,
     type = type,
-    content = content,
     contentType = contentType,
     title = title,
     summary = summary,
@@ -102,7 +97,6 @@ data class PersistedDocumentEntity(
         if (isRead != other.isRead) return false
         if (documentId != other.documentId) return false
         if (type != other.type) return false
-        if (!content.contentEquals(other.content)) return false
         if (contentType != other.contentType) return false
         if (title != other.title) return false
         if (summary != other.summary) return false
@@ -122,7 +116,6 @@ data class PersistedDocumentEntity(
         result = 31 * result + isRead.hashCode()
         result = 31 * result + documentId.hashCode()
         result = 31 * result + type.hashCode()
-        result = 31 * result + content.contentHashCode()
         result = 31 * result + contentType.hashCode()
         result = 31 * result + title.hashCode()
         result = 31 * result + (summary?.hashCode() ?: 0)

@@ -13,6 +13,7 @@ import no.nav.syfo.application.isProdEnv
 import no.nav.syfo.application.metric.registerMetricApi
 import no.nav.syfo.altinn.dialogporten.registerDialogportenTokenApi
 import no.nav.syfo.document.db.DialogDAO
+import no.nav.syfo.document.db.DocumentContentDAO
 import no.nav.syfo.document.db.DocumentDAO
 import no.nav.syfo.document.service.ValidationService
 import no.nav.syfo.registerApiV1
@@ -24,6 +25,7 @@ fun Application.configureRouting() {
     val database by inject<DatabaseInterface>()
     val texasHttpClient by inject<TexasHttpClient>()
     val documentDAO by inject<DocumentDAO>()
+    val documentContentDAO by inject<DocumentContentDAO>()
     val dialogDAO by inject<DialogDAO>()
     val validationService by inject<ValidationService>()
     val altinnTokenProvider by inject<AltinnTokenProvider>()
@@ -35,7 +37,7 @@ fun Application.configureRouting() {
     routing {
         registerPodApi(applicationState, database)
         registerMetricApi()
-        registerApiV1(texasHttpClient, documentDAO, dialogDAO, validationService)
+        registerApiV1(texasHttpClient, documentDAO, documentContentDAO, dialogDAO, validationService)
         // Static OpenAPI spec + Swagger UI only in non-prod
         staticResources("/openapi", "openapi")
         swaggerUI(path = "swagger", swaggerFile = "openapi/documentation.yaml")

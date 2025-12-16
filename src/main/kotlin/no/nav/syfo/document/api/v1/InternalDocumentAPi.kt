@@ -21,7 +21,7 @@ fun Route.registerInternalDocumentsApiV1(
             runCatching {
                 val existingDialog = dialogDAO.getByFnrAndOrgNumber(document.fnr, document.orgNumber)
                     ?: dialogDAO.insertDialog(document.toDialogEntity())
-                documentDAO.insert(document.toDocumentEntity(existingDialog))
+                documentDAO.insert(document.toDocumentEntity(existingDialog), document.content)
                 COUNT_DOCUMENT_RECIEVED.increment()
                 call.respond(HttpStatusCode.OK)
             }.onFailure {

@@ -10,6 +10,7 @@ import io.ktor.server.routing.route
 import java.time.Instant
 import no.nav.syfo.application.auth.BrukerPrincipal
 import no.nav.syfo.application.auth.SystemPrincipal
+import no.nav.syfo.document.db.DocumentContentDAO
 import no.nav.syfo.document.db.DocumentDAO
 import no.nav.syfo.document.service.ValidationService
 import no.nav.syfo.texas.MaskinportenIdportenAndTokenXAuthPlugin
@@ -20,7 +21,8 @@ import org.slf4j.Logger
 const val DOCUMENT_API_PATH = "/documents"
 
 fun Route.registerExternalDocumentsApiV1(
-    DocumentDAO: DocumentDAO,
+    documentDAO: DocumentDAO,
+    documentContentDAO: DocumentContentDAO,
     texasHttpClient: TexasHttpClient,
     validationService: ValidationService
 ) {
@@ -33,14 +35,16 @@ fun Route.registerExternalDocumentsApiV1(
         get() {
             val linkId = call.parameters.extractAndValidateUUIDParameter("id")
             val principal = call.getPrincipal()
-            val documentDAO = DocumentDAO.getByLinkId(linkId) ?: throw NotFoundException("Document not found")
-            validationService.validateDocumentAccess(principal, documentDAO)
-            if (!documentDAO.isRead) {
-                DocumentDAO.update(documentDAO.copy(isRead = true, updated = Instant.now()))
+            val document = documentDAO.getByLinkId(linkId) ?: throw NotFoundException("Document not found")
+            validationService.validateDocumentAccess(principal, document)
+            val content = documentContentDAO.getDocumentContentById(document.id)
+                ?: throw NotFoundException("Document content not found")
+            if (!document.isRead) {
+                documentDAO.update(document.copy(isRead = true, updated = Instant.now()))
             }
-            call.response.headers.append(HttpHeaders.ContentType, documentDAO.contentType)
-            call.respond<ByteArray>(documentDAO.content)
-            countRead(logger, principal, documentDAO.isRead, documentDAO.dialog.orgNumber)
+            call.response.headers.append(HttpHeaders.ContentType, document.contentType)
+            call.respond<ByteArray>(content)
+            countRead(logger, principal, document.isRead, document.dialog.orgNumber)
             call.response.status(HttpStatusCode.OK)
         }
     }
