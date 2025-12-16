@@ -55,6 +55,7 @@ class DialogDbTest : DescribeSpec({
                 orgNumber = dialogEntity.orgNumber
             )
             // Assert
+            retrievedDialog shouldNotBe null
             retrievedDialog?.shouldBeEqualUsingFields({
                 // exclude auto-generated fields from comparison
                 excludedProperties = setOf(
@@ -78,6 +79,7 @@ class DialogDbTest : DescribeSpec({
             // Assert
             retrievedDialog shouldBe null
         }
+
     }
 
 })

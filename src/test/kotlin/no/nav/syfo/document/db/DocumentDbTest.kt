@@ -83,7 +83,7 @@ class DocumentDbTest : DescribeSpec({
     }
 
     describe("DocumentDb -> getByLinkId") {
-        it("should return a documentEntity for the linktId") {
+        it("should return a documentEntity for the linkId") {
             // Arrange
             val dialogEntity = dialogDAO.insertDialog(dialogEntity())
             val documentEntity = document().toDocumentEntity(dialogEntity)
@@ -94,6 +94,21 @@ class DocumentDbTest : DescribeSpec({
             retrievedDocument shouldNotBe null
             retrievedDocument?.assertExpected(documentEntity, id)
         }
+    }
+
+    describe("Should add document to existing dialog") {
+        // Arrange
+        val document = document()
+        dialogDAO.insertDialog(document.toDialogEntity())
+        val existingDialog = dialogDAO.getByFnrAndOrgNumber(document.fnr, document.orgNumber)
+
+        existingDialog shouldNotBe null
+        existingDialog?.fnr shouldBe document.fnr
+        // Act
+        val persistedDocument = documentDAO.insert(document.toDocumentEntity(existingDialog!!))
+
+        // Assert
+        persistedDocument.dialog.id shouldBe existingDialog.id
     }
 })
 
