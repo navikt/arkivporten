@@ -59,9 +59,9 @@ class DialogDAO(private val database: DatabaseInterface) {
                     if (resultSet.next()) {
                         return@withContext resultSet.toDialog()
                     }
+                    return@withContext null
                 }
             }
-            null
         }
     }
 }
