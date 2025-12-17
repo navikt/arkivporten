@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseUrlEkstern}}/api/v1/documents/61aba784-2b5c-4d41-9392-7dfe4946d179
+  url: {{baseUrlEkstern}}/api/v1/documents/805295aa-d311-4e4b-ac6f-9b47a8ec67ee
   body: none
   auth: inherit
 }
@@ -22,7 +22,8 @@ script:pre-request {
     
   } else {
     const systembrukerOrgnr = bru.getEnvVar("systemKundeOrgnr");
-    const tokenrespons = await http.get("https://esyfo-token.intern.dev.nav.no/systembruker/" + systembrukerOrgnr + "?scope=nav:syfo/arkivporten");
+    const tokenrespons = await http.get("https://esyfo-token.intern.dev.nav.no/systembruker/" + systembrukerOrgnr);
+    //const tokenrespons = await http.get("https://esyfo-token.intern.dev.nav.no/systembruker/" + systembrukerOrgnr + "?scope=nav:syfo/arkivporten");
     console.log(tokenrespons.data)
     req.setHeader("Authorization", "Bearer "+ tokenrespons.data);
   }
