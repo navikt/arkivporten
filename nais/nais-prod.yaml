@@ -7,10 +7,6 @@ metadata:
     texas.nais.io/enabled: "true"
 spec:
   ingresses:
-    - https://arkivporten.intern.nav.no
-    - https://arkivporten.ekstern.nav.no/api/v1/documents
-    - https://arkivporten.ekstern.nav.no/swagger
-    - https://arkivporten.ekstern.nav.no/openapi
     - https://syfo-dokumentporten.intern.nav.no
     - https://syfo-dokumentporten.ekstern.nav.no/api/v1/documents
     - https://syfo-dokumentporten.ekstern.nav.no/swagger
@@ -56,7 +52,7 @@ spec:
         collation: nb_NO.UTF8
         databases:
           - name: syfo-dokumentporten-db
-            envVarPrefix: DOKUMENTPORTEN_DB
+            envVarPrefix: SYFO_DOKUMENTPORTEN_DB
         diskAutoresize: true
   tokenx:
     enabled: true
@@ -64,13 +60,6 @@ spec:
     enabled: true
     scopes:
       exposes:
-        - accessibleForAll: true
-          delegationSource: altinn
-          enabled: true
-          product: syfo
-          separator: "/"
-          name: arkivporten
-          atMaxAge: 680
         - accessibleForAll: true
           delegationSource: altinn
           enabled: true
