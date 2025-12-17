@@ -71,7 +71,7 @@ class DocumentDbTest : DescribeSpec({
                 transmissionId = UUID.randomUUID(),
                 updated = Instant.now(),
                 dialog = documentEntity.dialog.copy(
-                    dialogportenId = UUID.randomUUID(),
+                    dialogportenUUID = UUID.randomUUID(),
                     updated = Instant.now()
                 )
             )
@@ -146,5 +146,5 @@ fun PersistedDocumentEntity.assertExpected(expected: DocumentEntity, id: Long) {
     this.updated shouldNotBe null
     this.created shouldNotBe null
     this.dialog.id shouldBe expected.dialog.id
-    this.dialog.dialogportenId shouldBe expected.dialog.dialogportenId
+    this.dialog.dialogportenUUID shouldBe expected.dialog.dialogportenUUID
 }

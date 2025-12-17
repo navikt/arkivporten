@@ -8,7 +8,7 @@ open class DialogEntity(
     open val summary: String?,
     open val fnr: String,
     open val orgNumber: String,
-    open val dialogportenId: UUID? = null
+    open val dialogportenUUID: UUID? = null
 )
 
 data class PersistedDialogEntity(
@@ -17,7 +17,7 @@ data class PersistedDialogEntity(
     override val summary: String?,
     override val fnr: String,
     override val orgNumber: String,
-    override val dialogportenId: UUID? = null,
+    override val dialogportenUUID: UUID? = null,
     val created: Instant,
     val updated: Instant,
 ): DialogEntity(
@@ -25,5 +25,5 @@ data class PersistedDialogEntity(
     summary = summary,
     fnr = fnr,
     orgNumber = orgNumber,
-    dialogportenId = dialogportenId,
+    dialogportenUUID = dialogportenUUID,
 )
