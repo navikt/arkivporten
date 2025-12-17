@@ -1,0 +1,124 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+metadata:
+  name: syfo-dokumentporten
+  namespace: team-esyfo
+  annotations:
+    texas.nais.io/enabled: "true"
+spec:
+  ingresses:
+    - https://arkivporten.intern.nav.no
+    - https://arkivporten.ekstern.nav.no/api/v1/documents
+    - https://arkivporten.ekstern.nav.no/swagger
+    - https://arkivporten.ekstern.nav.no/openapi
+    - https://syfo-dokumentporten.intern.nav.no
+    - https://syfo-dokumentporten.ekstern.nav.no/api/v1/documents
+    - https://syfo-dokumentporten.ekstern.nav.no/swagger
+    - https://syfo-dokumentporten.ekstern.nav.no/openapi
+  image: {{image}} #
+  port: 8080
+  liveness:
+    path: /internal/is_alive
+    initialDelay: 10
+    timeout: 5
+    periodSeconds: 10
+    failureThreshold: 5
+  readiness:
+    path: /internal/is_ready
+    initialDelay: 10
+    periodSeconds: 5
+    timeout: 5
+  replicas:
+    max: 4
+    min: 2
+    cpuThresholdPercentage: 90
+  prometheus:
+    enabled: true
+    path: /internal/metrics
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      cpu: 300m
+      memory: 512Mi
+  observability:
+    logging:
+      destinations:
+        - id: loki
+    autoInstrumentation:
+      enabled: true
+      runtime: java
+  gcp:
+    sqlInstances:
+      - type: POSTGRES_17
+        tier: db-custom-1-3840
+        name: syfo-dokumentporten-instance
+        collation: nb_NO.UTF8
+        databases:
+          - name: syfo-dokumentporten-db
+            envVarPrefix: DOKUMENTPORTEN_DB
+        diskAutoresize: true
+  tokenx:
+    enabled: true
+  maskinporten:
+    enabled: true
+    scopes:
+      exposes:
+        - accessibleForAll: true
+          delegationSource: altinn
+          enabled: true
+          product: syfo
+          separator: "/"
+          name: arkivporten
+          atMaxAge: 680
+        - accessibleForAll: true
+          delegationSource: altinn
+          enabled: true
+          product: syfo
+          separator: "/"
+          name: dokumentporten
+          atMaxAge: 680
+      consumes:
+        - name: "digdir:dialogporten.serviceprovider"
+        - name: "altinn:authorization/authorize"
+  azure:
+    application:
+      enabled: true
+      allowAllUsers: true
+      tenant: nav.no
+      claims:
+        extra:
+          - "NAVident"
+  leaderElection: true
+  accessPolicy:
+    inbound:
+      rules:
+        - application: syfo-oppfolgingsplan-backend
+          namespace: team-esyfo
+        - application: isdialogmote
+          namespace: teamsykefravr
+        - application: syfooppfolgingsplanservice
+          cluster: prod-fss
+    outbound:
+      rules:
+        - application: arbeidsgiver-altinn-tilganger
+          namespace: fager
+      external:
+        - host: "ereg-services.prod-fss-pub.nais.io"
+        - host: "platform.altinn.no"
+
+  kafka:
+    pool: nav-dev
+  env:
+    - name: EREG_BASE_URL
+      value: "https://ereg-services.prod-fss-pub.nais.io"
+    - name: ALTINN_TILGANGER_BASE_URL
+      value: http://arbeidsgiver-altinn-tilganger.fager
+    - name: DIALOGPORTEN_SCOPE
+      value: "digdir:dialogporten.serviceprovider"
+    - name: ALTINN_3_BASE_URL
+      value: "https://platform.altinn.no"
+    - name: PUBLIC_INGRESS_URL
+      value: https://syfo-dokumentporten.ekstern.nav.no
+  envFrom:
+    - secret: altinn-subscription-key
