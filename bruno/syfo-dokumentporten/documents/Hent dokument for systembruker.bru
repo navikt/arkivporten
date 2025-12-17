@@ -7,11 +7,7 @@ meta {
 get {
   url: {{baseUrlEkstern}}/api/v1/documents/{{lenkeId}}
   body: none
-  auth: bearer
-}
-
-auth:bearer {
-  token: ##test token her
+  auth: inherit
 }
 
 vars:pre-request {
