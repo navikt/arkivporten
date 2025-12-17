@@ -112,7 +112,7 @@ class DialogportenService(
         return Dialog(
             serviceResource = "urn:altinn:resource:$DIALOG_RESSURS",
             party = "urn:altinn:organization:identifier-no:${dialog.orgNumber}",
-            externalReference = "syfo-arkivporten",
+            externalReference = "syfo-dokumentporten",
             content = Content.create(
                 title = dialog.title,
                 summary = dialog.summary,

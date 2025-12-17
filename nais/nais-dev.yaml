@@ -52,11 +52,11 @@ spec:
     sqlInstances:
       - type: POSTGRES_17
         tier: db-f1-micro
-        name: arkivporten-instance
+        name: syfo-dokumentporten-instance
         collation: nb_NO.UTF8
         databases:
-          - name: arkivporten-db
-            envVarPrefix: ARKIVPORTEN_DB
+          - name: syfo-dokumentporten-db
+            envVarPrefix: SYFO_DOKUMENTPORTEN_DB
         diskAutoresize: true
   tokenx:
     enabled: true
