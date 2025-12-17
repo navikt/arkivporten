@@ -1,9 +1,9 @@
 openapi: 3.0.3
 info:
-  title: Arkivporten API
+  title: Syfo-dokumentporten API
   version: 1.0.0
   description: |
-    Public API for interacting with Dokumentporten(Formerly Arkivporten) documents.
+    Public API for interacting with Syfo-Dokumentporten(Formerly Arkivporten) documents.
     
     This api require authentication with Maskinporten or Idporten Level 4 issued JWT.
 
