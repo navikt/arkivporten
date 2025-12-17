@@ -13,7 +13,7 @@ data class ClientProperties(
         fun createForLocal() = ClientProperties(
             altinnTilgangerBaseUrl = "https://altinn-tilganger-api.dev.intern.nav.no",
             eregBaseUrl = "",
-            electorPath = "arkivporten",
+            electorPath = "syfo-dokumentporten",
             altinn3BaseUrl = "http://localhost:8080/dialogporten",
             pdpSubscriptionKey = "secret-key"
         )
