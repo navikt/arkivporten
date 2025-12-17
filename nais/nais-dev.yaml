@@ -123,6 +123,6 @@ spec:
     - name: ALTINN_3_BASE_URL
       value: "https://platform.tt02.altinn.no"
     - name: PUBLIC_INGRESS_URL
-      value: https://arkivporten.ekstern.dev.nav.no
+      value: https://syfo-dokumentporten.ekstern.dev.nav.no
   envFrom:
     - secret: altinn-subscription-key
