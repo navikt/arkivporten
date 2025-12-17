@@ -78,7 +78,7 @@ class DialogportenServiceTest : DescribeSpec({
 
                 val capturedDialog = dialogSlot.captured
                 capturedDialog.party shouldBe "urn:altinn:organization:identifier-no:${documentEntity.dialog.orgNumber}"
-                capturedDialog.externalReference shouldBe "syfo-arkivporten"
+                capturedDialog.externalReference shouldBe "syfo-dokumentporten"
                 capturedDialog.content.title.value.first().value shouldBe dialogEntity.title
                 capturedDialog.content.summary?.value?.first()?.value shouldBe dialogEntity.summary
                 capturedDialog.isApiOnly shouldBe true

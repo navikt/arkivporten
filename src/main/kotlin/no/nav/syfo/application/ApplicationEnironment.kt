@@ -10,7 +10,7 @@ interface Environment {
     val publicIngressUrl: String
 }
 
-const val NAIS_DATABASE_ENV_PREFIX = "ARKIVPORTEN_DB"
+const val NAIS_DATABASE_ENV_PREFIX = "SYFO_DOKUMENTPORTEN_DB"
 
 data class NaisEnvironment(
     override val database: DatabaseEnvironment = DatabaseEnvironment.createFromEnvVars(),

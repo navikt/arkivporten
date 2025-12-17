@@ -1,7 +1,7 @@
 apiVersion: nais.io/v1alpha1
 kind: Application
 metadata:
-  name: arkivporten
+  name: syfo-dokumentporten
   namespace: team-esyfo
   annotations:
     texas.nais.io/enabled: "true"
@@ -52,11 +52,11 @@ spec:
     sqlInstances:
       - type: POSTGRES_17
         tier: db-f1-micro
-        name: arkivporten-instance
+        name: syfo-dokumentporten-instance
         collation: nb_NO.UTF8
         databases:
-          - name: arkivporten-db
-            envVarPrefix: ARKIVPORTEN_DB
+          - name: syfo-dokumentporten-db
+            envVarPrefix: SYFO_DOKUMENTPORTEN_DB
         diskAutoresize: true
   tokenx:
     enabled: true
@@ -123,6 +123,6 @@ spec:
     - name: ALTINN_3_BASE_URL
       value: "https://platform.tt02.altinn.no"
     - name: PUBLIC_INGRESS_URL
-      value: https://arkivporten.ekstern.dev.nav.no
+      value: https://syfo-dokumentporten.ekstern.dev.nav.no
   envFrom:
     - secret: altinn-subscription-key
