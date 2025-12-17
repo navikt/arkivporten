@@ -9,12 +9,12 @@ class DialogDAO(private val database: DatabaseInterface) {
     suspend fun insertDialog(dialogEntity: DialogEntity): PersistedDialogEntity {
         val insertStatement =
             """
-            INSERT INTO dialogporten_dialog (
+            INSERT INTO dialog (
                 title,
                 summary,
                 fnr,
                 org_number,
-                dialog_id
+                dialogporten_uuid
             ) VALUES (?, ?, ?, ?, ?)
             RETURNING *
             """.trimIndent()
@@ -26,7 +26,7 @@ class DialogDAO(private val database: DatabaseInterface) {
                     ps.setString(2, dialogEntity.summary)
                     ps.setString(3, dialogEntity.fnr)
                     ps.setString(4, dialogEntity.orgNumber)
-                    ps.setObject(5, dialogEntity.dialogportenId)
+                    ps.setObject(5, dialogEntity.dialogportenUUID)
                     val resultSet = ps.executeQuery()
                     return@use if (resultSet.next()) {
                         resultSet.toDialog()
@@ -44,7 +44,7 @@ class DialogDAO(private val database: DatabaseInterface) {
         val query =
             """
             SELECT *
-            FROM dialogporten_dialog
+            FROM dialog
             WHERE fnr = ?
             AND org_number = ?
             """.trimIndent()
@@ -75,5 +75,5 @@ fun ResultSet.toDialog(): PersistedDialogEntity =
         orgNumber = getString("org_number"),
         created = getTimestamp("created").toInstant(),
         updated = getTimestamp("updated").toInstant(),
-        dialogportenId = getObject("dialog_id", java.util.UUID::class.java)
+        dialogportenUUID = getObject("dialogporten_uuid", java.util.UUID::class.java)
     )

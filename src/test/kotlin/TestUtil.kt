@@ -44,7 +44,7 @@ fun dialogEntity() =
         summary = faker.lorem().sentence(),
         fnr = faker.numerify("###########"),
         orgNumber = faker.numerify("#########"),
-        dialogportenId = UUID.randomUUID(),
+        dialogportenUUID = UUID.randomUUID(),
         created = Instant.now(),
         updated = Instant.now(),
     )

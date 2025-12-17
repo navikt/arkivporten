@@ -13,10 +13,10 @@ private const val SELECT_DOC_WITH_DIALOG_JOIN =
     """
     SELECT doc.*, 
     dialog.id as dialog_pk_id, dialog.title as dialog_title, dialog.summary as dialog_summary, 
-    dialog.dialog_id as dialog_uuid, dialog.fnr, dialog.org_number, dialog.created as dialog_created, 
+    dialog.dialogporten_uuid as dialog_uuid, dialog.fnr, dialog.org_number, dialog.created as dialog_created, 
     dialog.updated as dialog_updated
     FROM document doc
-    LEFT JOIN dialogporten_dialog dialog ON doc.dialog_id = dialog.id
+    LEFT JOIN dialog dialog ON doc.dialog_id = dialog.id
     """
 
 class DocumentDAO(private val database: DatabaseInterface) {
@@ -99,17 +99,17 @@ class DocumentDAO(private val database: DatabaseInterface) {
                     }
                     preparedStatement.execute()
                 }
-                if (documentEntity.dialog.dialogportenId != null) {
+                if (documentEntity.dialog.dialogportenUUID != null) {
                     connection.prepareStatement(
                         """
-                        UPDATE dialogporten_dialog
-                        SET dialog_id = ?,
+                        UPDATE dialog
+                        SET dialogporten_uuid = ?,
                             updated   = ?
                         WHERE id = ?
                         """.trimIndent()
                     ).use { preparedStatement ->
                         with(documentEntity) {
-                            preparedStatement.setObject(1, dialog.dialogportenId)
+                            preparedStatement.setObject(1, dialog.dialogportenUUID)
                             preparedStatement.setTimestamp(2, Timestamp.from(dialog.updated))
                             preparedStatement.setLong(3, dialog.id)
                         }
@@ -207,7 +207,7 @@ fun ResultSet.toDocumentEntity(withDialog: PersistedDialogEntity? = null): Persi
             summary = getString("dialog_summary"),
             fnr = getString("fnr"),
             orgNumber = getString("org_number"),
-            dialogportenId = getObject("dialog_uuid") as UUID?,
+            dialogportenUUID = getObject("dialog_uuid") as UUID?,
             created = getTimestamp("dialog_created").toInstant(),
             updated = getTimestamp("dialog_updated").toInstant(),
         ),

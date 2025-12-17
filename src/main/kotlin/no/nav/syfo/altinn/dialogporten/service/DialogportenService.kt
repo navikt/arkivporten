@@ -41,7 +41,7 @@ class DialogportenService(
         val newDialogs = mutableMapOf<Long, UUID>()
         for (document in documentsToSend) {
             try {
-                val dialogportenId = document.dialog.dialogportenId
+                val dialogportenId = document.dialog.dialogportenUUID
                     ?: newDialogs[document.dialog.id]
 
                 if (dialogportenId != null) {
@@ -82,7 +82,7 @@ class DialogportenService(
                 status = DocumentStatus.COMPLETED,
                 updated = Instant.now(),
                 dialog = document.dialog.copy(
-                    dialogportenId = dialogId,
+                    dialogportenUUID = dialogId,
                     updated = Instant.now()
                 ),
             )

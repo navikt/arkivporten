@@ -83,7 +83,7 @@ class TestDB private constructor() {
                     """
                         DELETE FROM document_content;
                         DELETE FROM document;
-                        DELETE FROM dialogporten_dialog;
+                        DELETE FROM dialog;
                     """.trimIndent()
                 ).use { ps -> ps.executeUpdate() }
                 it.commit()

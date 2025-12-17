@@ -10,7 +10,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.slot
-import java.time.Instant
 import no.nav.syfo.altinn.dialogporten.client.IDialogportenClient
 import no.nav.syfo.altinn.dialogporten.domain.Dialog
 import no.nav.syfo.altinn.dialogporten.domain.Transmission
@@ -54,7 +53,7 @@ class DialogportenServiceTest : DescribeSpec({
         context("when there is one document to send") {
             it("should send document to dialogporten with createDialog and update status to COMPLETED") {
                 // Arrange (no existing dialog, dialogportenId = null)
-                val dialogEntity = dialogEntity().copy(dialogportenId = null)
+                val dialogEntity = dialogEntity().copy(dialogportenUUID = null)
                 val documentEntity = documentEntity(dialogEntity)
                 val dialogId = UUID.randomUUID()
                 val dialogSlot = slot<Dialog>()
@@ -71,7 +70,7 @@ class DialogportenServiceTest : DescribeSpec({
                 coVerify(exactly = 1) { dialogportenClient.createDialog(any()) }
                 coVerify(exactly = 1) {
                     documentDAO.update(match {
-                        it.dialog.dialogportenId == dialogId
+                        it.dialog.dialogportenUUID == dialogId
                                 && it.status == DocumentStatus.COMPLETED
                                 && it.transmissionId == dialogSlot.captured.transmissions.first().id
                     })
@@ -92,7 +91,7 @@ class DialogportenServiceTest : DescribeSpec({
 
             it("should send document to dialogporten with addTransmission and update status to COMPLETED") {
                 // Arrange (already existing dialog)
-                val dialogEntity = dialogEntity().copy(dialogportenId = UUID.randomUUID())
+                val dialogEntity = dialogEntity().copy(dialogportenUUID = UUID.randomUUID())
                 val documentEntity = documentEntity(dialogEntity)
                 val transmissionSlot = slot<Transmission>()
 
@@ -106,10 +105,10 @@ class DialogportenServiceTest : DescribeSpec({
                 // Assert
                 coVerify(exactly = 1) { documentDAO.getDocumentsByStatus(DocumentStatus.RECEIVED) }
                 coVerify(exactly = 0) { dialogportenClient.createDialog(any()) }
-                coVerify(exactly = 1) { dialogportenClient.addTransmission(any(), dialogEntity.dialogportenId!!) }
+                coVerify(exactly = 1) { dialogportenClient.addTransmission(any(), dialogEntity.dialogportenUUID!!) }
                 coVerify(exactly = 1) {
                     documentDAO.update(match {
-                        it.dialog.dialogportenId == dialogEntity.dialogportenId
+                        it.dialog.dialogportenUUID == dialogEntity.dialogportenUUID
                                 && it.status == DocumentStatus.COMPLETED
                                 && it.transmissionId == transmissionSlot.captured.id
                     })
@@ -129,8 +128,8 @@ class DialogportenServiceTest : DescribeSpec({
         context("when there are multiple documents to send") {
             it("should send all documents to dialogporten") {
                 // Arrange
-                val doc1 = documentEntity(dialogEntity().copy(dialogportenId = null))
-                val doc2 = documentEntity(dialogEntity().copy(dialogportenId = null))
+                val doc1 = documentEntity(dialogEntity().copy(dialogportenUUID = null))
+                val doc2 = documentEntity(dialogEntity().copy(dialogportenUUID = null))
                     .copy(type = DocumentType.OPPFOLGINGSPLAN)
                 val dialogId1 = UUID.randomUUID()
                 val dialogId2 = UUID.randomUUID()
@@ -152,7 +151,7 @@ class DialogportenServiceTest : DescribeSpec({
         context("when dialogporten client throws exception") {
             it("should log error and continue without updating document status") {
                 // Arrange
-                val documentEntity = documentEntity(dialogEntity().copy(dialogportenId = null))
+                val documentEntity = documentEntity(dialogEntity().copy(dialogportenUUID = null))
                 coEvery { documentDAO.getDocumentsByStatus(DocumentStatus.RECEIVED) } returns listOf(documentEntity)
                 coEvery { dialogportenClient.createDialog(any()) } throws RuntimeException("Dialogporten error")
 
@@ -169,9 +168,9 @@ class DialogportenServiceTest : DescribeSpec({
         context("when one document fails but others succeed") {
             it("should continue processing remaining documents") {
                 // Arrange
-                val doc1 = documentEntity(dialogEntity().copy(dialogportenId = null))
-                val doc2 = documentEntity(dialogEntity().copy(dialogportenId = null))
-                val doc3 = documentEntity(dialogEntity().copy(dialogportenId = null))
+                val doc1 = documentEntity(dialogEntity().copy(dialogportenUUID = null))
+                val doc2 = documentEntity(dialogEntity().copy(dialogportenUUID = null))
+                val doc3 = documentEntity(dialogEntity().copy(dialogportenUUID = null))
                 val dialogId2 = UUID.randomUUID()
                 val dialogId3 = UUID.randomUUID()
 
@@ -203,7 +202,7 @@ class DialogportenServiceTest : DescribeSpec({
         context("when document has JSON content type") {
             it("should create dialog with correct display name") {
                 // Arrange
-                val documentEntity = documentEntity(dialogEntity().copy(dialogportenId = null))
+                val documentEntity = documentEntity(dialogEntity().copy(dialogportenUUID = null))
                     .copy(contentType = "application/json")
                 val dialogId = UUID.randomUUID()
                 val dialogSlot = slot<Dialog>()
@@ -226,7 +225,7 @@ class DialogportenServiceTest : DescribeSpec({
         context("when document content includes correct resource URN") {
             it("should use nav_syfo_dialog resource") {
                 // Arrange
-                val documentEntity = documentEntity(dialogEntity().copy(dialogportenId = null))
+                val documentEntity = documentEntity(dialogEntity().copy(dialogportenUUID = null))
                 val dialogId = UUID.randomUUID()
                 val dialogSlot = slot<Dialog>()
 
@@ -246,7 +245,7 @@ class DialogportenServiceTest : DescribeSpec({
         context("when document has attachment URL") {
             it("should create correct document link with linkId") {
                 // Arrange
-                val documentEntity = documentEntity(dialogEntity().copy(dialogportenId = null))
+                val documentEntity = documentEntity(dialogEntity().copy(dialogportenUUID = null))
                 val dialogId = UUID.randomUUID()
                 val dialogSlot = slot<Dialog>()
 
@@ -268,7 +267,7 @@ class DialogportenServiceTest : DescribeSpec({
             it("should create 1 dialog and add 2 transmissions") {
                 // Arrange
                 val dialogEntity = dialogEntity().copy(
-                    dialogportenId = null
+                    dialogportenUUID = null
                 )
                 val doc1 = documentEntity(dialogEntity)
                 val doc2 = documentEntity(dialogEntity)
