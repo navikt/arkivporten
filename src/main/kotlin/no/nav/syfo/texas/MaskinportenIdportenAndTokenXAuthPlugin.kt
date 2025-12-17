@@ -18,6 +18,7 @@ import no.nav.syfo.util.logger
 val TOKEN_CONSUMER_KEY = AttributeKey<OrganizationId>("tokenConsumer")
 private val VALID_ISSUERS = listOf(JwtIssuer.MASKINPORTEN, JwtIssuer.TOKEN_X, JwtIssuer.IDPORTEN)
 val MASKINPORTEN_ARKIVPORTEN_SCOPE = "nav:syfo/arkivporten"
+const val MASKINPORTEN_SYFO_DOKUMENTPORTEN_SCOPE = "nav:syfo/dokumentporten"
 private val logger = logger("no.nav.syfo.texas.MaskinportenIdportenAndTokenXAuthPlugin")
 
 val MaskinportenIdportenAndTokenXAuthPlugin = createRouteScopedPlugin(
@@ -56,7 +57,7 @@ val MaskinportenIdportenAndTokenXAuthPlugin = createRouteScopedPlugin(
                     if (introspectionResponse.consumer == null) {
                         throw ApiErrorException.UnauthorizedException("No consumer in token claims")
                     }
-                    if (introspectionResponse.scope != MASKINPORTEN_ARKIVPORTEN_SCOPE) {
+                    if (!(introspectionResponse.scope == MASKINPORTEN_ARKIVPORTEN_SCOPE || introspectionResponse.scope == MASKINPORTEN_SYFO_DOKUMENTPORTEN_SCOPE)) {
                         throw ApiErrorException.UnauthorizedException("Invalid scope from maskinporten")
                     }
                     val systemUserOrganizationId = introspectionResponse.getSystemUserOrganization()

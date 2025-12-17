@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "syfo-dokumentporten",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

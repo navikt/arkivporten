@@ -3,15 +3,18 @@ info:
   title: Arkivporten API
   version: 1.0.0
   description: |
-    Public API for interacting with Arkivporten documents.
+    Public API for interacting with Dokumentporten(Formerly Arkivporten) documents.
     
     This api require authentication with Maskinporten or Idporten Level 4 issued JWT.
 
     The Maskinporten token must be issued to a SystemUser with
-    scope `nav:syfo/arkivporten` and Altinn resources `nav_syfo_oppfolgingsplan` and `nav_syfo_dialogmote`.
+    scope `nav:syfo/dokumentporten` and Altinn resources `nav_syfo_oppfolgingsplan` and `nav_syfo_dialogmote`. We will continue to support `nav:syfo/arkivporten` scope for backward compatibility in dev environment for a while.
+    But we will not support it in production, and we recommend users to use the new scope `nav:syfo/dokumentporten`.
 servers:
-  - url: https://arkivporten.ekstern.dev.nav.no
+  - url: https://syfo-dokumentporten.ekstern.dev.nav.no
     description: Dev environment
+  - url: https://arkivporten.ekstern.dev.nav.no
+    description: Dev environment(OLD)
   - url: http://localhost:8080
     description: Local development
 tags:
@@ -93,7 +96,7 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: Systemuser token from Maskinporten. Using scope nav:syfo/arkivporten and resources `nav_syfo_oppfolgingsplan` and `nav_syfo_dialogmote`.
+      description: Systemuser token from Maskinporten. Using scope `nav:syfo/dokumentporten` and resources `nav_syfo_oppfolgingsplan` and `nav_syfo_dialogmote`. We will support the old scope `nav:syfo/arkivporten ` for a while in dev environment.
     tokenx_jwt:
       type: http
       scheme: bearer

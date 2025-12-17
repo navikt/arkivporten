@@ -11,6 +11,10 @@ spec:
     - https://arkivporten.ekstern.dev.nav.no/api/v1/documents
     - https://arkivporten.ekstern.dev.nav.no/swagger
     - https://arkivporten.ekstern.dev.nav.no/openapi
+    - https://syfo-dokumentporten.intern.dev.nav.no
+    - https://syfo-dokumentporten.ekstern.dev.nav.no/api/v1/documents
+    - https://syfo-dokumentporten.ekstern.dev.nav.no/swagger
+    - https://syfo-dokumentporten.ekstern.dev.nav.no/openapi
   image: {{image}} #
   port: 8080
   liveness:
@@ -66,6 +70,13 @@ spec:
           product: syfo
           separator: "/"
           name: arkivporten
+          atMaxAge: 680
+        - accessibleForAll: true
+          delegationSource: altinn
+          enabled: true
+          product: syfo
+          separator: "/"
+          name: dokumentporten
           atMaxAge: 680
       consumes:
         - name: "digdir:dialogporten.serviceprovider"

@@ -40,6 +40,7 @@ import no.nav.syfo.document.db.DialogDAO
 import no.nav.syfo.document.db.DocumentContentDAO
 import no.nav.syfo.registerApiV1
 import no.nav.syfo.texas.MASKINPORTEN_ARKIVPORTEN_SCOPE
+import no.nav.syfo.texas.MASKINPORTEN_SYFO_DOKUMENTPORTEN_SCOPE
 import no.nav.syfo.texas.client.TexasHttpClient
 import organisasjon
 
@@ -127,6 +128,31 @@ class ExternalDocumentApiTest : DescribeSpec({
                     }
                 }
             }
+            it("should return 200 OK for authorized token for the new scope") {
+                withTestApplication {
+                    // Arrange
+                    val document = documentEntity(dialogEntity())
+                    coEvery { documentDAO.getByLinkId(eq(document.linkId)) } returns document
+                    coEvery { documentContentDAO.getDocumentContentById(eq(document.id)) } returns documentContent()
+                    texasHttpClientMock.defaultMocks(
+                        systemBrukerOrganisasjon = DefaultOrganization.copy(
+                            ID = "0192:${document.dialog.orgNumber}"
+                        ),
+                        scope = MASKINPORTEN_SYFO_DOKUMENTPORTEN_SCOPE,
+                    )
+                    // Act
+                    val response = client.get("api/v1/documents/${document.linkId}") {
+                        bearerAuth(createMockToken(ident = document.dialog.orgNumber))
+                    }
+
+                    // Assert
+                    response.status shouldBe HttpStatusCode.OK
+                    response.headers["Content-Type"] shouldBe document.contentType
+                    coVerify(exactly = 1) {
+                        validationServiceSpy.validateDocumentAccess(any(), eq(document))
+                    }
+                }
+            }
 
             it("should return 200 OK for authorized token from parent org unit") {
                 withTestApplication {
@@ -157,6 +183,34 @@ class ExternalDocumentApiTest : DescribeSpec({
                         documentDAO.update(match {
                             it.isRead == true
                         })
+                    }
+                }
+            }
+
+            it("should return 200 OK for authorized token from parent org unit with new name") {
+                withTestApplication {
+                    // Arrange
+                    val organization = organisasjon()
+                    val document = documentEntity(dialogEntity().copy(orgNumber = organization.organisasjonsnummer))
+                    coEvery { documentDAO.getByLinkId(eq(document.linkId)) } returns document
+                    coEvery { documentContentDAO.getDocumentContentById(eq(document.id)) } returns documentContent()
+                    texasHttpClientMock.defaultMocks(
+                        systemBrukerOrganisasjon = DefaultOrganization.copy(
+                            ID = "0192:${organization.inngaarIJuridiskEnheter!!.first().organisasjonsnummer}"
+                        ),
+                        scope = MASKINPORTEN_SYFO_DOKUMENTPORTEN_SCOPE,
+                    )
+                    fakeEregClient.organisasjoner[document.dialog.orgNumber] = organization
+                    // Act
+                    val response = client.get("api/v1/documents/${document.linkId}") {
+                        bearerAuth(createMockToken(ident = organization.inngaarIJuridiskEnheter.first().organisasjonsnummer))
+                    }
+
+                    // Assert
+                    response.status shouldBe HttpStatusCode.OK
+                    response.headers["Content-Type"] shouldBe document.contentType
+                    coVerify(exactly = 1) {
+                        validationServiceSpy.validateDocumentAccess(any(), eq(document))
                     }
                 }
             }
