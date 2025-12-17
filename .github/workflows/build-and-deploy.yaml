@@ -20,5 +20,5 @@ jobs:
       id-token: write
     secrets: inherit
     with:
-      app: arkivporten
+      app: syfo-dokumentporten
       java-version: '21'

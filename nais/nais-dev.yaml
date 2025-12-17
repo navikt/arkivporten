@@ -1,7 +1,7 @@
 apiVersion: nais.io/v1alpha1
 kind: Application
 metadata:
-  name: arkivporten
+  name: syfo-dokumentporten
   namespace: team-esyfo
   annotations:
     texas.nais.io/enabled: "true"
