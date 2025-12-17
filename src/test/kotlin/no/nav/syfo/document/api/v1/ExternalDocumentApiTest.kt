@@ -133,6 +133,7 @@ class ExternalDocumentApiTest : DescribeSpec({
                     // Arrange
                     val document = documentEntity(dialogEntity())
                     coEvery { documentDAO.getByLinkId(eq(document.linkId)) } returns document
+                    coEvery { documentContentDAO.getDocumentContentById(eq(document.id)) } returns documentContent()
                     texasHttpClientMock.defaultMocks(
                         systemBrukerOrganisasjon = DefaultOrganization.copy(
                             ID = "0192:${document.dialog.orgNumber}"
@@ -192,6 +193,7 @@ class ExternalDocumentApiTest : DescribeSpec({
                     val organization = organisasjon()
                     val document = documentEntity(dialogEntity().copy(orgNumber = organization.organisasjonsnummer))
                     coEvery { documentDAO.getByLinkId(eq(document.linkId)) } returns document
+                    coEvery { documentContentDAO.getDocumentContentById(eq(document.id)) } returns documentContent()
                     texasHttpClientMock.defaultMocks(
                         systemBrukerOrganisasjon = DefaultOrganization.copy(
                             ID = "0192:${organization.inngaarIJuridiskEnheter!!.first().organisasjonsnummer}"
