@@ -93,16 +93,15 @@ spec:
   accessPolicy:
     inbound:
       rules:
-        - application: tokenx-token-generator
-          namespace: nais
-        - application: azure-token-generator
-          namespace: nais
         - application: syfo-oppfolgingsplan-backend
-          namespace: team-esyfo
         - application: isdialogmote
           namespace: teamsykefravr
         - application: syfooppfolgingsplanservice
           cluster: dev-fss
+        - application: tokenx-token-generator
+          namespace: nais
+        - application: azure-token-generator
+          namespace: nais
     outbound:
       rules:
         - application: arbeidsgiver-altinn-tilganger

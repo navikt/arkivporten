@@ -83,7 +83,6 @@ spec:
     inbound:
       rules:
         - application: syfo-oppfolgingsplan-backend
-          namespace: team-esyfo
         - application: isdialogmote
           namespace: teamsykefravr
         - application: syfooppfolgingsplanservice
