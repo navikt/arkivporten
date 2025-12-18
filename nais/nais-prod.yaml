@@ -95,8 +95,6 @@ spec:
         - host: "ereg-services.prod-fss-pub.nais.io"
         - host: "platform.altinn.no"
 
-  kafka:
-    pool: nav-dev
   env:
     - name: EREG_BASE_URL
       value: "https://ereg-services.prod-fss-pub.nais.io"
