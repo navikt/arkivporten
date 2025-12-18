@@ -1,4 +1,4 @@
-# Syfo-dokumentarkivporten
+# Syfo-dokumentporten
 
 This project was created using the [Ktor Project Generator](https://start.ktor.io).
 
@@ -73,7 +73,7 @@ docker-compose \
 ## Authentication for dev
 
 In order to get a token for consumer, you can use the following url:
-https://tokenx-token-generator.intern.dev.nav.no/api/obo?aud=dev-gcp:team-esyfo:arkivporten
+https://tokenx-token-generator.intern.dev.nav.no/api/obo?aud=dev-gcp:team-esyfo:syfo-dokumentporten
 
 Select "på høyt nivå" and give the ident of a user that has access the desired resource in altinn, like the Daglig
 leder for the organisasjonsnummer you want to test with.
@@ -81,6 +81,6 @@ Altinn resources needed
 
 In order to get an azuread token, use the following url:
 Open this in your browser:
-https://azure-token-generator.intern.dev.nav.no/api/m2m?aud=dev-gcp.team-esyfo.arkivporten
+https://azure-token-generator.intern.dev.nav.no/api/m2m?aud=dev-gcp.team-esyfo.syfo-dokumentporten
 Use a login from @trygdeetaten from Ida.
 This will give you a token that can be used to make a request to internal/api/v1/documents
