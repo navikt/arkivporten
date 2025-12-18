@@ -7,14 +7,10 @@ metadata:
     texas.nais.io/enabled: "true"
 spec:
   ingresses:
-    - https://arkivporten.intern.dev.nav.no
-    - https://arkivporten.ekstern.dev.nav.no/api/v1/documents
-    - https://arkivporten.ekstern.dev.nav.no/swagger
-    - https://arkivporten.ekstern.dev.nav.no/openapi
-    - https://syfo-dokumentporten.intern.dev.nav.no
-    - https://syfo-dokumentporten.ekstern.dev.nav.no/api/v1/documents
-    - https://syfo-dokumentporten.ekstern.dev.nav.no/swagger
-    - https://syfo-dokumentporten.ekstern.dev.nav.no/openapi
+    - https://syfo-dokumentporten.intern.nav.no
+    - https://syfo-dokumentporten.ekstern.nav.no/api/v1/documents
+    - https://syfo-dokumentporten.ekstern.nav.no/swagger
+    - https://syfo-dokumentporten.ekstern.nav.no/openapi
   image: {{image}} #
   port: 8080
   liveness:
@@ -29,8 +25,8 @@ spec:
     periodSeconds: 5
     timeout: 5
   replicas:
-    max: 2
-    min: 1
+    max: 4
+    min: 2
     cpuThresholdPercentage: 90
   prometheus:
     enabled: true
@@ -39,8 +35,8 @@ spec:
     limits:
       memory: 512Mi
     requests:
-      cpu: 100m
-      memory: 256Mi
+      cpu: 300m
+      memory: 512Mi
   observability:
     logging:
       destinations:
@@ -51,7 +47,7 @@ spec:
   gcp:
     sqlInstances:
       - type: POSTGRES_17
-        tier: db-f1-micro
+        tier: db-custom-1-3840
         name: syfo-dokumentporten-instance
         collation: nb_NO.UTF8
         databases:
@@ -69,13 +65,6 @@ spec:
           enabled: true
           product: syfo
           separator: "/"
-          name: arkivporten
-          atMaxAge: 680
-        - accessibleForAll: true
-          delegationSource: altinn
-          enabled: true
-          product: syfo
-          separator: "/"
           name: dokumentporten
           atMaxAge: 680
       consumes:
@@ -85,7 +74,7 @@ spec:
     application:
       enabled: true
       allowAllUsers: true
-      tenant: trygdeetaten.no
+      tenant: nav.no
       claims:
         extra:
           - "NAVident"
@@ -97,31 +86,27 @@ spec:
         - application: isdialogmote
           namespace: teamsykefravr
         - application: syfooppfolgingsplanservice
-          cluster: dev-fss
-        - application: tokenx-token-generator
-          namespace: nais
-        - application: azure-token-generator
-          namespace: nais
+          cluster: prod-fss
     outbound:
       rules:
         - application: arbeidsgiver-altinn-tilganger
           namespace: fager
       external:
-        - host: "ereg-services-q1.dev-fss-pub.nais.io"
-        - host: "platform.tt02.altinn.no"
+        - host: "ereg-services.prod-fss-pub.nais.io"
+        - host: "platform.altinn.no"
 
   kafka:
     pool: nav-dev
   env:
     - name: EREG_BASE_URL
-      value: "https://ereg-services-q1.dev-fss-pub.nais.io"
+      value: "https://ereg-services.prod-fss-pub.nais.io"
     - name: ALTINN_TILGANGER_BASE_URL
       value: http://arbeidsgiver-altinn-tilganger.fager
     - name: DIALOGPORTEN_SCOPE
       value: "digdir:dialogporten.serviceprovider"
     - name: ALTINN_3_BASE_URL
-      value: "https://platform.tt02.altinn.no"
+      value: "https://platform.altinn.no"
     - name: PUBLIC_INGRESS_URL
-      value: https://syfo-dokumentporten.ekstern.dev.nav.no
+      value: https://syfo-dokumentporten.ekstern.nav.no
   envFrom:
     - secret: altinn-subscription-key
