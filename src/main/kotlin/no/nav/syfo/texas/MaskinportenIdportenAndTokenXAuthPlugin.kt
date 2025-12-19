@@ -76,7 +76,21 @@ val MaskinportenIdportenAndTokenXAuthPlugin = createRouteScopedPlugin(
                     call.attributes.put(TOKEN_CONSUMER_KEY, introspectionResponse.consumer)
                 }
 
-                JwtIssuer.IDPORTEN,
+                JwtIssuer.IDPORTEN -> {
+                    if (!introspectionResponse.acr.equals("idporten-loa-high", ignoreCase = true)) {
+                        call.application.environment.log.warn("User does not have Level4 access: ${introspectionResponse.acr}")
+                        call.respondNullable(HttpStatusCode.Forbidden)
+                        return@onCall
+                    }
+
+                    if (introspectionResponse.pid == null) {
+                        call.application.environment.log.warn("No pid in token claims")
+                        call.respondNullable(HttpStatusCode.Forbidden)
+                        return@onCall
+                    }
+                    call.authentication.principal(BrukerPrincipal(introspectionResponse.pid, bearerToken))
+                }
+
                 JwtIssuer.TOKEN_X -> {
                     if (!introspectionResponse.acr.equals("Level4", ignoreCase = true)) {
                         call.application.environment.log.warn("User does not have Level4 access: ${introspectionResponse.acr}")
