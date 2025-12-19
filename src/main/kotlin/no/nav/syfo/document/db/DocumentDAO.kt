@@ -2,16 +2,22 @@ package no.nav.syfo.document.db
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.sql.ResultSet
-import java.util.UUID
 import no.nav.syfo.application.database.DatabaseInterface
+import no.nav.syfo.document.api.v1.dto.DialogResponse
+import no.nav.syfo.document.api.v1.dto.DocumentResponse
 import no.nav.syfo.document.api.v1.dto.DocumentType
+import java.sql.ResultSet
 import java.sql.Timestamp
 import java.sql.Types
+import java.time.Instant
+import java.util.*
+import kotlin.math.ceil
 
-private const val SELECT_DOC_WITH_DIALOG_JOIN =
+private const val COUNT_COLUMN_NAME = "total_count"
+
+private fun selectDocWithDialogJoin(useCount: Boolean = false) =
     """
-    SELECT doc.*, 
+    SELECT${if (useCount) " COUNT(*) OVER() as $COUNT_COLUMN_NAME," else ""} doc.*, 
     dialog.id as dialog_pk_id, dialog.title as dialog_title, dialog.summary as dialog_summary, 
     dialog.dialogporten_uuid as dialog_uuid, dialog.fnr, dialog.org_number, dialog.created as dialog_created, 
     dialog.updated as dialog_updated
@@ -126,7 +132,7 @@ class DocumentDAO(private val database: DatabaseInterface) {
             database.connection.use { connection ->
                 connection.prepareStatement(
                     """
-                        $SELECT_DOC_WITH_DIALOG_JOIN
+                        ${selectDocWithDialogJoin()}
                         WHERE doc.id = ?
                         """.trimIndent()
                 ).use { preparedStatement ->
@@ -147,7 +153,7 @@ class DocumentDAO(private val database: DatabaseInterface) {
             database.connection.use { connection ->
                 connection.prepareStatement(
                     """
-                        $SELECT_DOC_WITH_DIALOG_JOIN
+                        ${selectDocWithDialogJoin()}
                         WHERE doc.link_id = ?
                         """.trimIndent()
                 ).use { preparedStatement ->
@@ -168,10 +174,10 @@ class DocumentDAO(private val database: DatabaseInterface) {
             database.connection.use { connection ->
                 connection.prepareStatement(
                     """
-                        $SELECT_DOC_WITH_DIALOG_JOIN
-                        WHERE doc.status = ?
-                        order by doc.created
-                        LIMIT 100
+                        ${selectDocWithDialogJoin()} 
+                        WHERE doc.status = ? 
+                        order by doc.created 
+                        LIMIT 100 
                         """.trimIndent()
                 ).use { preparedStatement ->
                     preparedStatement.setObject(1, status, Types.OTHER)
@@ -185,7 +191,125 @@ class DocumentDAO(private val database: DatabaseInterface) {
             }
         }
     }
+
+    suspend fun findDocumentsByParameters(
+        pageSize: Int,
+        page: Int,
+        orgnumber: String? = null,
+        type: DocumentType? = null,
+        contentType: String? = null,
+        status: DocumentStatus? = null,
+        isRead: Boolean = false,
+        transmissionId: String? = null,
+        createdAfter: Instant? = null,
+        updatedAfter: Instant? = null,
+        createdBefore: Instant? = null,
+        updatedBefore: Instant? = null,
+        dialogId: String? = null,
+        orderBy: Page.OrderBy = Page.OrderBy.CREATED,
+        orderDirection: Page.OrderDirection = Page.OrderDirection.DESC,
+    ): Page<DocumentResponse> {
+        val limitInRange = pageSize.coerceIn(1, Page.MAX_PAGE_SIZE)
+
+        return withContext(Dispatchers.IO) {
+            database.connection.use { connection ->
+                val preparedStatement = SqlFilterBuilder().run {
+                    filterParam("doc.is_read", isRead)
+                    filterParam("doc.type", type)
+                    filterParam("doc.content_type", contentType)
+                    filterParam("doc.status", status)
+                    filterParam("doc.transmission_id", transmissionId)
+                    filterParam("doc.dialog_id", dialogId)
+                    filterParam("dialog.org_number", orgnumber)
+                    filterParam(
+                        "doc.created",
+                        createdAfter,
+                        SqlFilterBuilder.ComparisonOperator.GREATER_THAN
+                    )
+                    filterParam(
+                        "doc.updated",
+                        updatedAfter,
+                        SqlFilterBuilder.ComparisonOperator.GREATER_THAN
+                    )
+                    filterParam(
+                        "doc.created",
+                        createdBefore,
+                        SqlFilterBuilder.ComparisonOperator.LESS_THAN
+                    )
+                    filterParam(
+                        "doc.updated",
+                        updatedBefore,
+                        SqlFilterBuilder.ComparisonOperator.LESS_THAN
+                    )
+
+                    this.orderBy = orderBy
+                    this.limit = pageSize
+                    this.orderDirection = orderDirection
+                    this.offset = page * limitInRange
+
+                    buildStatement(
+                        connection.prepareStatement(
+                            """
+                            ${selectDocWithDialogJoin(true)}
+                            ${buildFilterString()}
+                            """.trimIndent(),
+                            ResultSet.TYPE_FORWARD_ONLY,
+                            ResultSet.CONCUR_READ_ONLY
+                        )
+                    )
+                }
+
+                preparedStatement.use {
+                    val resultSet = it.executeQuery()
+                    var totalCount = 0L
+
+                    val docs = buildList {
+                        if (resultSet.next()) {
+                            // Probably faster to "manually" get the first item to fetch the count, than to use a scrollable ResultSet
+                            totalCount = resultSet.getLong(COUNT_COLUMN_NAME)
+                            add(resultSet.toDocumentResponse())
+
+                            while (resultSet.next()) {
+                                add(resultSet.toDocumentResponse())
+                            }
+                        }
+                    }
+
+                    Page(
+                        page = page,
+                        totalPages = ceil(totalCount.toDouble() / limitInRange).toInt(),
+                        totalElements = totalCount,
+                        pageSize = limitInRange,
+                        items = docs,
+                    )
+                }
+            }
+        }
+    }
 }
+
+fun ResultSet.toDocumentResponse() = DocumentResponse(
+    documentId = getObject("document_id") as UUID,
+    type = DocumentType.valueOf(getString("type")),
+    contentType = getString("content_type"),
+    title = getString("title"),
+    summary = getString("summary"),
+    linkId = getObject("link_id") as UUID,
+    status = DocumentStatus.valueOf(getString("status")),
+    isRead = getBoolean("is_read"),
+    dialog = DialogResponse(
+        title = getString("dialog_title"),
+        summary = getString("dialog_summary"),
+        fnr = getString("fnr"),
+        orgNumber = getString("org_number"),
+        dialogportenUUID = getObject("dialog_uuid") as UUID?,
+        created = getTimestamp("dialog_created").toInstant(),
+        updated = getTimestamp("dialog_updated").toInstant(),
+    ),
+    transmissionId = getObject("transmission_id") as UUID?,
+    created = getTimestamp("created").toInstant(),
+    updated = getTimestamp("updated").toInstant(),
+)
 
 fun ResultSet.toDocumentEntity(withDialog: PersistedDialogEntity? = null): PersistedDocumentEntity =
     PersistedDocumentEntity(
