@@ -19,7 +19,7 @@ import no.nav.syfo.texas.client.TexasHttpClient
 import no.nav.syfo.util.logger
 import org.slf4j.Logger
 
-fun Route.registerExternalDocumentsApiV1(
+fun Route.registerExternalGetDocumentByIdApiV1(
     documentDAO: DocumentDAO,
     documentContentDAO: DocumentContentDAO,
     texasHttpClient: TexasHttpClient,

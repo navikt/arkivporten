@@ -26,7 +26,7 @@ val AddTokenIssuerPluginWithRedirect = createRouteScopedPlugin(
         val bearerToken = call.bearerToken()
         if (bearerToken == null) {
             call.logger().warn("Missing bearer token, redirecting to /ouath2/login")
-            call.respondRedirect("/ouath2/login?redirect=${call.request.path()}")
+            call.respondRedirect("/oauth2/login?redirect=${call.request.path()}")
             return@onCall
         }
         call.setTokenIssuer()
